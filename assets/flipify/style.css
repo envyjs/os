@@ -1,0 +1,20 @@
+@import url("https://dsans.davidstudios.uk/css2.css");
+body {
+    color: white;
+    font-family: "DSans Regular", system-ui,
+      Roboto, Oxygen, Ubuntu, Cantarell, 'Vazirmatn', sans-serif;
+  }
+  button, input {
+    appearance: none;
+    font: inherit;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: #ffffff;
+    background: #1d1e1f;
+    border: 1px solid #2f2f2f;
+    outline: none;
+    cursor: pointer;
+  }
+  button:hover, input:hover {
+    background-color: #1d1e1f;
+  }
