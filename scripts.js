@@ -659,7 +659,7 @@ function flipify() {
     right: 0,
     bottom: 45,
     left: 0,
-    url: "assets/flipify/index.html",
+    url: "https://envyjs.github.io/flipify",
   });
 
   let index = addTaskbarItem(appName, appIcon, wb);
