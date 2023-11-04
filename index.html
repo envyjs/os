@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta property="og:title" content="Envy, the free OS" />
+  <meta property="og:description" content="Envy is an environment for locked down Windows and ChromeOS devices." />
+  <meta property="og:image" content="envywebos.github.io/envy.jpg" />
+  <title>Envy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <audio src="assets/startup.mp3" autoplay></audio>
+  <script src="https://unpkg.com/@ungap/custom-elements-builtin"></script>
+  <script type="module" src="https://unpkg.com/x-frame-bypass"></script>
+  <script type="module">
+    import html from "https://unpkg.com/@datkat21/html";
+    import Gamepad from "./gamepad.app.js";
+    Gamepad.exec({ Lib: { html, setupReturns: _ => undefined } });
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+  <div class="bar">
+    <span style="
+          text-align: left;
+          display: flex;
+          flex-shrink: 0;
+          height: 45px;
+          gap: 6px;
+          align-items: center;
+        ">
+      <img src="start.png" onclick="showBooWindow()" />
+      <input id="searchBox" type="text" name="searchBox" value="" onclick="showotherSearch()" placeholder="Search"
+        style="width:150px" />
+      <img src="icons/tops.png" height="32" width="32" onclick="showDualWindow()" />
+      <img src="icons/term.png" height="32" width="32" onclick="showTelegram()" />
+      <img src="icons/aspen.png" height="32" width="32" onclick="aspenplus()" />
+    </span>
+    <div class="bar-placeholder" style="display:flex;overflow-x:auto"></div>
+    <span style="
+          text-align: center;
+          flex-shrink: 0;
+          display: flex;
+          height: 45px;
+          gap: 6px;
+          align-items: center;
+          margin-left: auto;
+        ">
+
+      <!-- <div id="google_translate_element"></div> -->
+      <h3>
+        <div id="clock" style="display: flex; justify-content: center; align-items: center"></div>
+      </h3>
+    </span>
+  </div>
+  <div id="contextMenu" class="context-menu" style="display: none">
+    <a onclick="displaypanel()">Display settings</a>
+    <a onclick="location.reload()">Refresh</a>
+  </div>
+  <div class="hidden">
+    <div id="Teresa">
+      <center>
+        <br />
+        <img src="icons/lock.png" width="32" height="32" onclick="showlock()" /><br>
+        <img src="icons/info.png" onclick="showAboutWindow()" /><br>
+        <img src="icons/setting.png" onclick="showSettingsWindow()" /><br>
+        <img src="icons/shop.png" height="48" width="48" onclick="showstore()" /><br>
+        <img src="icons/wttr.png" onclick="showWeather()" /><br>
+        <img src="icons/widget.png" onclick="widgetinit()" /><br>
+        <img src="https://cdn3.iconfinder.com/data/icons/social-network-30/512/social-06-512.png" height="48" width="48"
+          onclick="showInvidious()" /><br>
+      </center>
+    </div>
+    <div id="teresasearch">
+      <iframe src="https://www.google.com/webhp?igu=1"></iframe>
+    </div>
+    <div id="teresalock">
+      <style>
+        #teresalock {
+          background-image: url("wp2.jpg");
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          background-repeat: no-repeat;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+        }
+      </style>
+      <script>
+        function UpdateTime() {
+          let x = new Date();
+          let hours = x.getHours().toString().padStart(2, "0"); // 18
+          let minutes = x.getMinutes().toString().padStart(2, "0"); // 37
+          let timeString = `${hours}:${minutes}`; // example: 18:37
+          let elements = document.querySelectorAll("#time");
+          elements.forEach(function (elm) {
+            if (elm === undefined || elm === null) return;
+            elm.innerText = timeString;
+          });
+        }
+        UpdateTime();
+        setInterval(UpdateTime, 1000); // 60000ms -> 60 sec/1 min delay
+        // Delete lockscreen func.
+
+        function RemoveLockScreen() {
+          let element = document.querySelector(".winbox #teresalock");
+          if (element) element = element.closest(".winbox").remove();
+        }
+      </script>
+
+      <center>
+        <h1 style="font-size: 72px; margin-bottom: 0" id="time">00:00</h1>
+        <h2>This system is locked.</h2>
+        <!-- 00:00 is fallback time incase it breaks -->
+      </center>
+      <br />
+      <center><img src=icons/lock.png onclick="RemoveLockScreen()"></center>
+    </div>
+    <div id="teresadual">
+      <center>
+        <br />
+        <img src="icons/tops.png" onclick="showDualWindow()" />
+        <img src="icons/term.png" onclick="showTelegram()" />
+      </center>
+    </div>
+    <div id="TeresaZwei">
+      <center>
+        <br>
+        <img src="icons\shop.png" height="48" width="48">
+        <h2>Welcome to the Envy Store</h2>
+        <h3>New to Envy</h3>
+        <button onclick="id2()">Localhost Viewer</button>
+        <button onclick="id1()">Piskel for Envy</button>
+        <button onclick="id9()">Maps (Beta)</button>
+        <h3>Envy Testing apps</h3>
+        <button onclick="id6()">Calculator</button>
+        <button onclick="files()">File Explorer</button>
+        <h3>Remember Envy4?</h3>
+        <button onclick="id8()">Legacy Notepad</button>
+        <button onclick="id7()">Virtual x86</button>
+        <h3>Gaming just got easier!</h3>
+        <button onclick="id4()">Eaglercraft</button>
+        <button onclick="id5()">Resent Client</button>
+      </center>
+    </div>
+    <div id="TeresaMark">
+      <center>
+        <button onclick="history.back()">&lt;</button>
+        <input type="text" placeholder="Enter your URL">
+        <button>Go ></button>
+        <button onclick="history.forward()">&gt;</button>
+      </center>
+      <iframe id="myIframe" src="https://www.google.com/webhp?igu=1"></iframe>
+    </div>
+    <div id="teresadrei">
+      <center>
+        <h2>Select a widget</h2>
+        <img src="icons/aspen.png" height="48" width="48" onclick="widgetgallery()" />
+      </center>
+    </div>
+    <div id="teresaoobe">
+      <style>
+        #teresaoobe {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+          background: rgb(131, 58, 180);
+          background: linear-gradient(45deg, rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%);
+        }
+      </style>
+      <script>
+        function nosetup() {
+          let element = document.querySelector(".winbox #teresaoobe");
+          if (element) element = element.closest(".winbox").remove();
+          new WinBox({
+            title: "Welcome to Envy",
+            class: ["no-max", "no-min", "no-close", "eclipsemono"],
+            x: "center",
+            y: "center",
+            width: "50%",
+            height: "75%",
+            header: 0,
+            top: 0,
+            right: 0,
+            bottom: 45,
+            left: 0,
+            modal: true,
+            mount: document.getElementById("stage2").cloneNode(true),
+          });
+        }
+      </script>
+      <center>
+        <img src="boo.png" height="64" width="64">
+        <h2>Welcome to Envy.</h2>
+        <h3>We think you'll love it here.</h3>
+        <button onclick="nosetup()">Let's start</button><br><br>
+        <img src="icons/access.png" onclick="accesspanel()" />
+      </center>
+    </div>
+    <div id="stage2">
+      <style>
+        #stage2 {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+          background: rgb(131, 58, 180);
+          background: linear-gradient(45deg, rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%);
+        }
+      </style>
+      <script>
+        function skipsetup() {
+          let element = document.querySelector(".winbox #stage2");
+          if (element) element = element.closest(".winbox").remove();
+        }
+        function zeonsetup() {
+          let element = document.querySelector(".winbox #stage2");
+          if (element) element = element.closest(".winbox").remove();
+          new WinBox({
+            title: "Welcome to Envy",
+            class: ["no-max", "no-min", "no-close", "eclipsemono"],
+            x: "center",
+            y: "center",
+            width: "50%",
+            height: "75%",
+            header: 0,
+            top: 0,
+            right: 0,
+            bottom: 45,
+            left: 0,
+            modal: true,
+            mount: document.getElementById("zeonsetup").cloneNode(true),
+          });
+        }
+      </script>
+      <center>
+        <img src="assets/zeon.png" style="border-radius: 10px;" height="64" width="64">
+        <h2>Do you want to login with Zeon?</h2>
+        <button onclick="zeonsetup()">Yes</button>
+        <button onclick="skipsetup()">Skip</button>
+      </center>
+    </div>
+    <div id="zeonsetup">
+      <style>
+        #zeonsetup {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+          background: rgb(131, 58, 180);
+          background: linear-gradient(45deg, rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%);
+        }
+      </style>
+      <script>
+        function finishzeonsetup() {
+          let element = document.querySelector(".winbox #zeonsetup");
+          if (element) element = element.closest(".winbox").remove();
+        }
+        function backtostage2() {
+          let element = document.querySelector(".winbox #zeonsetup");
+          if (element) element = element.closest(".winbox").remove();
+          nosetup()
+        }
+      </script>
+      <center>
+        <img src="assets/zeon.png" style="border-radius: 10px;" height="64" width="64">
+        <h2>Sign into Zeon</h2>
+        <button onclick="zeoniframe()">Don't have a Zeon account?</button><br><br>
+        <input id="zuser" type="text" placeholder="Username"><br><br>
+        <input id="zpass" type="password" placeholder="Password"><br><br>
+        <button onclick="oobelogin()">Go!</button>
+        <button onclick="backtostage2()">Back</button>
+      </center>
+    </div>
+    <div id="aspenplus">
+      <center>
+        <br>
+        <b style="margin-right: 10px;">Aspen Network </b>
+        <button onclick="id3()">Browser</button><button onclick="flipify()">Flipify</button>
+        <br>
+        <h2>Welcome to the Aspen Network</h2>
+        
+      </center>
+    </div>
+    <div id="about">
+      <center>
+        <br />
+        <img src="boo.png" width="70" height="70" /><img />
+        <h1>Envy</h1>
+        <h3>System 6.0 Premier Edition</h3>
+        <script>
+          var nVer = navigator.appVersion;
+          var nAgt = navigator.userAgent;
+          var browserName = navigator.appName;
+          var fullVersion = "" + parseFloat(navigator.appVersion);
+          var majorVersion = parseInt(navigator.appVersion, 10);
+          var nameOffset, verOffset, ix;
+          // In Opera, the true version is after "OPR" or after "Version"
+          if ((verOffset = nAgt.indexOf("OPR")) != -1) {
+            browserName = "Opera";
+            fullVersion = nAgt.substring(verOffset + 4);
+            if ((verOffset = nAgt.indexOf("Version")) != -1)
+              fullVersion = nAgt.substring(verOffset + 8);
+          }
+          // In MS Edge, the true version is after "Edg" in userAgent
+          else if ((verOffset = nAgt.indexOf("Edg")) != -1) {
+            browserName = "Microsoft Edge";
+            fullVersion = nAgt.substring(verOffset + 4);
+          }
+          // In MSIE, the true version is after "MSIE" in userAgent
+          else if ((verOffset = nAgt.indexOf("MSIE")) != -1) {
+            browserName = "Microsoft Internet Explorer";
+            fullVersion = nAgt.substring(verOffset + 5);
+          }
+          // In Chrome, the true version is after "Chrome"
+          else if ((verOffset = nAgt.indexOf("Chrome")) != -1) {
+            browserName = "Chrome";
+            fullVersion = nAgt.substring(verOffset + 7);
+          }
+          // In Safari, the true version is after "Safari" or after "Version"
+          else if ((verOffset = nAgt.indexOf("Safari")) != -1) {
+            browserName = "Safari";
+            fullVersion = nAgt.substring(verOffset + 7);
+            if ((verOffset = nAgt.indexOf("Version")) != -1)
+              fullVersion = nAgt.substring(verOffset + 8);
+          }
+          // In Firefox, the true version is after "Firefox"
+          else if ((verOffset = nAgt.indexOf("Firefox")) != -1) {
+            browserName = "Firefox";
+            fullVersion = nAgt.substring(verOffset + 8);
+          }
+          // In most other browsers, "name/version" is at the end of userAgent
+          else if (
+            (nameOffset = nAgt.lastIndexOf(" ") + 1) <
+            (verOffset = nAgt.lastIndexOf("/"))
+          ) {
+            browserName = nAgt.substring(nameOffset, verOffset);
+            fullVersion = nAgt.substring(verOffset + 1);
+            if (browserName.toLowerCase() == browserName.toUpperCase()) {
+              browserName = navigator.appName;
+            }
+          }
+          // trim the fullVersion string at semicolon/space if present
+          if ((ix = fullVersion.indexOf(";")) != -1)
+            fullVersion = fullVersion.substring(0, ix);
+          if ((ix = fullVersion.indexOf(" ")) != -1)
+            fullVersion = fullVersion.substring(0, ix);
+
+          majorVersion = parseInt("" + fullVersion, 10);
+          if (isNaN(majorVersion)) {
+            fullVersion = "" + parseFloat(navigator.appVersion);
+            majorVersion = parseInt(navigator.appVersion, 10);
+          }
+          document.write("Backend Version " + fullVersion)
+        </script>
+        <p>App Database v8.3</p>
+        <button onclick="shownet()">About Aspen Network</button><br><br>
+        <button onclick="showlog()">Credits</button>
+      </center>
+    </div>
+
+    <div id="files">
+      <center id="filelist">
+        <a onclick="chooseFolder()">Folder options</a>
+        <br>
+        <button>&lt;</button><input type="text" placeholder="Address bar"><button>&gt;</button>
+      </center>
+    </div>
+    <div id="log">
+      <center>
+        <br />
+        <img src="boo.png" width="64" height="64" /><img />
+        <h1>Credits</h1>
+        <p>
+          <b>This site uses the
+            <a href="http://dsans.davidstudios.uk/">DSans font.</a></b>
+        </p>
+      </center>
+    </div>
+    <div id="net">
+      <center>
+        <br />
+        <img src="icons/aspen.png" width="64" height="64" /><img />
+        <h2>About Aspen Network</h2>
+        <p>Aspen Browser v1.1</p>
+        <p>Aspen Flipify v0.2</p>
+        <p>Aspen Network Launcher v1.5</p>
+        <p>Aspen Quick Launch v1</p>
+      </center>
+    </div>
+    <div id="cc">
+      <center>
+        <img src="assets\banner.png" width="100%">
+        <br><br>
+        <img src="icons/access.png" onclick="accesspanel()" />
+        <img src="icons/backup.png" onclick="backuppanel()" />
+        <img src="icons/game.png" onclick="transpanel()" />
+        <img src="icons/display.png" onclick="displaypanel()" />
+        <img src="icons/ext.png" onclick="duallink()" />
+        <img src="icons/user.png" onclick="userpanel()" />
+      </center>
+    </div>
+    <div id="ccaccess">
+      <center>
+        <br />
+        <h2>Accessbility</h2>
+        <button>Enable OpenDyslexic font</button><br><br>
+        <button>High contrast themes</button>
+      </center>
+    </div>
+    <div id="ccbackup">
+      <center>
+        <br />
+        <h2>Backup and reset</h2>
+        <button>Backup your system</button><br><br>
+        <button onclick="resetconfirm()">Reset your system</button>
+      </center>
+    </div>
+    <div id="ccdisplay">
+      <center>
+        <br />
+        <h2>Envy themes</h2>
+        <button onclick="dark()">Dark (default)</button>
+        <button onclick="light()">Light</button>
+        <h2>Wallpapers</h2>
+        <button onclick="urlbox()">Type in an image URL</button><br />
+        <h2>Taskbar colors</h2>
+        <button onclick="colorbox()">Choose a color</button><br />
+        <h2>Window colors</h2>
+        <button onclick="winboxbox()">Choose a window color</button><br />
+      </center>
+    </div>
+    <div id="urlbox">
+      <center>
+        <br />
+        <h2>Type in your URL</h2>
+        <input type="text" id="newid" />
+        <button onclick="setWallpaper()">Apply</button>
+      </center>
+    </div>
+    <div id="colorbox">
+      <center>
+        <br />
+        <h2>Select your color</h2>
+        <button onclick="changetaskbarcolor('#992d1f')">Red</button>
+        <button onclick="changetaskbarcolor('#99661f')">Orange</button>
+        <button onclick="changetaskbarcolor('#1f993d')">Green</button>
+        <button onclick="changetaskbarcolor('#0b2247')">Blue</button>
+        <br>
+        <button onclick="changetaskbarcolor('#210b38')">Purple</button>
+        <button onclick="changetaskbarcolor('#000000')">Black</button>
+        <br>
+      </center>
+    </div>
+    <div id="winboxbox">
+      <center>
+        <br />
+        <h2>Select your window color</h2>
+        <button onclick="setWinboxColor('#992d1f')">Red</button>
+        <button onclick="setWinboxColor('#99661f')">Orange</button>
+        <button onclick="setWinboxColor('#1f993d')">Green</button>
+        <button onclick="setWinboxColor('#0b2247')">Blue</button>
+        <br>
+        <button onclick="setWinboxColor('#210b38')">Purple</button>
+        <button onclick="setWinboxColor('#000000')">Black</button>
+        <br>
+      </center>
+    </div>
+    <div id="viewww">
+      <center>
+        <br />
+        <button>Controller extension (Installed by system)</button>
+      </center>
+    </div>
+    <div id="addextension">
+      <center>
+        <br />
+        <input type="text" placeholder="Type a filename">
+        <button>Add</button>
+      </center>
+    </div>
+    <div id="duallink">
+      <center>
+        <br />
+        <h2>Extensions</h2>
+        <button onclick="extensionview()">View installed extensions</button><br><br>
+        <button onclick="addextension()">Apply an extension to your system</button>
+      </center>
+    </div>
+    <div id="cctrans">
+      <center>
+        <br />
+        <h2>Controllers</h2>
+        <h3>Please type in your speed below:</h3>
+        <input type="text" placeholder="1 - 20">
+      </center>
+    </div>
+    <div id="ccuser">
+      <center>
+        <br />
+        <h2>Change or create a user</h2>
+        <span id="loginStatus"></span><br><br>
+        <button onclick="envynet()">Use a Zeon account</button><br><br>
+        <button onclick="logout()">Log out of your Zeon account</button><br><br>
+        <button>Manage your Zeon account</button>
+      </center>
+    </div>
+    <div id="envynet">
+      <center>
+        <br />
+        <h2>Sign into Zeon</h2>
+        <button onclick="zeoniframe()">Don't have a Zeon account?</button><br><br>
+        <input id="zuser" type="text" placeholder="Username"><br><br>
+        <input id="zpass" type="password" placeholder="Password"><br><br>
+        <button onclick="loginGUI()">Go!</button>
+      </center>
+    </div>
+    <div id="zeonerr">
+      <center>
+        <br />
+        <img src="icons/info.png">
+        <h3>Some information you entered is incorrect. Please try again.</h3>
+      </center>
+    </div>
+    <div id="zeonsuccess">
+      <center>
+        <br />
+        <img src="icons/info.png">
+        <h2 id="zwelcomename"></h2>
+        <h3>Welcome back!</h3>
+      </center>
+    </div>
+    <div id="err">
+      <center>
+        <br />
+        <img src="icons/info.png" width="64" height="64" /><img />
+        <!-- May replace info icon with an error icon/SVG (David)-->
+        <h1>Oops!</h1>
+        <p>It seems like Envy has encountered an error. Please ignore this unless you have seen this multiple times.</p>
+      </center>
+    </div>
+    <div id="resetconfirm">
+      <script>
+        function noreset() {
+          let element = document.querySelector(".winbox #resetconfirm");
+          if (element) element = element.closest(".winbox").remove();
+        }
+        function yesreset() {
+          let element = document.querySelector(".winbox #resetconfirm");
+          if (element) element = element.closest(".winbox").remove();
+          resetinit()
+        }
+      </script>
+      <center>
+        <br />
+        <img src="icons/info.png" width="64" height="64" /><img />
+        <h1>Woah!</h1>
+        <p>Are you sure you want to reset your system?</p>
+        <button onclick="yesreset()">Yes</button><button onclick="noreset()">No</button>
+      </center>
+    </div>
+    <div id="resetinit">
+      <center>
+        <br />
+        <img src="icons/info.png" width="64" height="64" /><img />
+        <h1>Resetting system...</h1>
+        <h3>Do not exit this page.</h3>
+
+      </center>
+    </div>
+    <div id="widgallery">
+      <center>
+        <h4>Quick Dial</h4>
+        <button onclick="id3()">Aspen Browser</button><br>
+        <button onclick="flipify()">Aspen Flipify</button>
+      </center>
+    </div>
+  </div>
+  <script src="winbox.bundle.min.js"></script>
+  <script src="scripts.js"></script>
+  <script src="zeon.js"></script>
+  <script src="storeid.js"></script>
+
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        { pageLanguage: 'en' },
+        'google_translate_element'
+      );
+    }
+  </script>
+
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?
+cb=googleTranslateElementInit">
+</script>
+
+  <script></script>
+</body>
+
+</html>
