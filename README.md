@@ -13,9 +13,8 @@ Via [https://envyjs.github.io/os](https://envyjs.github.io/os).
   
   * Alpine Linux *(via JS/Linux!)*
   * Basic gaming (Anything HTML5/js)
-  * Browse the web, with Project Aspen!
-  * Customize itself, with wallpapers!
-  * Discord *(via Discross!)*
+  * Browse the web!
+  * Customize itself!
   * Get new apps with the Envy Store!
   * x86 Emulation! 
 
