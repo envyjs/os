@@ -135,6 +135,38 @@ function id9() {
   let appName = "Maps (Beta)",
     appIcon = "https://static.vecteezy.com/system/resources/previews/016/716/478/original/google-maps-icon-free-png.png";
 
+  function DS_Login() {
+   new WinBox({
+    title: "DS Login",
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "30%",
+    height: "70%",
+    top: 0,
+    right: 0,
+    bottom: 45,
+    left: 0,
+    url: "https://login.davidstudios.uk",
+  });
+  }
+
+  function id10() {
+   new WinBox({
+    title: "Word Game",
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "36%",
+    height: "65%",
+    top: 0,
+    right: 0,
+    bottom: 45,
+    left: 0,
+    url: "https://wordgame.davidstudios.uk/?src=envywbos&iframe=true",
+  });
+  }
+
   let wb = new WinBox({
     title: appName,
     icon: appIcon,
