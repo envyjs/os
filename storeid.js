@@ -135,6 +135,24 @@ function id9() {
   let appName = "Maps (Beta)",
     appIcon = "https://static.vecteezy.com/system/resources/previews/016/716/478/original/google-maps-icon-free-png.png";
 
+    let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
+    class: ["no-title", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "50%",
+    height: "50%",
+    top: 0,
+    right: 0,
+    bottom: 45,
+    left: 0,
+    url: "https://maps.google.com/maps?width=100%25&amp;height=200&amp;hl=en&amp;q=1+()&amp;t=&amp;z=1&amp;ie=UTF8&amp;iwloc=B&amp;output=embed",
+  });
+
+  let index = addTaskbarItem(appName, appIcon, wb);
+}
+
   function DS_Login() {
    new WinBox({
     title: "DS Login",
