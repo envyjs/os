@@ -107,7 +107,7 @@ body {
   left: 0;
   right: 0;
   width: 100%;
-  opacity: 1.0;
+  opacity: 0.9;
   background-color: #000000;
   display: flex;
   align-items: center;
