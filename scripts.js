@@ -950,7 +950,7 @@ function resetconfirm() {
     x: "center",
     y: "center",
     width: "20%",
-    height: "40%",
+    height: "45%",
     header: 0,
     top: 0,
     right: 0,
