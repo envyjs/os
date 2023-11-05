@@ -151,6 +151,22 @@ function id9() {
   });
   }
 
+  function id10() {
+   new WinBox({
+    title: "Word Game",
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "36%",
+    height: "65%",
+    top: 0,
+    right: 0,
+    bottom: 45,
+    left: 0,
+    url: "https://wordgame.davidstudios.uk/?src=envywbos&iframe=true",
+  });
+  }
+
   let wb = new WinBox({
     title: appName,
     icon: appIcon,
