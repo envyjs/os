@@ -152,3 +152,19 @@ function id9() {
 
   let index = addTaskbarItem(appName, appIcon, wb);
 }
+
+function id10() {
+  new WinBox({
+    title: "Word Game",
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "50%",
+    height: "50%",
+    top: 0,
+    right: 0,
+    bottom: 45,
+    left: 0,
+    url: "https://wordgame.davidstudios.uk/?src=envywbos&iframe=true",
+  });
+}
