@@ -978,6 +978,7 @@ function resetinit() {
     mount: document.getElementById("resetinit").cloneNode(true),
   });
   localStorage.clear()
+  logout()
   location.reload()
 }
 
