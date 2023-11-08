@@ -1,38 +1,46 @@
-@import url("https://dsans.davidstudios.uk/css2.css");
-
-
+/*** The font named 'Not DSans' is Product Sans, the font by Google. ***/
 @font-face {
-  font-family: 'opendyslexic';
-	src: url('http://dyslexicfonts.com/fonts/OpenDyslexic-Regular.otf');
-	font-style: normal;
-	font-weight: normal;
-} 
-
+  font-family: "Not DSans";
+  src: url("/assets/NotDSans-Regular.ttf") format("woff2");
+}
 @font-face {
-	font-family: 'opendyslexic';
-	src: url('http://dyslexicfonts.com/fonts/OpenDyslexic-Italic.ttf');
-	font-style: italic;
-	font-weight: normal;
+  font-family: "Not DSans";
+  font-weight: bold;
+  src: url("/assets/NotDSans-Bold.ttf") format("woff2");
 }
 
 @font-face {
-	font-family: 'opendyslexic';
-	src: url('http://dyslexicfonts.com/fonts/OpenDyslexic-Bold.ttf');
-	font-weight: bold;
-	font-style: normal;
-} 
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Regular.otf");
+  font-style: normal;
+  font-weight: normal;
+}
 
 @font-face {
-	font-family: 'opendyslexic';
-	src: url('http://dyslexicfonts.com/fonts/OpenDyslexic-BoldItalic.ttf');
-	font-weight: bold;
-	font-style: italic;
-} 
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Italic.ttf");
+  font-style: italic;
+  font-weight: normal;
+}
 
 @font-face {
-	font-family: eulexia;
-	src: url('http://dyslexicfonts.com/fonts/eulexia.ttf');
-} 
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: eulexia;
+  src: url("http://dyslexicfonts.com/fonts/eulexia.ttf");
+}
 
 :root[data-theme="dark"] {
   --text-color: #ffffff;
@@ -55,8 +63,13 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text-color);
-  font-family: "DSans Regular", system-ui, 'opendyslexic', sans-serif;
+  font-family: "Not DSans", Roboto, Oxygen, Ubuntu, Cantarell, "opendyslexic", sans-serif;
 }
+
+.wb-title {
+  font-family: "Not DSans";
+}
+
 * {
   box-sizing: border-box;
 }
@@ -75,9 +88,9 @@ body {
 .wb-full {
   display: none;
   background-color: var(--bg-color);
-  
-  backdrop-filter: blur(30px);
-  
+
+  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
 }
 .winbox.eclipsemono {
   background: var(--bg-color-darker);
@@ -154,7 +167,8 @@ body {
   background-color: #1d1e1f;
 }
 
-button, input {
+button,
+input {
   appearance: none;
   font: inherit;
   padding: 6px 12px;
@@ -165,7 +179,8 @@ button, input {
   outline: none;
   cursor: pointer;
 }
-button:hover, input:hover {
+button:hover,
+input:hover {
   background-color: #1d1e1f;
 }
 select {
@@ -177,9 +192,7 @@ select {
   border: 1px solid #2f2f2f;
   outline: none;
   cursor: pointer;
-
 }
 select:hover {
   background-color: #1d1e1f;
 }
-
