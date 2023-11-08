@@ -1,5 +1,6 @@
 @import url("https://dsans.davidstudios.uk/css2.css");
 
+
 @font-face {
   font-family: 'opendyslexic';
 	src: url('http://dyslexicfonts.com/fonts/OpenDyslexic-Regular.otf');
@@ -54,8 +55,7 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text-color);
-  font-family: "DSans Regular", system-ui,
-    Roboto, Oxygen, Ubuntu, Cantarell, 'Vazirmatn', 'opendyslexic', sans-serif;
+  font-family: "DSans Regular", system-ui, 'opendyslexic', sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -75,8 +75,8 @@ body {
 .wb-full {
   display: none;
   background-color: var(--bg-color);
-  -webkit-backdrop-filter: blur(25px);
-  backdrop-filter: blur(25px);
+  
+  backdrop-filter: blur(30px);
   
 }
 .winbox.eclipsemono {
