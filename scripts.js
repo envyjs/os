@@ -163,7 +163,7 @@ function showInvidious() {
     right: 0,
     bottom: 45,
     left: 0,
-    url: "https://youtube.com/",
+    url: "https://ivp.cherries.to/",
   });
 
   addTaskbarItem(appName, appIcon, wb);
