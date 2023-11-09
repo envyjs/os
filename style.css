@@ -1,13 +1,4 @@
-/*** The font named 'Not DSans' is Product Sans, the font by Google. ***/
-@font-face {
-  font-family: "Not DSans";
-  src: url("./assets/NotDSans-Regular.ttf") format("woff2");
-}
-@font-face {
-  font-family: "Not DSans";
-  font-weight: bold;
-  src: url("./assets/NotDSans-Bold.ttf") format("woff2");
-}
+@import URL('dsans.davidstudios.uk/css2.css')
 
 @font-face {
   font-family: "opendyslexic";
