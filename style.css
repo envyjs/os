@@ -79,8 +79,6 @@ body {
 .wb-full {
   display: none;
   background-color: var(--bg-color);
-
-  -webkit-backdrop-filter: blur(25px);
   backdrop-filter: blur(25px);
 }
 .winbox.eclipsemono {
