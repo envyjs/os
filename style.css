@@ -54,11 +54,11 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text-color);
-  font-family: "Not DSans", Roboto, Oxygen, Ubuntu, Cantarell, "opendyslexic", sans-serif;
+  font-family: "DSans Regular", Roboto, Oxygen, Ubuntu, Cantarell, "opendyslexic", sans-serif;
 }
 
 .wb-title {
-  font-family: "Not DSans";
+  font-family: "DSans Regular";
 }
 
 * {
