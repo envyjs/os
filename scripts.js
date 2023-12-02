@@ -133,7 +133,7 @@ function removeTaskbarIem(index) {
 
 new WinBox({
   title: "Welcome to Envy",
-  class: ["no-min", "no-max", "no-close", "eclipsemono"],
+  class: ["no-min", "no-max", "eclipsemono"],
   x: "center",
   y: "center",
   width: "50%",
