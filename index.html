@@ -180,28 +180,13 @@
         function nosetup() {
           let element = document.querySelector(".winbox #teresaoobe");
           if (element) element = element.closest(".winbox").remove();
-          new WinBox({
-            title: "Welcome to Envy",
-            class: ["no-max", "no-min", "no-close", "eclipsemono"],
-            x: "center",
-            y: "center",
-            width: "50%",
-            height: "75%",
-            header: 0,
-            top: 0,
-            right: 0,
-            bottom: 45,
-            left: 0,
-            modal: true,
-            mount: document.getElementById("stage2").cloneNode(true),
-          });
-        }
       </script>
       <center>
         <img src="boo.png" height="64" width="64">
-        <h2>Welcome to Envy.</h2>
-        <h3>We think you'll love it here.</h3>
-        <button onclick="nosetup()">Let's start</button><br><br>
+        <h2>Hey!</h2>
+        <h3>Envy is being updated soon!</h3>
+        <img src="vnext.png" height="200" width="400">
+        <button onclick="nosetup()">OK</button><br><br>
         <img src="icons/access.png" onclick="accesspanel()" />
       </center>
     </div>
