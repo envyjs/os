@@ -8,7 +8,7 @@ function id1() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://www.piskelapp.com/p/create/sprite",
   });
@@ -24,7 +24,7 @@ function id2() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "http://localhost:3000",
   });
@@ -32,10 +32,10 @@ function id2() {
 
 function id3() {
   let appName = "Aspen Browser",
-    appIcon = "icons/aspen.png";
+    appIcon = "icons/aspen.webp";
   let wb = new WinBox({
     title: appName,
-    icon: "icons/aspen.png",
+    icon: "icons/aspen.webp",
     class: ["eclipsemono"],
     x: "center",
     y: "center",
@@ -43,7 +43,7 @@ function id3() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("TeresaMark").cloneNode(true),
   });
@@ -61,7 +61,7 @@ function id4() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://eaglercraft.com/",
   });
@@ -77,7 +77,7 @@ function id5() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://reslauncher.vercel.app/",
   });
@@ -93,7 +93,7 @@ function id6() {
     height: "70%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "http://freshman-calculator.surge.sh/",
   });
@@ -109,7 +109,7 @@ function id7() {
     height: "70%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://copy.sh/v86/",
   });
@@ -125,7 +125,7 @@ function id8() {
     height: "70%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://zen.unit.ms/",
   });
@@ -133,7 +133,7 @@ function id8() {
 
 function id9() {
   let appName = "Maps (Beta)",
-    appIcon = "https://static.vecteezy.com/system/resources/previews/016/716/478/original/google-maps-icon-free-png.png";
+    appIcon = "icons/maps.webp";
 
   let wb = new WinBox({
     title: appName,
@@ -145,9 +145,9 @@ function id9() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
-    url: "https://maps.google.com/maps?width=100%25&amp;height=200&amp;hl=en&amp;q=1+()&amp;t=&amp;z=1&amp;ie=UTF8&amp;iwloc=B&amp;output=embed",
+    url: "https://maps.google.com/maps?width=100%25&amp;height=200&amp;hl=en&amp;q=1+()&amp;t=&amp;z=1&amp;ie=UTF8&amp;iwloc=B&amp;output=embe",
   });
 
   let index = addTaskbarItem(appName, appIcon, wb);
@@ -163,8 +163,24 @@ function id10() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
-    url: "https://davidtdc3377.github.io?src=envywbos&iframe=true",
+    url: "https://wordgame.davidstudios.uk/?src=envywbos&iframe=true",
+  });
+}
+
+function id11() {
+  new WinBox({
+    title: "Word Game",
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "50%",
+    height: "50%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    url: "https://dos.zone/",
   });
 }

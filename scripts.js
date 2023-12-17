@@ -8,6 +8,60 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// Define a variable to keep track of WiFi WinBox status
+var isTeresaOpen = false;
+var teresaMenu = null; // Variable to store the WinBox instance
+
+// Function to show or close the WiFi WinBox
+function openTeresa() {
+  // Check if Teresa WinBox is already open
+  if (isTeresaOpen) {
+    // Close the Teresa WinBox if it's already open
+    closeTeresa();
+  } else {
+    // Open the Teresa WinBox
+    teresaBox = new WinBox({
+      title: " ",
+      class: [
+        "no-max",
+        "no-min",
+        "no-close",
+        "no-title",
+        "eclipselock",
+        "noshadow",
+      ],
+      x: "15",
+      y: "bottom",
+      width: "30%",
+      height: "46%",
+      // top: 0,
+      bottom: 70,
+      // left: 15,
+      mount: document.getElementById("Teresa").cloneNode(true),
+      onclose: function () {
+        // Set the WiFi WinBox status to closed when it's closed
+        isTeresaOpen = false;
+      },
+    });
+
+    // Set the teresa WinBox status to open
+    isTeresaOpen = true;
+  }
+}
+
+function closeTeresa() {
+  // Check if the teresa WinBox is open before closing
+  if (teresaBox) {
+    // Close the teresa WinBox
+    teresaBox.close();
+    // Set the teresa WinBox status to closed
+    isTeresaOpen = false;
+  }
+}
+
+var teresaIcon = document.getElementById("start-menu");
+teresaIcon.addEventListener("click", openTeresa);
+
 // if (/Mobi/.test(navigator.userAgent) === true)
 //  location.replace("mobile/index.html");
 
@@ -22,6 +76,63 @@ function buttonClick() {
 
 document.onclick = hideMenu;
 document.oncontextmenu = rightClick;
+
+// Define a variable to keep track of WiFi WinBox status
+var isWifiOpen = false;
+var wifiWinBox = null; // Variable to store the WinBox instance
+
+// Function to show or close the WiFi WinBox
+function toggleWifi() {
+  // Check if WiFi WinBox is already open
+  if (isWifiOpen) {
+    // Close the WiFi WinBox if it's already open
+    closeWifi();
+  } else {
+    // Open the WiFi WinBox
+    wifiWinBox = new WinBox({
+      title: " ",
+      class: [
+        "no-max",
+        "no-min",
+        "no-close",
+        "no-title",
+        "eclipselock",
+        "noshadow",
+      ],
+      x: "right",
+      y: "bottom",
+      width: "30%",
+      height: "36%",
+      top: 0,
+      right: 15,
+      bottom: 70,
+      left: 0,
+      url: "assets/internetStatus.htm",
+      onclose: function () {
+        // Set the WiFi WinBox status to closed when it's closed
+        isWifiOpen = false;
+      },
+    });
+
+    // Set the WiFi WinBox status to open
+    isWifiOpen = true;
+  }
+}
+
+// Function to close the WiFi WinBox
+function closeWifi() {
+  // Check if the WiFi WinBox is open before closing
+  if (wifiWinBox) {
+    // Close the WiFi WinBox
+    wifiWinBox.close();
+    // Set the WiFi WinBox status to closed
+    isWifiOpen = false;
+  }
+}
+
+// Example: Assuming you have a WiFi icon that triggers the toggleWifi function
+var wifiIcon = document.getElementById("neny"); // Replace with the actual ID or selector
+wifiIcon.addEventListener("click", toggleWifi);
 
 function hideMenu() {
   document.getElementById("contextMenu").style.display = "none";
@@ -64,7 +175,7 @@ import("https://unpkg.com/@datkat21/html").then((h) => {
       // left: "400px",
       // bottom: "0",
       display: "flex",
-      height: "45px",
+      height: "70px",
       gap: "6px",
       alignItems: "center",
     })
@@ -91,8 +202,8 @@ function addTaskbarItem(name, icon = "/dave.jpg", winboxRef = null) {
     .appendMany(
       new Html("img")
         .style({ width: "28px", height: "28px" })
-        .attr({ src: icon }),
-      new Html("span").text(name)
+        .attr({ src: icon })
+      // new Html("span").text(name)
     )
     .appendTo(taskbarBar);
 
@@ -131,19 +242,47 @@ function removeTaskbarIem(index) {
   // taskbarItems.splice(index, 1);
 }
 
+// new WinBox({
+//   title: "Welcome to Envy",
+//   class: ["no-min", "no-max", "no-title","eclipsemono"],
+//   x: "center",
+//   y: "center",
+//   width: "50%",
+//   height: "75%",
+//   top: 0,
+//   right: 0,
+//   bottom: 70,
+//   left: 0,
+//   modal: true,
+//   mount: document.getElementById("teresaoobe").cloneNode(true),
+// });
+
 new WinBox({
-  title: "Welcome to Envy",
-  class: ["no-min", "no-max", "eclipsemono"],
+  title: "Arc debug",
+  class: ["no-min", "no-max","no-close", "no-title","eclipsemono"],
   x: "center",
   y: "center",
-  width: "50%",
-  height: "75%",
+  width: "25%",
+  height: "35%",
   top: 0,
   right: 0,
-  bottom: 45,
+  bottom: 70,
   left: 0,
-  modal: true,
-  mount: document.getElementById("teresaoobe").cloneNode(true),
+  mount: document.getElementById("debug").cloneNode(true),
+});
+
+new WinBox({
+  title: "Envy logon process",
+  class: ["no-min", "no-max", "no-title","eclipsemono"],
+  x: "center",
+  y: "center",
+  width: "25%",
+  height: "35%",
+  top: 0,
+  right: 0,
+  bottom: 70,
+  left: 0,
+  mount: document.getElementById("userinit").cloneNode(true),
 });
 
 function showInvidious() {
@@ -161,7 +300,7 @@ function showInvidious() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://ivp.cherries.to/",
   });
@@ -180,7 +319,7 @@ function showNotepad() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://zen.unit.ms/",
   });
@@ -197,7 +336,7 @@ function showVirtualEMU() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://copy.sh/v86/",
   });
@@ -214,7 +353,7 @@ function showDiscordWindow() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://corsproxy.io/?https://www.discord.com/app');",
   });
@@ -226,11 +365,11 @@ function showotherSearch() {
     class: ["no-min", "no-max", "no-title", "eclipsemono"],
     x: "left",
     y: "bottom",
-    width: "45%",
+    width: "50%",
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("teresasearch").cloneNode(true),
   });
@@ -249,11 +388,21 @@ function showWeather() {
     height: "20%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://wttr.in/",
   });
   addTaskbarItem(appName, appIcon, wb);
+}
+
+function showTab(tabId) {
+  // Hide all tabs
+  const tabs = document.querySelectorAll(".tab-content");
+  tabs.forEach((tab) => tab.classList.remove("active"));
+
+  // Show the selected tab
+  const selectedTab = document.getElementById(tabId);
+  selectedTab.classList.add("active");
 }
 
 function showTelegram() {
@@ -270,9 +419,9 @@ function showTelegram() {
     height: "80%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
-    url: "https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=245",
+    url: "https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=270",
   });
 
   addTaskbarItem(appName, appIcon, wb);
@@ -281,7 +430,7 @@ function showTelegram() {
 function showmoreTelegram() {
   new WinBox({
     title: "test",
-    icon: "icons/telegram_450x450.png",
+    icon: "icons/telegram_700x700.png",
     class: ["no-min", "eclipsemono"],
     x: "center",
     y: "center",
@@ -289,9 +438,9 @@ function showmoreTelegram() {
     height: "80%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
-    url: "https://bellard.org/jslinux/vm.html?url=win2k.cfg&mem=512&graphic=1&w=800&h=600",
+    url: "https://bellard.org/jslinux/vm.html?url=win2k.cfg&mem=512&graphic=1&w=800&h=700",
   });
 }
 
@@ -305,7 +454,7 @@ function showDualWindow() {
     height: "75%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: location.href,
   });
@@ -321,7 +470,7 @@ function showVidstest() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "apps/vidstest.html",
   });
@@ -338,9 +487,27 @@ function manageDual() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("teresadual").cloneNode(true),
+  });
+}
+
+function showlogin() {
+  new WinBox({
+    title: " ",
+    class: ["no-max", "no-min", "no-close", "no-title", "eclipselock"],
+    x: "left",
+    y: "bottom",
+    width: "100%",
+    height: "100%",
+    header: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    modal: true,
+    mount: document.getElementById("teresalogin").cloneNode(true),
   });
 }
 
@@ -357,6 +524,7 @@ function showlock() {
     right: 0,
     bottom: 0,
     left: 0,
+    modal: true,
     mount: document.getElementById("teresalock").cloneNode(true),
   });
 }
@@ -368,16 +536,16 @@ function setWallpaper() {
 }
 
 function dark() {
-  localStorage.setItem("bg", "wp.png");
-  document.body.style.backgroundImage = 'url("' + "wp.png" + '")';
+  localStorage.setItem("bg", "./assets/wp.jpg");
+  document.body.style.backgroundImage = 'url("' + "assets/wp.jpg" + '")';
   document.querySelector(".bar").style.backgroundColor = "#000000";
   setWinboxColor("#000000");
   document.documentElement.setAttribute("data-theme", "dark");
 }
 
 function light() {
-  localStorage.setItem("bg", "wp2.png");
-  document.body.style.backgroundImage = 'url("' + "wp2.png" + '")';
+  localStorage.setItem("bg", "./assets/wp2.png");
+  document.body.style.backgroundImage = 'url("' + "assets/wp.jpg" + '")';
   document.querySelector(".bar").style.backgroundColor = "#e6e6e6";
   setWinboxColor("#e6e6e6");
   // add data-theme to html
@@ -406,7 +574,7 @@ function shownewsearch() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://example.com",
   });
@@ -423,7 +591,7 @@ function summongamehub() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "apps/gamehub.html",
   });
@@ -439,7 +607,7 @@ function widgetinit() {
     height: "30%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("teresadrei").cloneNode(true),
   });
@@ -455,7 +623,7 @@ function showall() {
     height: "20%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("teresaplus").cloneNode(true),
   });
@@ -471,7 +639,7 @@ function urlbox() {
     height: "25%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("urlbox").cloneNode(true),
   });
@@ -487,7 +655,7 @@ function colorbox() {
     height: "35%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("colorbox").cloneNode(true),
   });
@@ -503,7 +671,7 @@ function winboxbox() {
     height: "35%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("winboxbox").cloneNode(true),
   });
@@ -519,7 +687,7 @@ function addextension() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("addextension").cloneNode(true),
   });
@@ -535,7 +703,7 @@ function extensionview() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("viewww").cloneNode(true),
   });
@@ -551,7 +719,7 @@ function duallink() {
     height: "35%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("duallink").cloneNode(true),
   });
@@ -567,7 +735,7 @@ function imgbox() {
     height: "25%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("imgbox").cloneNode(true),
   });
@@ -583,7 +751,7 @@ function community() {
     height: "25%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("communitywall").cloneNode(true),
   });
@@ -599,7 +767,7 @@ function envynet() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("envynet").cloneNode(true),
   });
@@ -615,15 +783,15 @@ function zeoniframe() {
     height: "65%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://zeon.dev/signup",
   });
 }
 
-function aspenplus() {
-  let appName = "Aspen Network",
-    appIcon = "icons/aspen.png";
+function music() {
+  let appName = "Envy Music",
+    appIcon = "icons/music.png";
 
   let wb = new WinBox({
     title: appName,
@@ -635,7 +803,29 @@ function aspenplus() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
+    left: 0,
+    url: "./apps/music/index.html",
+  });
+
+  let index = addTaskbarItem(appName, appIcon, wb);
+}
+
+function aspenplus() {
+  let appName = "Aspen Network",
+    appIcon = "icons/aspen.webp";
+
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
+    class: ["no-title", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "50%",
+    height: "50%",
+    top: 0,
+    right: 0,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("aspenplus").cloneNode(true),
   });
@@ -645,7 +835,7 @@ function aspenplus() {
 
 function flipify() {
   let appName = "Aspen Flipify",
-    appIcon = "icons/aspen.png";
+    appIcon = "icons/aspen.webp";
 
   let wb = new WinBox({
     title: appName,
@@ -657,7 +847,7 @@ function flipify() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     url: "https://envyjs.github.io/flipify",
   });
@@ -676,7 +866,7 @@ function showClock() {
     height: "14%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("clock").cloneNode(true),
   });
@@ -692,25 +882,9 @@ function showlog() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("log").cloneNode(true),
-  });
-}
-
-function shownet() {
-  new WinBox({
-    title: "About Aspen Network",
-    class: ["no-max", "no-min", "no-title", "eclipsemono"],
-    x: "center",
-    y: "center",
-    width: "20%",
-    height: "50%",
-    top: 0,
-    right: 0,
-    bottom: 45,
-    left: 0,
-    mount: document.getElementById("net").cloneNode(true),
   });
 }
 
@@ -724,7 +898,7 @@ function showmore() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("more").cloneNode(true),
   });
@@ -744,7 +918,7 @@ function showSettingsWindow() {
     height: "30%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("cc").cloneNode(true),
   });
@@ -760,16 +934,32 @@ function showAboutWindow() {
     class: ["no-max", "no-min", "eclipsemono"],
     x: "center",
     y: "center",
-    width: "25%",
-    height: "50%",
+    width: "30%",
+    height: "28%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("about").cloneNode(true),
   });
 
   addTaskbarItem(appName, appIcon, wb);
+}
+
+function shownet() {
+  new WinBox({
+    title: "Overview of this device",
+    class: ["no-max", "no-min", "no-title", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "30%",
+    height: "30%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    mount: document.getElementById("net").cloneNode(true),
+  });
 }
 
 function displaypanel() {
@@ -782,9 +972,25 @@ function displaypanel() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("ccdisplay").cloneNode(true),
+  });
+}
+
+function taskpanel() {
+  new WinBox({
+    title: "Taskbar options",
+    class: ["no-min", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "25%",
+    height: "45%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    mount: document.getElementById("cctask").cloneNode(true),
   });
 }
 
@@ -798,9 +1004,25 @@ function accesspanel() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("ccaccess").cloneNode(true),
+  });
+}
+
+function interpanel() {
+  new WinBox({
+    title: "International options",
+    class: ["no-min", "no-max", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "27%",
+    height: "40%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    mount: document.getElementById("ccinter").cloneNode(true),
   });
 }
 
@@ -814,9 +1036,25 @@ function backuppanel() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("ccbackup").cloneNode(true),
+  });
+}
+
+function backup2panel() {
+  new WinBox({
+    title: "Backup and reset options",
+    class: ["no-min", "no-max", "eclipsemono"],
+    x: "center",
+    y: "center",
+    width: "27%",
+    height: "40%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    mount: document.getElementById("backup2").cloneNode(true),
   });
 }
 
@@ -830,7 +1068,7 @@ function transpanel() {
     height: "40%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("cctrans").cloneNode(true),
   });
@@ -846,28 +1084,11 @@ function userpanel() {
     height: "50%",
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("ccuser").cloneNode(true),
   });
-  loadLoginStatus()
-}
-
-function showBooWindow() {
-  new WinBox({
-    title: " ",
-    class: ["no-max", "no-min", "no-title", "eclipsemono"],
-    x: "left",
-    y: "bottom",
-    width: "7%",
-    height: "60%",
-    header: 0,
-    top: 0,
-    right: 0,
-    bottom: 45,
-    left: 0,
-    mount: document.getElementById("Teresa").cloneNode(true),
-  });
+  loadLoginStatus();
 }
 
 function showstore() {
@@ -884,7 +1105,7 @@ function showstore() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("TeresaZwei").cloneNode(true),
   });
@@ -903,7 +1124,7 @@ function showmark() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("TeresaMark").cloneNode(true),
   });
@@ -920,7 +1141,7 @@ function showerror() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("err").cloneNode(true),
   });
@@ -937,7 +1158,7 @@ function files() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("files").cloneNode(true),
   });
@@ -950,11 +1171,11 @@ function resetconfirm() {
     x: "center",
     y: "center",
     width: "20%",
-    height: "45%",
+    height: "70%",
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     modal: true,
     mount: document.getElementById("resetconfirm").cloneNode(true),
@@ -972,14 +1193,14 @@ function resetinit() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     modal: true,
     mount: document.getElementById("resetinit").cloneNode(true),
   });
-  localStorage.clear()
-  logout()
-  location.reload()
+  localStorage.clear();
+  logout();
+  location.reload();
 }
 
 function timeUpdate() {
@@ -987,8 +1208,7 @@ function timeUpdate() {
   let x = new Date();
   let hours = x.getHours().toString().padStart(2, "0"); // 18
   let minutes = x.getMinutes().toString().padStart(2, "0"); // 37
-  let seconds = x.getSeconds().toString().padStart(2, "0"); // 01
-  let timeString = `${hours}:${minutes}:${seconds}`; // 18:37:01
+  let timeString = `${hours}:${minutes}`; // 18:37
   let element = document.getElementById("clock"); // assuming <... id="clock" ...>
   element.innerText = timeString;
 }
@@ -1009,15 +1229,32 @@ function widgetgallery() {
     header: 0,
     top: 0,
     right: 0,
-    bottom: 45,
+    bottom: 70,
     left: 0,
     mount: document.getElementById("widgallery").cloneNode(true),
   });
 }
 
+function emoji() {
+  new WinBox({
+    title: " ",
+    class: ["no-max", "no-min", "no-title", "eclipsemono"],
+    x: "right",
+    y: "bottom",
+    width: "19%",
+    height: "51%",
+    header: 0,
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    mount: document.getElementById("emoji").cloneNode(true),
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("bg") === undefined || !localStorage.getItem("bg")) {
-    localStorage.setItem("bg", "wp.png");
+    localStorage.setItem("bg", "assets/wp.jpg");
   }
   document.body.style.backgroundImage =
     'url("' + localStorage.getItem("bg") + '")';
@@ -1048,3 +1285,28 @@ let chooseFolder = async () => {
     document.querySelector(".winbox #files #filelist").appendChild(elmnt);
   }
 };
+function createRipple(event) {
+  const button = event.currentTarget;
+
+  const circle = document.createElement("span");
+  const diameter = Math.max(button.clientWidth, button.clientHeight);
+  const radius = diameter / 2;
+
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+  circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+  circle.classList.add("ripple");
+
+  const ripple = button.getElementsByClassName("ripple")[0];
+
+  if (ripple) {
+    ripple.remove();
+  }
+
+  button.appendChild(circle);
+}
+
+const buttons = document.getElementsByTagName("button");
+for (const button of buttons) {
+  button.addEventListener("click", createRipple);
+}

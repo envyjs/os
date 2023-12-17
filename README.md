@@ -6,14 +6,10 @@ Envy is a environment for locked down devices, such as Chromebooks or Windows de
 ## How do I access Envy?
 Via [https://envyjs.github.io/os](https://envyjs.github.io/os).
 
-## This font is nice! What is it?
-This is the [DSans font](https://dsans.davidstudios.uk).
-
-## Icons credit
-
-The icons on Envy are from the following people/organizations;
-
-[Orchid Organization](https://discord.gg/mANwf4yaNr),
+## Assets credits
+Icons from [Rectify11](https://github.com/Rectify11/installer) have been used,
+Logo credits from both "sunnystew22" and "shiypc" on Discord,
+Purely Cursor by [Matthew Abare](https://matthewabare.com/blogs/purely.html),
 
 ## What can Envy do?
 **THIS PART OF THE README IS DUE TO CHANGE.**
