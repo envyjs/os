@@ -1,4 +1,7 @@
-@import url("https://davidstudios.github.io/css2.css");
+@font-face { font-family: 'DSans Regular'; src: url('https://envy.js.org/assets/DSans-RegularRegular.otf') format('otf'); }
+@font-face { font-family: 'DSans Regular'; src: url('https://envy.js.org/assets/DSans-RegularRegular.woff2') format('woff2'); }
+@font-face { font-family: 'DSans Bold'; src: url('https://envy.js.org/assets/DSans_Bold.otf') format('otf'); }
+@font-face { font-family: 'DSans Bold'; src: url('https://envy.js.org/assets/DSans-Bold.woff2') format('woff2'); }
 
 
 @font-face {
