@@ -165,6 +165,6 @@ function id10() {
     right: 0,
     bottom: 45,
     left: 0,
-    url: "https://davidtdc3377.github.io?src=envywbos&iframe=true",
+    url: "https://wordgame.davidstudios.uk?src=envywbos&iframe=true",
   });
 }
