@@ -259,7 +259,7 @@ function removeTaskbarIem(index) {
 
 new WinBox({
   title: "Envy logon process",
-  class: ["no-min", "no-max", "no-title", "eclipsemono"],
+  class: ["no-min", "no-max", "no-title","eclipsemono"],
   x: "center",
   y: "center",
   width: "25%",
@@ -347,17 +347,17 @@ function showDiscordWindow() {
 
 function showotherSearch() {
   new WinBox({
-    title: "Envy Copilot",
+    title: "Envy search",
     class: ["no-min", "no-max", "no-title", "eclipsemono"],
     x: "left",
     y: "bottom",
-    width: "20%",
-    height: "67%",
+    width: "50%",
+    height: "50%",
     top: 0,
     right: 0,
     bottom: 70,
     left: 0,
-    url: "./apps/ai/index.html",
+    mount: document.getElementById("teresasearch").cloneNode(true),
   });
 }
 
@@ -1079,7 +1079,7 @@ function userpanel() {
 
 function showstore() {
   let appName = "Envy Store",
-    appIcon = "assets/brand/store.jpg";
+    appIcon = "icons/shop.png";
   let wb = new WinBox({
     title: appName,
     icon: appIcon,

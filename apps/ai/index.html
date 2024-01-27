@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Interface</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #ccc;
+        margin: 20px;
+      }
+
+      #chatbox {
+        width: 300px;
+        height: 400px;
+        overflow-y: scroll;
+        border: 1px solid #ffffff;
+        padding: 10px;
+      }
+
+      #userInput {
+        width: 200px;
+        margin-right: 10px;
+      }
+
+      #response {
+        margin-top: 10px;
+      }
+      button,
+input {
+  appearance: none;
+  font: inherit;
+  padding: 6px 12px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #1d1e1f;
+  border: 1px solid #2f2f2f;
+  outline: none;
+  cursor: pointer;
+}
+    </style>
+  </head>
+  <center>
+  <body>
+    <div id="chatbox"></div>
+    <div>
+    <br>
+      <input type="text" id="userInput" placeholder="Type your message" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <p id="response"></p>
+
+    <script>
+      function sendMessage() {
+        var userInput = document.getElementById("userInput").value;
+        var chatbox = document.getElementById("chatbox");
+        var responseElement = document.getElementById("response");
+        chatbox.innerHTML += "<strong>You:</strong> " + userInput + "<br>";
+        fetch("https://envyhelp.vercel.app/api", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_input: userInput }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            chatbox.innerHTML +=
+              "<strong>Bot:</strong> " + data.response + "<br>";
+            responseElement.innerHTML = "";
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+    </center>
+  </body>
+</html>

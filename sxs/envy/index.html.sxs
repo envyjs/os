@@ -147,6 +147,7 @@
             </span>
             <br /><br />
           </center>
+
           <button class="ripple" onclick="showAboutWindow()">About Envy</button>
           <button class="ripple" onclick="aspenplus()">Aspen Start</button>
           <button class="ripple" onclick="showstore()">Envy Store</button>
@@ -290,8 +291,8 @@
             "
           >
             <br /><br /><img
-              src="assets/brand/store.jpg"
-              style="border-radius: 10px; width: 48px; height: 48px"
+              src="icons/shop.png"
+              style="border-radius: 10px"
             /><img />
             <span
               style="
@@ -628,7 +629,7 @@
                 style="margin: 0"
               />
               <!-- <h1 style="margin: 0">Envy</h1> -->
-              <h3 style="margin: 0">Version 7.0</h3>
+              <h3 style="margin: 0">Version 7.0 Public Beta 5</h3>
             </span>
           </span>
         </center>
@@ -665,7 +666,7 @@
       </div>
       <div id="cc">
         <center>
-          <img src="assets\banner.png" width="100%" />
+          <img src="assets\brand\banner.png" width="100%" />
           <br /><br />
           <img src="icons/access.png" onclick="accesspanel()" />
           <img src="icons/backup.png" onclick="backuppanel()" />
@@ -745,7 +746,6 @@
               <option value="tasks">Japanese (Japan)</option>
               <option value="tasks">Polish (Poland)</option>
               <option value="tasks">Russian (Russia)</option>
-              <option value="tasks">Spanish (Spain)</option>
               <option value="tasks">Turkish (Turkey)</option>
               <option value="tasks">Ukrainian (Ukraine)</option>
             </select>
