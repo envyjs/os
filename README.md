@@ -1,4 +1,5 @@
 <img src="assets/brand/boo.png" height="300" width="300">
+<img src="assets\brand\boo2.png" height="150" width="400">
 
 ## Envy, the open OS
 Envy is a environment for locked down devices, such as Chromebooks or Windows devices.
