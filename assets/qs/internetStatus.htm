@@ -82,18 +82,19 @@
         background-color: #333;
       }
       #status {
-        font-size: 18px;
+        font-size: 16px;
         margin-top: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
       #text2 {
-        font-size: 18px;
+        font-size: 16px;
         margin-top: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
+        white-space: nowrap;
       }
       .icon {
         font-size: 24px;
@@ -166,11 +167,12 @@
   <body>
     <span
       style="
-        display: flex;
+        display: grid;
         justify-content: center;
         align-items: center;
         gap: 10px;
         flex-direction: row;
+        grid-template-columns: auto auto auto;
       "
     >
       <button class="ripple">
@@ -185,17 +187,6 @@
         <img src="project.svg" width="20" height="20" />
         <div id="text2">Devices</div>
       </button>
-    </span>
-    <br />
-    <span
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        flex-direction: row;
-      "
-    >
       <button class="ripple">
         <img src="accessibility.svg" width="20" height="20" />
         <div id="text2">Accessbility</div>
