@@ -1,6 +1,9 @@
 function id1() {
-  new WinBox({
-    title: "Piskel for Envy",
+  let appName = "Piskel",
+    appIcon = "assets/mtrui/apps/id1/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
@@ -12,6 +15,7 @@ function id1() {
     left: 0,
     url: "https://www.piskelapp.com/p/create/sprite",
   });
+  let index = addTaskbarItem(appName, appIcon, wb);
 }
 
 function id2() {
@@ -31,11 +35,11 @@ function id2() {
 }
 
 function id3() {
-  let appName = "Aspen Browser",
-    appIcon = "icons/aspen.webp";
+  let appName = "Browser",
+    appIcon = "assets/mtrui/apps/id3/favicon.png";
   let wb = new WinBox({
     title: appName,
-    icon: "icons/aspen.webp",
+    icon: appIcon,
     class: ["eclipsemono"],
     x: "center",
     y: "center",
@@ -52,8 +56,11 @@ function id3() {
 }
 
 function id4() {
-  new WinBox({
-    title: "Eaglercraft",
+  let appName = "Eaglercraft",
+    appIcon = "assets/mtrui/apps/id4/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
@@ -65,26 +72,15 @@ function id4() {
     left: 0,
     url: "https://eaglercraft.com/",
   });
+  addTaskbarItem(appName, appIcon, wb);
 }
 
 function id5() {
-  new WinBox({
-    title: "Resent Client",
-    class: "eclipsemono",
-    x: "center",
-    y: "center",
-    width: "50%",
-    height: "50%",
-    top: 0,
-    right: 0,
-    bottom: 70,
-    left: 0,
-    url: "https://reslauncher.vercel.app/",
-  });
+  console.log("id5 no longer exist.");
 }
 
 function id6() {
-  new WinBox({
+  let wb = new WinBox({
     title: "Calculator",
     class: "eclipsemono",
     x: "center",
@@ -100,8 +96,11 @@ function id6() {
 }
 
 function id7() {
-  new WinBox({
-    title: "Virtual x86",
+  let appName = "Virtual x86",
+    appIcon = "assets/mtrui/apps/id7/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
@@ -113,11 +112,15 @@ function id7() {
     left: 0,
     url: "https://copy.sh/v86/",
   });
+  addTaskbarItem(appName, appIcon, wb);
 }
 
 function id8() {
-  new WinBox({
-    title: "Notepad Legacy",
+  let appName = "Notepad",
+    appIcon = "assets/mtrui/apps/id8/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
@@ -129,6 +132,7 @@ function id8() {
     left: 0,
     url: "https://zen.unit.ms/",
   });
+  addTaskbarItem(appName, appIcon, wb);
 }
 
 function id9() {
@@ -147,15 +151,18 @@ function id9() {
     right: 0,
     bottom: 70,
     left: 0,
-    url: "https://maps.google.com/maps?width=100%25&amp;height=200&amp;hl=en&amp;q=1+()&amp;t=&amp;z=1&amp;ie=UTF8&amp;iwloc=B&amp;output=embe",
+    url: "https://maps.google.com/maps?width=100%25&amp;height=200&amp;hl=en&amp;t=&amp;z=1&amp;ie=UTF8&amp;iwloc=B&amp;output=embed",
   });
 
   let index = addTaskbarItem(appName, appIcon, wb);
 }
 
 function id10() {
-  new WinBox({
-    title: "Word Game",
+  let appName = "Word Game",
+    appIcon = "assets/mtrui/apps/placeholder/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
@@ -169,18 +176,22 @@ function id10() {
   });
 }
 
-function id11() {
-  new WinBox({
-    title: "Word Game",
+function id13() {
+  let appName = "Envy Mobile Shell",
+    appIcon = "assets/mtrui/apps/id12/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
     class: "eclipsemono",
     x: "center",
     y: "center",
-    width: "50%",
-    height: "50%",
+    width: "25%",
+    height: "75%",
     top: 0,
     right: 0,
     bottom: 70,
     left: 0,
-    url: "https://dos.zone/",
+    url: "./apps/mobile/index.html",
   });
+  let index = addTaskbarItem(appName, appIcon, wb);
 }

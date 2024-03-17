@@ -330,10 +330,11 @@ img {
 html.hideqs .bar #neny {
   display: none;
 }
-.connected {
-  color: rgb(0, 255, 0);
-}
-
-.disconnected {
-  color: red;
+body {
+  background: rgb(67, 9, 121);
+  background: linear-gradient(
+    45deg,
+    rgba(67, 9, 121, 1) 24%,
+    rgba(0, 108, 255, 1) 100%
+  );
 }

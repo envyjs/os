@@ -2,13 +2,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
   <head>
+    <meta charset="utf8" />
     <meta property="og:title" content="Envy, the free OS" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       property="og:description"
-      content="Envy is an environment for locked down Windows and ChromeOS devices."
+      content="Envy is an environment for locked down devices."
     />
-    <meta property="og:image" content="envy.js.org/assets/boo.png" />
+    <meta property="og:image" content="https://envy.js.org/assets/boo.png" />
     <title>Envy</title>
   </head>
 
@@ -20,6 +21,14 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="js/jquery-3.7.1.min.js"></script>
+    <!-- fallback for chrome because webkit is awful and stupid -->
+    <script>
+      window.jQuery ||
+        document.write(
+          '<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.js">\x3C/script>'
+        );
+    </script>
     <script src="https://unpkg.com/@ungap/custom-elements-builtin"></script>
     <script type="module" src="https://unpkg.com/x-frame-bypass"></script>
     <script type="module">
@@ -36,8 +45,17 @@
         border-radius: 7px; /* Set border-radius to make it rounded */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add box shadow for the floating effect */
         margin: 10px; /* Add padding for better visual appearance */
+        padding: 5px; /* Padding for the icons to look nice */
+        background-color: #0000004f;
+        -webkit-backdrop-filter: blur(10px) saturate(180%) !important;
+        backdrop-filter: blur(10px) saturate(180%) !important;
       "
     >
+      <style>
+        [data-theme="light"] #neny {
+          filter: invert(1);
+        }
+      </style>
       <span
         style="
           text-align: left;
@@ -50,29 +68,13 @@
       >
         <div
           class="contentBar"
-          style="padding-left: 5px; display: flex; overflow-x: auto; gap: 5px"
+          style="padding-left: 5px; display: flex; overflow-x: auto; gap: 14px"
         >
           <img
-            src="assets/brand/boo.jpg"
-            style="height: 32px; width: 32px; border-radius: 7px"
+            src="assets/dock/launcher.png"
+            style="height: 24px; width: auto"
             onclick="showBooWindow()"
             id="start-menu"
-          />
-          <img
-            src="icons/search.jpg"
-            alt="Search"
-            height="32"
-            width="32"
-            style="border-radius: 7px"
-            onclick="showotherSearch()"
-          />
-          <img
-            src="assets/brand/store.jpg"
-            alt="Search"
-            height="32"
-            width="32"
-            style="border-radius: 7px"
-            onclick="showstore()"
           />
         </div>
       </span>
@@ -108,74 +110,681 @@
       </span>
     </div>
     <div id="contextMenu" class="context-menu" style="display: none">
-      <a onclick="displaypanel()">Display settings</a>
-      <a onclick="emoji()">Emojis</a>
       <a onclick="location.reload()">Refresh</a>
+      <a onclick="showSettingsWindow()">Settings</a>
       <a onclick="widgetinit()">Widgets</a>
     </div>
     <div class="hidden">
-      <div id="Teresa">
-        <div id="tabs">
-          <center>
-            <br />
-            <span
+      <div id="samba" style="height: 100%">
+        <div
+          id="menu"
+          style="
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            backdrop-filter: blur(10px) saturate(180%);
+            min-height: 100%;
+            padding: 25px;
+            background-color: #0000004f;
+          "
+        >
+          <div id="smbheader" style="padding: 10px 0px">
+            <h1 style="display: inline">Apps</h1>
+            <img
+              width="25"
+              height="25"
+              src="icons/lock.png"
+              style="border-radius: 10px; float: right"
+              onclick="showlock()"
+            />
+          </div>
+          <div
+            id="grid"
+            style="
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              margin-top: 15px;
+            "
+          >
+            <div
+              id="appgrid"
               style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 2px;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-column-gap: 10px;
+                grid-row-gap: 25px;
+                max-width: 250px;
               "
             >
-              <br /><br /><img
-                onclick="showlock()"
-                src="icons/lock.png"
-                width="32"
-                height="32"
-                style="border-radius: 10px"
-              /><img />
-              <span
+              <div
+                id="app"
                 style="
                   display: flex;
-                  justify-content: flex-start;
-                  align-items: flex-start;
-                  gap: 20px;
                   flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
                 "
+                onclick="showstore();closeTeresa();"
               >
-                <h4 style="margin: 0">| Welcome back.</h4>
-              </span>
-            </span>
-            <br /><br />
-          </center>
-          <button class="ripple" onclick="showAboutWindow()">About Envy</button>
-          <button class="ripple" onclick="aspenplus()">Aspen Start</button>
-          <button class="ripple" onclick="showstore()">Envy Store</button>
-          <button class="ripple" onclick="showSettingsWindow()">
-            Settings
-          </button>
-          <button class="ripple" onclick="showWeather()">Weather</button>
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/store/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Store</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="useSambaHelp();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/help/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Help</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="id3();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/browser/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Browser</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="aspenplus();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/aspen/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Aspen</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="showWeather();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="icons/wttr.png"
+                  style="border-radius: 10px"
+                />
+                <span>Weather</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="calc();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/calc/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Calculator</span>
+              </div>
+              <div
+                id="app"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 5px;
+                  align-items: center;
+                  width: 70px;
+                "
+                onclick="showSettingsWindow();closeTeresa();"
+              >
+                <img
+                  width="50"
+                  height="50"
+                  src="assets/apps/prefs/icon.png"
+                  style="border-radius: 10px"
+                />
+                <span>Settings</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="teresasearch">
-        <iframe src="https://www.google.com/webhp?igu=1"></iframe>
-      </div>
-      <div id="userinit">
-        <center>
-          <h3>Welcome to Envy.</h3>
-          <button class="ripple">
-            <img src="icons/user.png" style="border-radius: 10px" /><br />
-            <p>Local user</p>
-          </button>
-          <button class="ripple">
-            <img
-              src="assets/brand/zeon.png"
-              height="48"
-              width="48"
-              style="border-radius: 10px"
-            /><br />
-            <p>Zeon user</p>
-          </button>
-        </center>
+      <div id="smbmetropole" style="height: 100%">
+        <style>
+          .mtrvisiblecol {
+            display: block;
+          }
+          .mtrhiddencol {
+            display: none;
+          }
+          .mtrtabactive {
+            background: #ffffff0d;
+          }
+          .mtrtabinactive {
+            background: transparent;
+          }
+          [data-theme="light"] .mtrlcolicon {
+            filter: invert(1);
+          }
+        </style>
+        <div
+          id="mtrwindow"
+          style="
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            overflow: hidden;
+          "
+        >
+          <div
+            id="mtrlcol"
+            class="mtrcol"
+            style="width: 30%; height: 100%; overflow-y: auto"
+          >
+            <div
+              id="tabapps"
+              class="mtrtab mtrtabactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.mtrvisiblecol`).attr('class','mtrcol mtrhiddencol');$(this).parent().children(`.mtrtabactive`).attr('class','mtrtab mtrtabinactive');$(this).parent().parent().children(`#mtrrcol`).attr('class','mtrcol mtrvisiblecol');$(this).attr('class','mtrtab mtrtabactive');"
+            >
+              <img
+                class="mtrlcolicon"
+                src="assets/mtrui/sidebar/apps.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Browse</span
+              >
+            </div>
+            <div
+              id="tabnews"
+              class="mtrtab mtrtabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.mtrvisiblecol`).attr('class','mtrcol mtrhiddencol');$(this).parent().children(`.mtrtabactive`).attr('class','mtrtab mtrtabinactive');$(this).parent().parent().children(`#mtrrcol_news`).attr('class','mtrcol mtrvisiblecol');$(this).attr('class','mtrtab mtrtabactive');"
+            >
+              <img
+                class="mtrlcolicon"
+                src="assets/mtrui/sidebar/news.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >News</span
+              >
+            </div>
+          </div>
+          <div
+            id="mtrrcol"
+            class="mtrcol mtrvisiblecol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+            <div
+              id="table1"
+              class="mtrtable"
+              style="
+                padding: 25px 5%;
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+              "
+            >
+              <h2 style="margin: 0">Top</h2>
+              <div
+                id="mtrgrid"
+                style="
+                  display: flex;
+                  flex-direction: row;
+                  gap: 15px;
+                  flex-wrap: wrap;
+                "
+              >
+                <div
+                  id="id13"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id13();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="dave.jpg"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Envy Mobile Shell
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >Envy</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id9"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id9();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/id9/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Maps
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >Google</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id7"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id7();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/id7/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Virtual x86
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >copy</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id1"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id1();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/id1/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Piskel
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >Piskel App</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id4"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id4();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/id4/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Eaglercraft
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >Eaglercraft</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id8"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id8();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/id8/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Notepad
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >Notepad</b
+                    >
+                  </div>
+                </div>
+                <div
+                  id="id10"
+                  class="mtrapp"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    padding: 8px;
+                    background: #0000000a;
+                    border-radius: 8px;
+                    box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+                    cursor: url('cursor/pointer.cur'), pointer !important;
+                    width: 128px;
+                    height: 180px;
+                  "
+                  onclick="id10();"
+                >
+                  <img
+                    id="icon"
+                    class="mtrappicn"
+                    src="assets/mtrui/apps/placeholder/icon.png"
+                    width="85"
+                    height="85"
+                    style="
+                      border-radius: 8px;
+                      margin-left: auto;
+                      margin-right: auto;
+                    "
+                  />
+                  <div
+                    id="details"
+                    style="display: flex; flex-direction: column; gap: 4px"
+                  >
+                    <h3
+                      style="
+                        margin: 0;
+                        font-size: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-height: 3rem;
+                      "
+                    >
+                      Word Game
+                    </h3>
+                    <b style="margin: 0; font-size: 12px; opacity: 0.25"
+                      >David Studios</b
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="mtrrcol_news"
+            class="mtrcol mtrhiddencol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+            <div
+              id="table1"
+              class="mtrtable"
+              style="
+                padding: 25px 5%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+              "
+            >
+              <h2 style="margin: 0">News</h2>
+              <div
+                id="editorial1"
+                class="mtreditorial"
+                style="display: flex; flex-direction: column; gap: 10px"
+              >
+                <span
+                  style="
+                    text-transform: uppercase;
+                    font-size: 11px;
+                    letter-spacing: 5px;
+                    opacity: 0.25;
+                  "
+                  >January 31, 2024</span
+                >
+                <h3 style="margin: 0">New developer apps!</h3>
+                <span style="font-size: 14px; line-height: 1.5em"
+                  >We have added new apps to make developing apps for Envy and Envy Go much easier then ever.</span
+                >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="teresalock">
         <style>
@@ -191,6 +800,8 @@
             gap: 8px;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
           }
         </style>
         <script>
@@ -278,74 +889,235 @@
           <img src="icons/term.png" onclick="showTelegram()" />
         </center>
       </div>
-      <div id="TeresaZwei">
-        <center>
-          <br />
-          <span
-            style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              gap: 2px;
-            "
-          >
-            <br /><br /><img
-              src="assets/brand/store.jpg"
-              style="border-radius: 10px; width: 48px; height: 48px"
-            /><img />
-            <span
-              style="
-                display: flex;
-                justify-content: flex-start;
-                align-items: flex-start;
-                gap: 10px;
-                flex-direction: column;
-              "
-            >
-              <h3 style="margin: 0">| Envy Store</h3>
-            </span>
-          </span>
-          <h3>New to Envy</h3>
-          <button class="ripple" onclick="id1()">Piskel for Envy</button>
-          <button class="ripple" onclick="id9()">Maps (Beta)</button>
-          <h3>Envy Testing apps</h3>
-          <button class="ripple" onclick="files()">ArcGPKit</button>
-          <button class="ripple" onclick="files()">
-            Cherry Transition Kit
-          </button>
-          <button class="ripple" onclick="id6()">Calculator</button>
-          <button class="ripple" onclick="files()">File Explorer</button>
-          <h3>Media on Envy</h3>
-          <button class="ripple" onclick="id8()">Envy Music</button>
-          <button class="ripple" onclick="showInvidious()">YouTube</button>
-          <h3>Remember Envy4?</h3>
-          <button class="ripple" onclick="id8()">Legacy Notepad</button>
-          <button class="ripple" onclick="id7()">Virtual x86</button>
-          <h3>Gaming just got easier!</h3>
-          <button class="ripple" onclick="id4()">Eaglercraft</button>
-          <button class="ripple" onclick="id5()">Resent Client</button>
-          <button class="ripple" onclick="id10()">Word Game</button>
-        </center>
-      </div>
       <div id="TeresaMark">
         <style>
           #TeresaMark {
             height: 100%;
-            background: rgb(255, 0, 0);
-            background: linear-gradient(
-              45deg,
-              rgba(255, 0, 0, 1) 0%,
-              rgba(20, 104, 203, 1) 100%
-            );
           }
         </style>
-        <center>
-          <button class="ripple" onclick="history.back()">&lt;</button>
-          <input type="text" placeholder="Enter your URL" />
-          <button class="ripple">Go ></button>
-          <button class="ripple" onclick="history.forward()">&gt;</button>
-        </center>
-        <iframe id="myIframe" src="https://www.google.com/webhp?igu=1"></iframe>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding: 5px;
+          "
+        >
+          <div>
+            <button class="ripple" onclick="history.back()">&lt;</button>
+            <button class="ripple" onclick="history.forward()">&gt;</button>
+          </div>
+          <form
+            onsubmit="$(this).parent().parent().children(`iframe`).attr(`src`,$(this).children(`#aspUrlBar`).val()); return false;"
+            style="width: fit-content"
+          >
+            <input type="text" id="aspUrlBar" placeholder="Enter your URL" />
+            <input type="submit" class="ripple" value="Go" />
+          </form>
+        </div>
+        <iframe
+          id="aspcontent"
+          src="https://www.google.com/webhp?igu=1"
+        ></iframe>
+      </div>
+      <div id="sambahelp" style="height: 100%;">
+                <style>
+          .mtrvisiblecol {
+            display: block;
+          }
+          .mtrhiddencol {
+            display: none;
+          }
+          .mtrtabactive {
+            background: #ffffff0d;
+          }
+          .mtrtabinactive {
+            background: transparent;
+          }
+          [data-theme="light"] .mtrlcolicon {
+            filter: invert(1);
+          }
+        </style>
+        <div
+          id="mtrwindow"
+          style="
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            overflow: hidden;
+          "
+        >
+          <div
+            id="mtrlcol"
+            class="mtrcol"
+            style="width: 30%; height: 100%; overflow-y: auto"
+          >
+            <div
+              id="tabapps"
+              class="mtrtab mtrtabactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.mtrvisiblecol`).attr('class','mtrcol mtrhiddencol');$(this).parent().children(`.mtrtabactive`).attr('class','mtrtab mtrtabinactive');$(this).parent().parent().children(`#mtrrcol`).attr('class','mtrcol mtrvisiblecol');$(this).attr('class','mtrtab mtrtabactive');"
+            >
+              <img
+                class="mtrlcolicon"
+                src="assets/prefs/about.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Home</span
+              >
+            </div>
+            <div
+              id="tabwn"
+              class="mtrtab mtrtabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.mtrvisiblecol`).attr('class','mtrcol mtrhiddencol');$(this).parent().children(`.mtrtabactive`).attr('class','mtrtab mtrtabinactive');$(this).parent().parent().children(`#mtrrcol_wn`).attr('class','mtrcol mtrvisiblecol');$(this).attr('class','mtrtab mtrtabactive');"
+            >
+              <img
+                class="mtrlcolicon"
+                src="assets/prefs/new.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >What's new</span
+              >
+            </div>
+            <div
+              id="tabnews"
+              class="mtrtab mtrtabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.mtrvisiblecol`).attr('class','mtrcol mtrhiddencol');$(this).parent().children(`.mtrtabactive`).attr('class','mtrtab mtrtabinactive');$(this).parent().parent().children(`#mtrrcol_news`).attr('class','mtrcol mtrvisiblecol');$(this).attr('class','mtrtab mtrtabactive');"
+            >
+              <img
+                class="mtrlcolicon"
+                src="assets/prefs/users.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Your account and files</span
+              >
+            </div>
+          </div>
+          <div
+            id="mtrrcol"
+            class="mtrcol mtrvisiblecol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+            <div
+              id="table1"
+              class="mtrtable"
+              style="
+                padding: 25px 5%;
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+              "
+            >
+              <h2 style="margin: 0">Welcome to Envy Help</h2>
+              <p style="margin: 0;">This is the go-to place to find answers for your Envy questions!<br><br><b>Still can't find any answers?</b><br><br>Ask us a question over at <a style="color:white" href="https://www.x.com/theenvyos">Twitter!</a></p>
+            </div>
+          </div>
+          <div
+            id="mtrrcol_news"
+            class="mtrcol mtrhiddencol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+            <div
+              id="table1"
+              class="mtrtable"
+              style="
+                padding: 25px 5%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+              "
+            >
+              <h2 style="margin: 0">Your account and files</h2>
+
+              <p style="margin: 0;">Your account, Envy settings and certain files are safe with a Zeon account. <br><br> To learn more and to get started on creating or logging onto a Zeon account, click the button below.</p>
+              <button style="max-width: 250px;" onclick="userpanel()">Manage your Zeon account</button>
+              <p style="margin: 0;">As for the rest of your files, you can try backing up Envy on a memory stick or the cloud. <br><br>To learn more and to get started on creating or accessing a backup, click the button below.</p>
+              <button style="max-width: 250px;" onclick="backuppanel()">Manage your Envy backups</button>
+            </div>
+          </div>
+          <div
+            id="mtrrcol_wn"
+            class="mtrcol mtrhiddencol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+          <div
+              id="table1"
+              class="mtrtable"
+              style="
+                padding: 25px 5%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+              "
+            >
+              <h2 style="margin: 0">What's new in Envy</h2>
+              <div
+                id="editorial1"
+                class="mtreditorial"
+                style="display: flex; flex-direction: column; gap: 10px"
+              >
+                <span style="font-size: 14px; line-height: 1.5em"
+                  >Envy 8.0, the newest release of Envy, is finally here. We've
+                  added a lot of updates for you, from right here in the Envy
+                  Store to all around the rest of Envy. We hope you enjoy these
+                  new features!</span
+                >
+                <h4 style="margin: 0">What's new:</h4>
+                <span style="font-size: 14px; line-height: 1.5em">
+                  Envy 8 is not only big on features, but is also a massive
+                  cleanup release. Bugs have been fixed all around and there's a
+                  new clean UI for you to enjoy!
+                  <br />
+                  <ul>
+                    <li>Redesigned Launcher menu</li>
+                    <li>All new Envy Store</li>
+                    <li>Settings redesign</li>
+                    <li>Browser and Aspen are now split</li>
+                    <li>
+                      Pretty UI tweaks and changes that make Envy feel nicer to
+                      use
+                    </li>
+                  </ul>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="teresadrei">
         <center>
@@ -566,71 +1338,12 @@
           </style>
           <br />
           <b style="margin-right: 10px">Aspen Start </b>
-          <button class="ripple" onclick="id3()">Browser</button
-          ><button class="ripple" onclick="flipify()">Flipify</button>
+          <button class="ripple" onclick="flipify()">Flipify</button>
           <br />
           <h2>Welcome to Aspen Start</h2>
           <input type="text" placeholder="Search Aspen..." /><br /><br />
           <button class="ripple">Search Aspen</button
           ><button class="ripple">Search Flipify</button>
-        </center>
-      </div>
-      <div id="about">
-        <style>
-          #about {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-            background: rgb(63, 0, 255);
-            background: linear-gradient(
-              45deg,
-              rgb(0, 0, 0) 0%,
-              rgb(75, 75, 75) 100%
-            );
-          }
-        </style>
-        <center>
-          <button class="ripple" class="ripple" onclick="shownet()">
-            Overview
-          </button>
-          <button class="ripple" onclick="chooseFolder()">Storage</button
-          ><br /><br />
-          <span
-            style="
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              gap: 10px;
-            "
-          >
-            <br /><br /><img
-              src="assets/brand/boo.png"
-              width="90"
-              height="90"
-              style="border-radius: 20px"
-            /><img />
-            <span
-              style="
-                display: flex;
-                justify-content: flex-start;
-                align-items: flex-start;
-                gap: 10px;
-                flex-direction: column;
-              "
-            >
-              <img
-                src="assets/brand/boo2.png"
-                height="40"
-                width="110"
-                style="margin: 0"
-              />
-              <!-- <h1 style="margin: 0">Envy</h1> -->
-              <h3 style="margin: 0">Version 7.0</h3>
-            </span>
-          </span>
         </center>
       </div>
       <div id="files">
@@ -663,24 +1376,612 @@
           <p>(empty)</p>
         </center>
       </div>
-      <div id="cc">
-        <center>
-          <img src="assets\banner.png" width="100%" />
-          <br /><br />
-          <img src="icons/access.png" onclick="accesspanel()" />
-          <img src="icons/backup.png" onclick="backuppanel()" />
-          <img src="icons/game.png" onclick="transpanel()" />
-          <img
-            src="icons/display.png"
-            width="48"
-            height="48"
-            onclick="displaypanel()"
-          />
-          <img src="icons/ext.png" onclick="duallink()" />
-          <img src="icons/trans.png" onclick="interpanel()" />
-          <img src="icons/taskbar.png" onclick="taskpanel()" />
-          <img src="icons/user.png" onclick="userpanel()" />
-        </center>
+      <div id="modernprefs" style="height: 100%">
+        <style>
+          .puivisiblecol {
+            display: block;
+          }
+          .puihiddencol {
+            display: none;
+          }
+          .puitabactive {
+            background: #ffffff0d;
+          }
+          .puitabinactive {
+            background: transparent;
+          }
+          [data-theme="light"] .puilcolicon {
+            filter: invert(1);
+          }
+          .selectionstatus:not(.checked):after,
+          .qselectionstatus:not(.checked):after {
+            content: "-";
+          }
+          .selectionstatus.checked:after,
+          .qselectionstatus.checked:after {
+            content: "✓";
+          }
+        </style>
+        <div
+          id="prefswindow"
+          class="puiwindow"
+          style="
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            overflow: hidden;
+          "
+        >
+          <div
+            id="lcol"
+            class="puicol"
+            style="width: 30%; height: 100%; overflow-y: auto"
+          >
+            <div
+              id="tabnet"
+              class="puitab puitabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.puivisiblecol`).attr('class','puicol puihiddencol');$(this).parent().children(`.puitabactive`).attr('class','puitab puitabinactive');$(this).parent().parent().children(`#rcol_network`).attr('class','puicol puivisiblecol');$(this).attr('class','puitab puitabactive');"
+            >
+              <img
+                class="puilcolicon"
+                src="assets/prefs/wifi.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Network</span
+              >
+            </div>
+            <div
+              id="taball"
+              class="puitab puitabactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.puivisiblecol`).attr('class','puicol puihiddencol');$(this).parent().children(`.puitabactive`).attr('class','puitab puitabinactive');$(this).parent().parent().children(`#rcol`).attr('class','puicol puivisiblecol');$(this).attr('class','puitab puitabactive');"
+            >
+              <img
+                class="puilcolicon"
+                src="assets/prefs/system.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >System</span
+              >
+            </div>
+            <div
+              id="tabacc"
+              class="puitab puitabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.puivisiblecol`).attr('class','puicol puihiddencol');$(this).parent().children(`.puitabactive`).attr('class','puitab puitabinactive');$(this).parent().parent().children(`#rcol_acc`).attr('class','puicol puivisiblecol');$(this).attr('class','puitab puitabactive');"
+            >
+              <img
+                class="puilcolicon"
+                src="assets/prefs/users.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Accounts</span
+              >
+            </div>
+            <div
+              id="tabthemes"
+              class="puitab puitabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.puivisiblecol`).attr('class','puicol puihiddencol');$(this).parent().children(`.puitabactive`).attr('class','puitab puitabinactive');$(this).parent().parent().children(`#rcol_display`).attr('class','puicol puivisiblecol');$(this).attr('class','puitab puitabactive');"
+            >
+              <img
+                class="puilcolicon"
+                src="assets/prefs/themes.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >Appearance</span
+              >
+            </div>
+            <div
+              id="tababout"
+              class="puitab puitabinactive"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+              "
+              onclick="$(this).parent().parent().children(`.puivisiblecol`).attr('class','puicol puihiddencol');$(this).parent().children(`.puitabactive`).attr('class','puitab puitabinactive');$(this).parent().parent().children(`#rcol_about`).attr('class','puicol puivisiblecol');$(this).attr('class','puitab puitabactive');"
+            >
+              <img
+                class="puilcolicon"
+                src="assets/prefs/about.png"
+                width="25"
+                height="25"
+              /><span style="text-overflow: ellipsis; overflow: hidden"
+                >About</span
+              >
+            </div>
+          </div>
+          <div
+            id="rcol"
+            class="puicol puivisiblecol"
+            style="
+              width: 70%;
+              height: 100%;
+              overflow-y: auto;
+              background: #0000000d;
+            "
+          >
+            <div
+              id="table1"
+              class="puitable"
+              style="
+                padding: 20px 10%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+              "
+            >
+              <span style="display: flex; gap: 10px">
+                <img
+                  src="assets/wp.jpg"
+                  style="
+                    border-color: #ffffff;
+                    border-width: 5px;
+                    border-radius: 10px;
+                    height: 75px;
+                    width: 125px;
+                  "
+                />
+                <span
+                  style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <h2 style="margin: 0; margin-bottom: 10px">Envy system</h2>
+                </span>
+              </span>
+              <br />
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="accesspanel()"
+              >
+                <span style="display: flex; gap: 10px">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <h4 style="margin: 0">Accessbility</h4>
+                    <p style="margin: 0; font-size: 12px">
+                      High contrast themes, dyslexic fonts
+                    </p>
+                  </span>
+                </span>
+              </div>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="backuppanel()"
+              >
+                <span style="display: flex; gap: 10px">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <h4 style="margin: 0">Backup and restore</h4>
+                    <p style="margin: 0; font-size: 12px">
+                      Control if and when Envy backups, restore device
+                    </p>
+                  </span>
+                </span>
+              </div>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="transpanel()"
+              >
+                <span style="display: flex; gap: 10px">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <h4 style="margin: 0">Controllers</h4>
+                    <p style="margin: 0; font-size: 12px">
+                      Control Envy and play games with your games controller.
+                    </p>
+                  </span>
+                </span>
+              </div>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="duallink()"
+              >
+                <span style="display: flex; gap: 10px">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <h4 style="margin: 0">Extensions</h4>
+                    <p style="margin: 0; font-size: 12px">
+                      Extend Envy's possibilities!
+                    </p>
+                  </span>
+                </span>
+              </div>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="interpanel()"
+              >
+                <span style="display: flex; gap: 10px">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <h4 style="margin: 0">Language and region</h4>
+                    <p style="margin: 0; font-size: 12px">
+                      Change your language, regional and currency here.
+                    </p>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            id="rcol_acc"
+            class="puicol puihiddencol"
+            style="width: 70%; height: 100%; background: #0000000d"
+          >
+            <div
+              id="table4"
+              class="puitable"
+              style="
+                padding: 20px 10%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+              "
+            >
+              <h3 style="margin: 0; margin-bottom: 10px">Accounts</h3>
+              <span
+                style="
+                  font-size: 14px;
+                  opacity: 0.25;
+                  text-transform: uppercase;
+                "
+              >
+                Online accounts
+              </span>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 10px;
+                "
+                onclick="userpanel()"
+              >
+                <span style="display: flex; gap: 10px; justify-content: center;padding: 5px 0;">
+                  <span
+                    style="
+                      display: flex;
+                      justify-content: flex-start;
+                      align-items: flex-start;
+                      gap: 10px;
+                      flex-direction: column;
+                    "
+                  >
+                    <img height="50" width="auto" src="assets/brand/zeon_wordmark.png"></img>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            id="rcol_network"
+            class="puicol puihiddencol"
+            style="width: 70%; height: 100%; background: #0000000d"
+          >
+            <div
+              id="table4"
+              class="puitable"
+              style="
+                padding: 20px 10%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+              "
+            >
+              <h3 style="margin: 0; margin-bottom: 10px">
+                Network and connections
+              </h3>
+              <span
+                style="
+                  font-size: 14px;
+                  opacity: 0.25;
+                  text-transform: uppercase;
+                "
+                >internet connection</span
+              >
+              <div id="status" style="font-size: 20px">Checking...</div>
+            </div>
+          </div>
+          <div
+            id="rcol_about"
+            class="puicol puihiddencol"
+            style="width: 70%; height: 100%; background: #0000000d"
+          >
+            <div
+              id="table2"
+              class="puitable"
+              style="
+                padding: 20px 10%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+              "
+            >
+              <img
+                src="assets/brand/seta.png"
+                height="50"
+                style="
+                  margin-left: auto;
+                  margin-right: auto;
+                  margin-bottom: 10px;
+                "
+              />
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                "
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Envy version</span
+                >
+                <span
+                  style="
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    float: right;
+                    opacity: 45%;
+                  "
+                  >8.0</span
+                >
+              </div>
+              <br />
+              <span
+                style="
+                  font-size: 14px;
+                  opacity: 0.25;
+                  text-transform: uppercase;
+                "
+                >advanced information</span
+              >
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                "
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Envy build</span
+                >
+                <span
+                  style="
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    float: right;
+                    opacity: 45%;
+                  "
+                  >8A428</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            id="rcol_display"
+            class="puicol puihiddencol"
+            style="width: 70%; height: 100%; background: #0000000d"
+          >
+            <img
+              src="about:blank#helpmejsisawful"
+              onerror="if($(`html`).attr(`data-theme`) == `dark`) {$(`.winbox .selectionstatus.checked`).removeClass(`checked`);$(`.winbox #darkcell > .selectionstatus`).addClass(`checked`);}if($(`html`).attr(`data-theme`) == `light`) {$(`.winbox .selectionstatus.checked`).removeClass(`checked`);$(`.winbox #lightcell > .selectionstatus`).addClass(`checked`);} if($(`html.hideqs`).length !== 0) { $(this).parent().children(`#table3`).children(`#qscell`).children(`#cconselstatus`).addClass(`checked`) };"
+              style="display: none"
+            />
+            <div
+              id="table3"
+              class="puitable"
+              style="
+                padding: 20px 10%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+              "
+            >
+              <h3 style="margin: 0; margin-bottom: 10px">Appearance</h3>
+              <div
+                class="puitablecell"
+                id="darkcell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                  cursor: url('cursor/pointer.cur'), pointer;
+                "
+                onclick="dark(); if($(`html`).attr(`data-theme`) == `dark`) { $(this).parent().children(`div`).children(`.selectionstatus`).removeClass(`checked`); $(this).children(`.selectionstatus`).addClass(`checked`) }"
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Dark theme</span
+                >
+                <span
+                  class="selectionstatus"
+                  id="darkselstatus"
+                  style="
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    float: right;
+                    opacity: 45%;
+                  "
+                ></span>
+              </div>
+              <div
+                class="puitablecell"
+                id="lightcell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                  cursor: url('cursor/pointer.cur'), pointer;
+                "
+                onclick="light(); if($(`html`).attr(`data-theme`) == `light`) { $(this).parent().children(`div`).children(`.selectionstatus`).removeClass(`checked`) }; $(this).children(`.selectionstatus`).addClass(`checked`)"
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Light theme</span
+                >
+                <span
+                  class="selectionstatus"
+                  id="lightselstatus"
+                  style="
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    float: right;
+                    opacity: 45%;
+                  "
+                ></span>
+              </div>
+              <div
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                "
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Wallpaper URL</span
+                >
+                <input
+                  type="text"
+                  id="newid"
+                  style="
+                    float: right;
+                    direction: rtl;
+                    background: none;
+                    padding: 0;
+                    border: none;
+                  "
+                  placeholder="Enter a URL"
+                  onkeydown="if(event.key === 'Enter') { setWallpaper(); }"
+                />
+              </div>
+              <h3 style="margin: 10px 0">Taskbar</h3>
+              <span
+                style="
+                  font-size: 14px;
+                  opacity: 0.25;
+                  text-transform: uppercase;
+                "
+                >Quick Settings</span
+              >
+              <div
+                id="qscell"
+                class="puitablecell"
+                style="
+                  background: #ffffff25;
+                  padding: 8px 16px;
+                  border-radius: 7px;
+                  cursor: url('cursor/pointer.cur'), pointer;
+                "
+                onclick="$(`html`).toggleClass(`hideqs`); $(this).children(`.qselectionstatus`).toggleClass(`checked`)"
+              >
+                <span style="text-overflow: ellipsis; overflow: hidden"
+                  >Hide Quick Settings</span
+                >
+                <span
+                  class="qselectionstatus"
+                  id="cconselstatus"
+                  style="
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    float: right;
+                    opacity: 45%;
+                  "
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="ccaccess">
         <center>
