@@ -1,4 +1,4 @@
-<img src="assets/brand/seta.png" height="100" width="300">
+<img src="assets/brand/seta.png" height="90" width="300">
 
 ## Envy, the open OS
 Envy is a environment for locked down devices, such as Chromebooks or Windows devices.
