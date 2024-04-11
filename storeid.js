@@ -157,6 +157,27 @@ function id9() {
   let index = addTaskbarItem(appName, appIcon, wb);
 }
 
+function id12() {
+  let appName = "PCSXJS",
+    appIcon = "assets/mtrui/apps/placeholder/favicon.png";
+  let wb = new WinBox({
+    title: appName,
+    icon: appIcon,
+    class: "eclipsemono",
+    x: "center",
+    y: "center",
+    width: "25%",
+    height: "75%",
+    top: 0,
+    right: 0,
+    bottom: 70,
+    left: 0,
+    url: "https://tjwei.github.io/pcsxjs/",
+  });
+  let index = addTaskbarItem(appName, appIcon, wb);
+}
+
+
 function id13() {
   let appName = "Envy Mobile Shell",
     appIcon = "assets/mtrui/apps/id12/favicon.png";
