@@ -3,7 +3,7 @@
 ## Envy v8.0.1 source code
 
 ## How do I access Envy?
-Via [https://envyjs.github.io/os](https://envyjs.github.io/os).
+Via [https://envy.js.org/](https://envy.js.org/).
 
 ## Assets credits
 Logo credits from both "sunnystew22" and "shiypc" on Discord,
