@@ -61,7 +61,7 @@ body {
 .ut {
   position: absolute;
   color: white;
-  top: 82%;
+  top: 77%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -393,6 +393,7 @@ button:hover {
   }
 #terminal {
   font-family: Menlo;
+  user-select: text;
 }
 .output {
   color: #b0b0b0;
