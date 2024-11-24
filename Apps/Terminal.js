@@ -17,11 +17,11 @@ const terminal = document.getElementById('terminal');
     const commands = {
       help: () => {
         createOutputLine("Built-in commands:");
-        createOutputLine("(clear, cls), date, echo, uname");
+        createOutputLine("(clear, cls), date, echo, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
-      uname: () => {createOutputLine("Envy 10 2025 Update 10.0.1444");},
+      ver: () => {createOutputLine("Envy 10 2025 Update 10.0.1444");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };

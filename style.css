@@ -242,8 +242,9 @@ button:hover {
 }
 
   .window-body {
-    padding: 20px;
-    overflow: auto;
+  padding: 20px;
+  overflow-y: auto !important;
+  overflow-x: auto;
   }
   
   /* Opening animation using popUp */
@@ -361,6 +362,7 @@ button:hover {
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.3s ease;
+    z-index: 9999 !important;
   }
   
   .notification.show {
@@ -389,10 +391,7 @@ button:hover {
     cursor: pointer;
   }
 #terminal {
-  max-width: 800px;
-  margin: auto;
   font-family: Menlo;
-  overflow-y: auto;
 }
 .output {
   color: #b0b0b0;
