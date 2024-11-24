@@ -51,18 +51,19 @@ body {
   font-size: 160px;
   color: white;
   position: absolute;
-  left: 40%;
-  top: 32%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   line-height: 140px;
   text-align: center;
 }
 
 .ut {
   position: absolute;
-  left: 0px;
   color: white;
-  left: 38%;
-  top: 80%;
+  top: 82%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .ld {
