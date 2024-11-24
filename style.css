@@ -186,16 +186,6 @@ button:hover {
   padding: 5px;
   cursor: pointer;
 }
-
-
-#windowContainer {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    height: 100%;
-    width: 100%;
-    z-index: initial;
-  }
   
   .window {
     position: absolute;
@@ -355,16 +345,6 @@ button:hover {
     opacity: 0;
   }
 
-  #notificationContainer {
-    position: fixed;
-    bottom: 70px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
   .notification {
     padding: 15px 20px;
     border-radius: 4px;
@@ -375,6 +355,9 @@ button:hover {
     justify-content: space-between;
     min-width: 200px;
     max-width: 300px;
+    position: absolute;
+    bottom: 65px;
+    right: 10px;
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.3s ease;

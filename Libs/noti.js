@@ -1,9 +1,9 @@
 class Notification {
     constructor() {
-        this.container = document.getElementById('notificationContainer');
+        this.container = document.getElementById('userland');
         if (!this.container) {
             this.container = document.createElement('div');
-            this.container.id = 'notificationContainer';
+            this.container.id = 'userland';
             document.body.appendChild(this.container);
         }
     }

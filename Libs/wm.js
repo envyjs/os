@@ -47,7 +47,7 @@ function createWindow(titleText, contentHTML, customMenuOptions) {
         makeWindowResizable(windowDiv, resizeHandle, handle);
     });
 
-    document.getElementById('windowContainer').appendChild(windowDiv);
+    document.getElementById('userland').appendChild(windowDiv);
     setTimeout(() => windowDiv.classList.add('open'), 10);
 
     makeWindowDraggable(windowDiv, header);
