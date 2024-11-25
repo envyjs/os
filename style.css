@@ -66,6 +66,21 @@ body {
   transform: translate(-50%, -50%);
 }
 
+.buttons button {
+  min-width: 136px !important;
+  border-radius: 2px;
+  border: none;
+}
+
+.display {
+  font-family: Menlo;
+  font-size: 18px;
+  background-color: #e6e6e6;
+  width: 99%;
+  border-radius: 3px !important;
+  color: black;
+}
+
 .ld {
   font-size: 20px;
   font-weight: 100;
@@ -412,4 +427,45 @@ input {
   color: #ffffff;
   flex-grow: 1;
   border-radius: 0px !important;
+}
+
+
+
+.ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #366caa;
+  border-bottom: 2px solid #ddd;
+  position: absolute;
+  left: 0;
+  top: 36px;
+  padding: 10px;
+  width: calc(100% - 20px);
+}
+
+.ribbon button, .ribbon select {
+  margin: 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 2px;
+  color: black;
+  min-width: 5px !important;
+}
+
+.ribbon button:hover {
+  background-color: #e6e6e6;
+}
+
+.editor {
+  margin-top: 100px !important;
+  width: 100%;
+  height: 300px;
+  border: none;
+  padding: 10px;
+  box-sizing: border-box;
+  font-size: 16px;
+  line-height: 1.5;
 }
