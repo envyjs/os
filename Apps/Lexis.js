@@ -3,6 +3,34 @@ function execCommand(command, value = null) {
   document.execCommand(command, false, value);
 }
 
+function openFile() {
+  document.getElementById('fileInput').click();
+}
+
+// Function to load and parse RTF file
+function loadRTFFile(event) {
+  const file = event.target.files[0];
+  if (file && file.type === 'application/rtf') {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+          const rtfContent = e.target.result;
+          const plainText = rtfToPlainText(rtfContent);
+          document.querySelector('.editor').innerHTML = plainText;
+      };
+      reader.readAsText(file);
+  } else {
+      alert('Please select a valid .RTF file.');
+  }
+}
+
+// Simple RTF to Plain Text parser
+function rtfToPlainText(rtf) {
+  // Remove RTF control words and groups using regex
+  return rtf.replace(/\\[a-z]+(\d+)?(?:-?\d+)?[ ]?/gi, '')
+            .replace(/[\{\}\*]/g, '')
+            .replace(/\\par/g, '<br>');
+}
+
 function cutText() {
   document.execCommand('cut');
 }
@@ -61,6 +89,7 @@ function saveAsRTF() {
   link.href = URL.createObjectURL(blob);
   link.download = 'document.rtf';
   link.click();
+  notifier.create('Document saved!', 'success', 5000);
 }
 
 function htmlToRtf(html) {
@@ -77,7 +106,7 @@ function htmlToRtf(html) {
 (function() {
   const windowTitle = 'Lexis';
   const customHTML = `
-  <div class="ribbon">
+  <div class="ribbon lx">
         <button onclick="pasteText()" style="height: 68px; max-width: 60px !important;">Paste</button>
         <div>
         <button onclick="cutText()" style="width: 56px;">Cut</button>
@@ -102,17 +131,19 @@ function htmlToRtf(html) {
             <option value="6">Huge</option>
             <option value="7">Gigantic</option>
         </select>
-        <select onchange="changeAlignment(this.value)" style="height: 30px; position: absolute; left: 314px; top: 48px;">
+        <select onchange="changeAlignment(this.value)" style="height: 30px; position: absolute; left: 316px; top: 48px;">
             <option value="">Alignment</option>
             <option value="justifyLeft">Align Left</option>
             <option value="justifyCenter">Center</option>
             <option value="justifyRight">Align Right</option>
             <option value="justifyFull">Justify</option>
         </select>
-        <button onclick="saveAsRTF()">Save as .RTF</button>
-        <button onclick="execCommand('bold')" style="height: 30px; width: 45px; position: absolute; left: 144px; top: 48px;"><b>B</b></button>
-        <button onclick="execCommand('italic')" style="height: 30px; width: 45px; position: absolute; left: 200px; top: 48px;"><i>I</i></button>
-        <button onclick="execCommand('underline')" style="height: 30px; width: 45px; position: absolute; left: 258px; top: 48px;"><u>U</u></button>
+        <button onclick="openFile()">Open</button>
+        <button onclick="saveAsRTF()" style="height: 30px; width: 58px; position: absolute; left: 435px; top: 48px;">Save</button>
+        <button onclick="execCommand('bold')" style="height: 30px; width: 45px; position: absolute; left: 146px; top: 48px;"><b>B</b></button>
+        <button onclick="execCommand('italic')" style="height: 30px; width: 45px; position: absolute; left: 203px; top: 48px;"><i>I</i></button>
+        <button onclick="execCommand('underline')" style="height: 30px; width: 45px; position: absolute; left: 260px; top: 48px;"><u>U</u></button>
+        <input type="file" id="fileInput" accept=".rtf" style="display: none;" onchange="loadRTFFile(event)">
     </div>
 
     <div class="editor-container">
@@ -128,5 +159,3 @@ function htmlToRtf(html) {
     { label: 'Maximize', action: maximizeWindow }
   ]);
 })();
-
-notifier.create('Hello from the Example App', 'info', 5000);

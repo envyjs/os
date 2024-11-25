@@ -429,18 +429,63 @@ input {
   border-radius: 0px !important;
 }
 
-
-
 .ribbon {
   display: flex;
   flex-wrap: wrap;
-  background-color: #366caa;
   border-bottom: 2px solid #ddd;
   position: absolute;
   left: 0;
   top: 36px;
   padding: 10px;
   width: calc(100% - 20px);
+}
+
+.lx {
+  background-color: #366caa;
+}
+.cl {
+  background-color: #1f8657;
+}
+
+#spreadsheet input{
+  background-color: white !important;
+  color: black !important;
+}
+
+.spreadsheet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+table {
+  margin-top: 90px;
+  border-collapse: collapse;
+  width: 100%;
+  background-color: white;
+}
+tbody {
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+td input {
+  width: 100%;
+  border: none;
+  outline: none;
+  text-align: center;
+}
+td input:focus {
+  background-color: #e8f0fe;
+}
+.buttons {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+.fis {
+  display: none;
 }
 
 .ribbon button, .ribbon select {
