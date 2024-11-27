@@ -1,38 +1,31 @@
-// Envy Correr custom core
-// (c) OwnedByWuigi 2024
+// 5% progress on core.js
+// todo: smth about pkgStart
+import("./semver.min.js");
+import("../../Libs/wm.js");
+import("./modal.js") //stub for ModalSystem
 
-console.log(
-    "%cBoo!\n%cIf someone told you to copypaste something here, there's a 11/10 chance you don't know what you're doing. \n \nPasting any code into this console can expose your private account information and/or files to external sources. Use this console at your own risk.%c\n\nIn the rare case that you %cdo %cknow what you're doing, please contribute to this project kthxbye :3 \n\nhttps://github.com/envy-group/webui",
-    "color: magenta;font-size: 78px",
-    "color: auto;font-size: large;",
-    "color: auto;font-size:1.2rem",
-    "color: auto;font-style:italic;font-size:1.2rem",
-    "color: auto;font-size:1.2rem"
-);
-
-const SysInfo = {
-    string: "Envy 10 2025 Update",
-    version: "10.0.1444",
-    extra: "Developer Preview",
-    codename: "Coral"
-};
-
-console.log(SysInfo.string, SysInfo.version, SysInfo.extra);
-
-function loadScript(url, callback) {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = url;
-    script.onload = function() {
-        console.log(`[CORE] Successfuly loaded ${url}`);
-        if (callback) {
-            callback();
-        }
-    };
-    script.onerror = function() {
-        console.error(`[CORE] Error loading ${url}`);
-    };
-    document.head.appendChild(script);
+const coreDetails = {
+    version: "v1.6.2",
+    codename: "Charon"
 }
-console.log("[CORE] Core loaded");
-loadScript('./UI/lock.js');
+
+console.log(coreDetails.codename, coreDetails.version)
+
+class ModalSystem {
+    alert(message) {
+      alert(message); // A simple implementation for now
+    }
+}
+
+const Core = {
+    version: coreDetails.version,
+    codename: "Elysium", //force Elysium every time
+    modal: new ModalSystem(),
+    startPkg: async function (url) {
+        console.log("hello the function exists")
+    }
+}
+
+Core.startPkg("system:BootLoader")
+
+const Lib = {} //found in example app, gotta find out what that is
