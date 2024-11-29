@@ -14,7 +14,7 @@ content.innerHTML = `
         <p>User</p>
     </div>
     <span class="watermark">
-        <p>This is an ALPHA rewrite. Expect bugs and instability. Build 1444</p>
+        <p>For testing purposes only. Build 10.0.1768</p>
     </span>
 </div>
 `;
