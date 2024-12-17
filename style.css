@@ -25,6 +25,18 @@ body {
   top: 0;
   left: 0;
   z-index: -3;
+  color: white;
+}
+
+#bg {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: url(./Assets/Void.jpg);
+  background-size: cover;
+  z-index: -5;
 }
 
 #lock {
@@ -35,7 +47,7 @@ body {
   left: 0;
   background: url(./Assets/Void.jpg);
   background-size: cover;
-  z-index: -4;
+  z-index: -6;
 }
 
 .smst {
@@ -121,12 +133,6 @@ button:hover {
     padding-left: 20px;
 }
 
-#desktop {
-    background-image: url(./Assets/Void.jpg);
-    background-size: cover;
-    color: white;
-}
-
 .taskbar-apps {
   display: flex;
   gap: 10px;
@@ -136,9 +142,11 @@ button:hover {
   position: absolute;
   bottom: 70px;
   left: 20px;
-  background-color: #4CAF50;
+  backdrop-filter: blur(15px) brightness(0.5);
   transition: opacity 0.2s ease;
   border-radius: 4px;
+  max-height: 200px;
+  overflow-y: scroll;
 }
 
 .date {
@@ -149,13 +157,24 @@ button:hover {
   line-height: 15px;
 }
 
+#spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  z-index: -4;
+}
+
 .watermark {
   position: absolute;
-  bottom: 50px;
+  top: 50%;
+  font-size: 104px;
   line-height: 4px;
   opacity: 0.4;
   left: 50%;
-  transform: translate(-50%, -5%);
+  transform: translate(-50%, -50%);
 }
 
 @keyframes popUp {
@@ -415,18 +434,22 @@ button:hover {
 }
 .input {
   display: flex;
-}
-.prompt {
-  margin-right: 5px;
-  margin-top: 8px;
-}
-input {
   background: #1e1e1e;
   border: none;
   outline: none;
   color: #ffffff;
   flex-grow: 1;
   border-radius: 0px !important;
+}
+.ti {
+  border-radius: 0px;
+  border: 0;
+  background-color: #1e1e1e;
+  flex-grow: 1;
+}
+.prompt {
+  margin-right: 5px;
+  margin-top: 8px;
 }
 
 .ribbon {

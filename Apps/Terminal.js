@@ -21,7 +21,7 @@ const terminal = document.getElementById('terminal');
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
-      ver: () => {createOutputLine("Envy 10 2025 Update 10.0.1768");},
+      ver: () => {createOutputLine("Envy 10 2025 Update 10.0.1907");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -43,6 +43,7 @@ const terminal = document.getElementById('terminal');
 
       const input = document.createElement('input');
       input.type = 'text';
+      input.className = 'ti';
 
       inputWrapper.appendChild(prompt);
       inputWrapper.appendChild(input);
@@ -76,6 +77,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.1768]");
+    createOutputLine("Envy [Version 10.0.1907]");
     createOutputLine("Copyright (C) Envy Group 2022-2025")
     createInputLine();

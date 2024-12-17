@@ -12,8 +12,8 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2025 Update",
-    version: "10.0.1768",
-    extra: "Alpha 4",
+    version: "10.0.1954",
+    extra: "Release",
     codename: "Coral"
 };
 
@@ -34,5 +34,13 @@ function loadScript(url, callback) {
     };
     document.head.appendChild(script);
 }
+
+let hasClicked = false;
+    document.addEventListener("click", (e) => {
+      if (!hasClicked) {
+        hasClicked = true;
+        document.querySelector("audio").play();
+      } 
+    }); //startup funnies
 console.log("[CORE] Core loaded");
 loadScript('./UI/lock.js');

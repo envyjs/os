@@ -1,3 +1,5 @@
+loadScript('./Libs/bg.js')
+
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop">
@@ -9,13 +11,20 @@ content.innerHTML = `
             <div id="dateDisplay" style="font-size: 12.5px"></div>
         </div>
     </div>
-    <div id="sem">
-        <img src="./Assets/kot.jpg" height="45px" style="border-radius: 99px">
-        <p>User</p>
-    </div>
-    <span class="watermark">
-        <p>For testing purposes only. Build 10.0.1768</p>
-    </span>
+    <div id="sem" style="padding: 10px;">
+        <span style="display: flex; gap: 15px;">
+            <img src="./Assets/kot.jpg" height="45px" style="border-radius: 99px">
+            <h3 style="margin-top: 11px">User</h3>
+        </span>
+        <span style="max-height: 100px;">
+        <div style="gap: 10px; display: flex; flex-direction: column;">
+        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Cello.js'); semshow();">Cello</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Lexis.js'); semshow();">Lexis</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Settings.js'); semshow();">Settings</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Terminal.js'); semshow();">Terminal</button>
+        </div>
+        </span>
+        </div>
 </div>
 `;
 document.getElementById("userland").appendChild(content);
