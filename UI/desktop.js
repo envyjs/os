@@ -18,10 +18,10 @@ content.innerHTML = `
         </span>
         <span style="max-height: 100px;">
         <div style="gap: 10px; display: flex; flex-direction: column;">
-        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Cello.js'); semshow();">Cello</button>
-        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Lexis.js'); semshow();">Lexis</button>
-        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Settings.js'); semshow();">Settings</button>
-        <button style="border-radius: 7px !important" onclick="loadScript('/Apps/Terminal.js'); semshow();">Terminal</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Cello.js'); semshow();">Cello</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Lexis.js'); semshow();">Lexis</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Settings.js'); semshow();">Settings</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Terminal.js'); semshow();">Terminal</button>
         </div>
         </span>
         </div>
