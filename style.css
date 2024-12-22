@@ -12,6 +12,13 @@
   src: local(''), url('./Assets/fonts/ReadexPro-Regular.ttf')
 }
 
+@font-face {
+  font-family: 'Menlo';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''), url('./Assets/fonts/Menlo.ttf')
+}
+
 body {
   user-select: none;
   font-family: 'Inter', 'ReadexPro';
@@ -28,13 +35,33 @@ body {
   color: white;
 }
 
+#emb {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  backdrop-filter: blur(50px);
+  color: white;
+}
+
+#oobebg {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -2;
+}
+
 #bg {
   height: 100%;
   width: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  background: url(./Assets/Void.jpg);
+  background: url(./Assets/Peak.jpg);
   background-size: cover;
   z-index: -5;
 }
