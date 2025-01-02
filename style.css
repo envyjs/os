@@ -12,6 +12,13 @@
   src: local(''), url('./Assets/fonts/ReadexPro-Regular.ttf')
 }
 
+@font-face {
+  font-family: 'Ubuntu Mono';
+  src: url('./Assets/fonts/UbuntuMono-R.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   user-select: none;
   font-family: 'Inter', 'ReadexPro';
@@ -426,7 +433,7 @@ button:hover {
     cursor: pointer;
   }
 #terminal {
-  font-family: Menlo;
+  font-family: 'Ubuntu Mono';
   user-select: text;
 }
 .output {
