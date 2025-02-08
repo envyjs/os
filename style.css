@@ -544,3 +544,13 @@ td input:focus {
   font-size: 16px;
   line-height: 1.5;
 }
+
+#emb {
+  top: 37px;
+  left: 0;
+  position: absolute !important;
+  width: 100%;
+  color: white !important;
+  height: calc(100% - 37px);
+  border: none;
+}
