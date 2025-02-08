@@ -11,8 +11,8 @@ console.log(
 );
 
 const SysInfo = {
-    string: "Envy 10 2025 Update",
-    version: "10.0.1954",
+    string: "Envy 10 2026 Update",
+    version: "10.0.2107",
     extra: "Release",
     codename: "Coral"
 };
