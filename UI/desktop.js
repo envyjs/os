@@ -4,7 +4,9 @@ var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop">
     <div class="taskbar">
+        <div class="sm">
         <img src="./Assets/envy.svg" onclick="semshow()" height="26px" class="smst">
+        </div>
         <div id="taskbarApps" class="taskbar-apps"></div>
         <div class="date">
             <div id="clock"></div>
@@ -19,6 +21,7 @@ content.innerHTML = `
         <span style="max-height: 100px;">
         <div style="gap: 10px; display: flex; flex-direction: column;">
         <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Cello.js'); semshow();">Cello</button>
+        <button style="border-radius: 7px !important" onclick="loadScript('./Apps/AI.js'); semshow();">Envy Copilot</button>
         <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Lexis.js'); semshow();">Lexis</button>
         <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Linux.js'); semshow();">Linux</button>
         <button style="border-radius: 7px !important" onclick="loadScript('./Apps/Settings.js'); semshow();">Settings</button>
