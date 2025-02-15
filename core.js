@@ -12,8 +12,8 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2026 Update",
-    version: "10.0.2107",
-    extra: "Release",
+    version: "10.0.2343",
+    extra: "Alpha",
     codename: "Coral"
 };
 
@@ -43,4 +43,4 @@ let hasClicked = false;
       } 
     }); //startup funnies
 console.log("[CORE] Core loaded");
-loadScript('./UI/lock.js');
+loadScript('./UI/logon.js');
