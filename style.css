@@ -23,6 +23,7 @@ body {
   user-select: none;
   font-family: 'Inter', 'ReadexPro';
   overflow: hidden;
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
 #desktop {
@@ -47,19 +48,42 @@ body {
   z-index: -5;
 }
 
-#lock {
-  height: 100%;
-  width: 100%;
+#login {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  background-size: cover;
+  color: white;
+  z-index: -6;
+  display: flex;
+  gap: 40px;
+}
+
+#userlogintile {
+  background-image: url(./Assets/Wave.jpg);
+  background-size: cover;
+}
+
+#userlogintile2 {
+  background-image: url(./Assets/Circuit.JPG);
+  background-size: cover;
+}
+
+#loginbg {
   position: absolute;
   top: 0;
   left: 0;
-  background: url(./Assets/Void.jpg);
-  background-size: cover;
-  z-index: -6;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  z-index: -7;
 }
 
 .smst {
   transition: 0.5s;
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
 .smst:hover {
@@ -118,7 +142,7 @@ button, input {
     min-width: 200px;
     font: inherit;
     border-radius: 99px;
-    cursor: var(--cursor-pointer), auto;
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
     transition: 0.3s;
 }
 
@@ -136,6 +160,7 @@ button:hover {
     align-self: center !important;
     gap: 10px;
     padding-left: 15px;
+    cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
 .sm {
@@ -151,9 +176,18 @@ button:hover {
   border-radius: 15px;
 }
 
+img {
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;;
+}
+
 .taskbar-apps {
   display: flex;
   gap: 10px;
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
+}
+
+#userland {
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
 #sem {
@@ -163,15 +197,17 @@ button:hover {
   backdrop-filter: blur(15px) brightness(0.5);
   transition: opacity 0.2s ease;
   border-radius: 4px;
-  max-height: 200px;
-  overflow-y: scroll;
+  max-height: 300px;
+  width: 450px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .date {
   color: white;
   text-align: right;
   position: absolute;
-  right: 30px;
+  right: 90px;
   line-height: 15px;
   border: 2px solid #4a4b5033;
   background-color: rgba(86, 85, 88, 0);
@@ -181,6 +217,29 @@ button:hover {
   align-self: center !important;
   padding-left: 15px;
   padding-top: 10px;
+  padding-right: 15px;
+  border-radius: 15px;
+  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
+}
+
+#response {
+  user-select: initial;
+}
+
+.notibar {
+  color: white;
+  text-align: right;
+  position: absolute;
+  right: 25px;
+  line-height: 15px;
+  border: 2px solid #4a4b5033;
+  background-color: rgba(86, 85, 88, 0);
+  backdrop-filter: brightness(0.7)blur(10px);
+  height: 40px;
+  align-items: center !important;
+  align-self: center !important;
+  padding-left: 15px;
+  padding-top: 15px;
   padding-right: 15px;
   border-radius: 15px;
 }
@@ -197,8 +256,8 @@ button:hover {
 
 .watermark {
   position: absolute;
-  top: 50%;
-  font-size: 104px;
+  bottom: 5px;
+  font-size: 24px;
   line-height: 4px;
   opacity: 0.4;
   left: 50%;
@@ -279,7 +338,7 @@ button:hover {
 }
 
 .window.maximized {
-  height: calc(100% - 56px) !important;
+  height: calc(100% - 73px) !important;
     width: 100% !important;
     left: 0px !important;
     top: 0px !important;
@@ -291,14 +350,16 @@ button:hover {
 
 .window-header .close-btn {
     position: absolute;
-    right: 0;
+    left: 10px;
+    max-height: 20px !important;
     cursor: pointer;
-    background: linear-gradient(135deg, #a90329 0%,#8f0222 44%,#6d0019 100%);
+    background: radial-gradient(#FF2929,#8f0222);
     color: #ffffff; /* Light text color for contrast */
     border: none;
-    border-radius: 3px;
+    border-radius: 99px;
     font-weight: 100;
-    min-width: 25px !important;
+    margin-top: 3px;
+    min-width: 20px !important;
     height: 100%;
 }
 .window-header .close-btn:hover {
