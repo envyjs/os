@@ -1,44 +1,70 @@
-// GWM (Giovanni Window Manager)
-// (C) OwnedByWuigi 2024
-
 let topZIndex = 1; // Track the highest z-index
-
-function createWindow(titleText, contentHTML, customMenuOptions) {
+function createWindow(titleText, contentHTML, width = 400, height = 300) {
+    const windowId = `window-${Date.now()}`;
     const windowDiv = document.createElement('div');
     windowDiv.classList.add('window');
-
-    windowDiv.originalState = {
-        width: '400px',
-        height: '300px',
-        left: '100px',
-        top: '100px'
-    };
-
-    let isMaximized = false;
+    windowDiv.id = windowId;
 
     // Set initial z-index and bring to front
     windowDiv.style.zIndex = topZIndex;
 
-    // Create window header with title and close button
+    // Set default size
+    windowDiv.style.width = `${width}px`;
+    windowDiv.style.height = `${height}px`;
+
+    // Position randomly within viewport
+    windowDiv.style.left = `20px`;
+    windowDiv.style.top = `20px`;
+
+    // Header with title and controls
     const header = document.createElement('div');
     header.classList.add('window-header');
 
+    header.addEventListener('click', () => {
+        topZIndex++;
+        windowDiv.style.zIndex = topZIndex;
+    });
+
     const title = document.createElement('span');
-    title.textContent = titleText || 'Window Title';
+    title.textContent = titleText || 'New Window';
     header.appendChild(title);
 
-    const closeButton = document.createElement('button');
-    closeButton.classList.add('close-btn');
-    closeButton.addEventListener('click', () => closeWindow(windowDiv));
+    // Header buttons container
+    const headerButtons = document.createElement('div');
+    headerButtons.classList.add('window-header-buttons');
 
-    header.appendChild(closeButton);
+    // Minimize Button
+    const minimizeButton = document.createElement('button');
+    minimizeButton.classList.add('window-minimize-btn');
+    minimizeButton.textContent = '';
+    minimizeButton.addEventListener('click', () => minimizeWindow(windowId));
+
+    // Maximize Button
+    const maximizeButton = document.createElement('button');
+    maximizeButton.classList.add('window-maximize-btn');
+    maximizeButton.textContent = '';
+    maximizeButton.addEventListener('click', () => maximizeWindow(windowId));
+
+    // Close Button
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('window-close-btn');
+    closeButton.textContent = '';
+    closeButton.addEventListener('click', () => closeWindow(windowId));
+
+    // Append buttons to header
+    headerButtons.appendChild(minimizeButton);
+    headerButtons.appendChild(maximizeButton);
+    headerButtons.appendChild(closeButton);
+    header.appendChild(headerButtons);
     windowDiv.appendChild(header);
 
+    // Body for content
     const body = document.createElement('div');
     body.classList.add('window-body');
-    body.innerHTML = contentHTML || 'This is a draggable window!';
+    body.innerHTML = contentHTML || 'Default Content';
     windowDiv.appendChild(body);
 
+    // Create resizing handles
     const resizeHandles = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'right', 'bottom', 'left'];
     resizeHandles.forEach(handle => {
         const resizeHandle = document.createElement('div');
@@ -47,39 +73,90 @@ function createWindow(titleText, contentHTML, customMenuOptions) {
         makeWindowResizable(windowDiv, resizeHandle, handle);
     });
 
-    document.getElementById('userland').appendChild(windowDiv);
-    setTimeout(() => windowDiv.classList.add('open'), 10);
+    // Add to the window container
+    const windowContainer = document.getElementById('userland');
+    if (!windowContainer) {
+        console.error('Error: "userland" element is missing.');
+        return;
+    }
+    windowContainer.appendChild(windowDiv);
 
+    // Add to taskbar
+    addTaskbarButton(windowId, titleText);
+
+    // Ensure window is visible upon launch and animate opening
+    windowDiv.classList.add('open');
+
+    // Make the window draggable
     makeWindowDraggable(windowDiv, header);
+}
 
-    windowDiv.addEventListener('contextmenu', (e) => openContextMenu(e, windowDiv, customMenuOptions));
+// Close Window with animation
+function closeWindow(windowId) {
+    const windowDiv = document.getElementById(windowId);
+    if (windowDiv) {
+        windowDiv.classList.remove('open'); // Trigger closing animation
+        windowDiv.classList.add('close'); // Apply close class for fade and shrink
 
-    // Double-click event for maximizing/restoring
-    header.addEventListener('dblclick', () => {
-        if (isMaximized) {
-            windowDiv.classList.remove('maximized');
-            isMaximized = false;
-        } else {
-            windowDiv.classList.add('maximized');
-            isMaximized = true;
+        // Wait for the animation to complete, then remove the window
+        setTimeout(() => {
+            windowDiv.remove();
+            removeTaskbarButton(windowId);
+        }, 400); // 400ms corresponds to the duration of the animation
+    }
+}
+
+// Minimize Window
+function minimizeWindow(windowId) {
+    const windowDiv = document.getElementById(windowId);
+    if (windowDiv) {
+        windowDiv.classList.toggle('minimized');
+    }
+}
+
+// Maximize Window
+function maximizeWindow(windowId) {
+    const windowDiv = document.getElementById(windowId);
+    if (windowDiv) {
+        windowDiv.classList.toggle('maximized');
+    }
+}
+
+// Add Taskbar Button
+function addTaskbarButton(windowId, title) {
+    const taskbar = document.getElementById("taskbarApps");
+    if (!taskbar) {
+        console.error("Taskbar not found!");
+        return;
+    }
+
+    const button = document.createElement("button");
+    button.textContent = title;
+    button.classList.add("taskbar-button");
+    button.dataset.window = windowId;
+
+    button.addEventListener("click", () => {
+        const windowDiv = document.getElementById(windowId);
+        if (windowDiv) {
+            windowDiv.classList.toggle('minimized');
         }
     });
 
-    // Bring the window to the front when the title bar is clicked
-    header.addEventListener('click', () => {
-        topZIndex++;
-        windowDiv.style.zIndex = topZIndex;
-    });
+    taskbar.appendChild(button);
 }
 
-function closeWindow(windowDiv) {
-    windowDiv.classList.remove('open');
-    windowDiv.classList.add('close');
-    setTimeout(() => {
-        windowDiv.remove();
-    }, 400);
+// Remove Taskbar Button
+function removeTaskbarButton(windowId) {
+    const taskbar = document.getElementById("taskbarApps");
+    if (taskbar) {
+        const button = taskbar.querySelector(`button[data-window="${windowId}"]`);
+        if (button) {
+            button.remove();
+        }
+    }
 }
 
+// Make Window Draggable
 function makeWindowDraggable(window, header) {
     let isDragging = false;
     let offsetX = 0;
@@ -107,6 +184,7 @@ function makeWindowDraggable(window, header) {
     }
 }
 
+// Make Window Resizable
 function makeWindowResizable(window, handle, direction) {
     let isResizing = false;
     let lastX = 0;
@@ -126,8 +204,8 @@ function makeWindowResizable(window, handle, direction) {
             const deltaX = e.clientX - lastX;
             const deltaY = e.clientY - lastY;
 
-            const minWidth = 150;
-            const minHeight = 100;
+            const minWidth = 200;
+            const minHeight = 150;
 
             if (direction.includes('right')) {
                 window.style.width = `${Math.max(window.offsetWidth + deltaX, minWidth)}px`;
@@ -156,33 +234,12 @@ function makeWindowResizable(window, handle, direction) {
     }
 }
 
-function openContextMenu(e, windowDiv, customMenuOptions) {
-    e.preventDefault();
-    const contextMenu = document.getElementById('contextMenu');
-    contextMenu.innerHTML = '';
-    const ul = document.createElement('ul');
-    customMenuOptions.forEach(option => {
-        const li = document.createElement('li');
-        li.textContent = option.label;
-        li.onclick = () => option.action(windowDiv);
-        ul.appendChild(li);
-    });
-    contextMenu.appendChild(ul);
-    contextMenu.style.left = `${e.pageX}px`;
-    contextMenu.style.top = `${e.pageY}px`;
-    contextMenu.style.display = 'block';
-    document.addEventListener('click', () => {
-        contextMenu.style.display = 'none';
-    }, { once: true });
-}
-
-function minimizeWindow(windowDiv) {
-    windowDiv.style.height = '40px';
-    windowDiv.style.overflow = 'hidden';
-}
-
-function maximizeWindow(windowDiv) {
-    windowDiv.classList.add('maximized');
-}
-
-console.log("[WM] Window Manager loaded");
+// Apply CSS for scrollbars in the style section
+const style = document.createElement('style');
+style.textContent = `
+    .window-body {
+        overflow: auto;  /* Enables scrollbars when content overflows */
+        max-height: calc(100% - 40px); /* Ensures body doesn't exceed window height */
+    }
+`;
+document.head.appendChild(style);
