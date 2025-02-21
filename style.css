@@ -37,7 +37,7 @@ body {
   justify-content: center;
 }
 
-#bg {
+#bg, #lock {
   height: 100%;
   width: 100%;
   position: absolute;
@@ -176,6 +176,63 @@ button:hover {
   border-radius: 15px;
 }
 
+@media (max-width: 500px) {
+  .taskbar {
+  border: 2px solid #4a4b5033;
+  background-color: rgba(86, 85, 88, 0);
+  backdrop-filter: brightness(0.7)blur(10px);
+  bottom: 0px;
+  width: calc(100% - 19px) !important; 
+  padding-right: 0px !important;
+  }
+
+  .window-header {
+    display: none !important;
+  }
+  .window {
+    position: absolute;
+    top: 0px !important;
+    left: 0px !important;
+    height: calc(100% - 56px) !important;
+    width: 100% !important;
+    border-radius: 0px !important;
+  }
+
+  .sm {
+    border: none;
+    padding-top: 15px;
+    background: none !important;
+    backdrop-filter: brightness(1)blur(0px);
+    padding-left: 10px;
+  }
+
+  .notibar {
+    border: none !important;
+    background: none !important;
+    backdrop-filter: brightness(1)blur(0px) !important;
+    right: 25px !important;
+    padding-right: 0px !important;
+  }
+  .date {
+    border: none !important;
+    background: none !important;
+    backdrop-filter: brightness(1)blur(0px) !important;
+    right: 60px !important;
+  }
+  .watermark {
+    bottom: 70px !important; 
+    width: 100%;
+    padding-left: 50%;
+  }
+  #sem {
+    left: 0 !important;
+    bottom: 54px !important;
+    width: calc(100% - 20px) !important;
+    min-height: calc(100% - 74px) !important;
+    border-radius: 0px !important;
+  }
+}
+
 img {
   cursor: url('./Assets/cursor/cursor.cur'),auto !important;;
 }
@@ -310,25 +367,32 @@ img {
   
   .window {
     position: absolute;
-    width: 600px;
-    min-height: 300px;
     display: flex;
     border: 1px solid #444;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     background-color: #1e1e1e;
     border-radius: 5px;
-    opacity: 0;
-    transform: scale(0.5);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0; /* Start invisible */
+    transform: scale(0.9); /* Start slightly smaller */
+    transition: opacity 0.4s ease, transform 0.4s ease; /* Smooth transition */
     color: white;
     display: initial !important;
+}
+
+window.open {
+  opacity: 1; /* Become visible */
+  transform: scale(1); /* Normalize the scale */
+}
+
+.window.close {
+  opacity: 0; /* Fade out */
+  transform: scale(0.9); /* Shrink slightly */
 }
 
 .window-header {
 
   background-color: #333333;
     display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
     padding: 10px;
     height: 15px;
@@ -337,6 +401,34 @@ img {
     font-weight: bold;
 }
 
+.window-header button {
+  min-width: 20px !important;
+  height: 20px;
+  width: 10px !important;
+}
+
+.window-header-buttons {
+  display: flex !important;
+  gap: 10px !important;
+  position: absolute;
+  right: 10px;
+  margin-top: -2px !important;
+}
+
+.window-close-btn {
+  background-color: red !important;
+  border: none !important;
+}
+
+.window-maximize-btn {
+  background-color: green !important;
+  border: none !important;
+}
+
+.window-minimize-btn {
+  background-color: yellow !important;
+  border: none !important;
+}
 .window.maximized {
   height: calc(100% - 73px) !important;
     width: 100% !important;
@@ -348,23 +440,9 @@ img {
     z-index: 9999;
   }
 
-.window-header .close-btn {
-    position: absolute;
-    left: 10px;
-    max-height: 20px !important;
-    cursor: pointer;
-    background: radial-gradient(#FF2929,#8f0222);
-    color: #ffffff; /* Light text color for contrast */
-    border: none;
-    border-radius: 99px;
-    font-weight: 100;
-    margin-top: 3px;
-    min-width: 20px !important;
-    height: 100%;
-}
-.window-header .close-btn:hover {
-    filter: brightness(1.2);
-}
+  .window.minimized {
+    display: none !important;
+  }
 
   .window-body {
   padding: 20px;
@@ -538,6 +616,9 @@ img {
   background-color: #1e1e1e;
   flex-grow: 1;
 }
+.ti:focus {
+  outline: none;
+}
 .prompt {
   margin-right: 5px;
   margin-top: 8px;
@@ -621,12 +702,13 @@ td input:focus {
 .editor {
   margin-top: 100px !important;
   width: 100%;
-  height: 300px;
+  height: auto;
   border: none;
   padding: 10px;
   box-sizing: border-box;
   font-size: 16px;
   line-height: 1.5;
+  outline: none;
 }
 
 #emb {
