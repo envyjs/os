@@ -5,11 +5,7 @@
   `;
 
   // Create a window dynamically
-  createWindow(windowTitle, customHTML, [
-    { label: 'Close', action: closeWindow },
-    { label: 'Minimize', action: minimizeWindow },
-    { label: 'Maximize', action: maximizeWindow }
-  ]);
+  createWindow(windowTitle, customHTML, 500, 300);
 })();
 
 const terminal = document.getElementById('terminal');
@@ -21,7 +17,7 @@ const terminal = document.getElementById('terminal');
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
-      ver: () => {createOutputLine("Envy 10 2026 Update 10.0.2107");},
+      ver: () => {createOutputLine("Envy 10 2026 Update 10.0.2343");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -77,6 +73,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.2107]");
+    createOutputLine("Envy [Version 10.0.2343]");
     createOutputLine("Copyright (C) Envy Group 2022-2026")
     createInputLine();

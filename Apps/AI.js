@@ -29,10 +29,10 @@ function openFile() {
   document.getElementById('image').click();
 }
 (function() {
-  const windowTitle = 'Envy Copilot';
+  const windowTitle = 'Snap';
   const customHTML = `
 
-  <p style="position: absolute; top: 20px; left:0; padding: 15px;" id="response"></p>
+  <p style="position: absolute; top: 20px; left:0; padding: 15px; height: calc(100% - 35px)" id="response"></p>
   <div id="chat-container" style="position: absolute; bottom: 10px; width: calc(100% - 35px);">
         <div style="display: flex;">
         <input type="file" id="image" style="display: none;">
@@ -43,9 +43,5 @@ function openFile() {
   `;
 
   // Create a window dynamically
-  createWindow(windowTitle, customHTML, [
-    { label: 'Close', action: closeWindow },
-    { label: 'Minimize', action: minimizeWindow },
-    { label: 'Maximize', action: maximizeWindow }
-  ]);
+  createWindow(windowTitle, customHTML, 600, 400);
 })();
