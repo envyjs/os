@@ -12,9 +12,9 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2026 Update",
-    version: "10.0.2343",
+    version: "10.0.2776",
     extra: "Alpha",
-    codename: "Coral"
+    codename: "Rhenium"
 };
 
 console.log(SysInfo.string, SysInfo.version, SysInfo.extra);
@@ -43,4 +43,4 @@ let hasClicked = false;
       } 
     }); //startup funnies
 console.log("[CORE] Core loaded");
-loadScript('./UI/logon.js');
+loadScript('./UI/lock.js');
