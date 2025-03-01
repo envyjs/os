@@ -26,6 +26,15 @@ body {
   cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
+canvas {
+  position: absolute;
+  left: 0;
+  top: 35px;
+  width: 100%;
+  height: calc(100% - 35px);
+  z-index: -1;
+}
+
 #desktop {
   height: 100%;
   width: 100%;
@@ -134,6 +143,12 @@ body {
   top: 30px;
 }
 
+#audioFile {
+  border: none;
+  background-color: #1e1e1e;
+  border-radius: 0px;
+}
+
 button, input {
     background-color: black;
     color: white;
@@ -150,6 +165,10 @@ button:hover {
     background-color: #5f5f5f;
 }
 
+.file-item button {
+  border-radius: 3px !important;
+}
+
 .taskbar {
     position: absolute;
     bottom: 10px;
@@ -159,7 +178,7 @@ button:hover {
     align-items: center !important;
     align-self: center !important;
     gap: 10px;
-    padding-left: 15px;
+    padding-left: 13px;
     cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
@@ -280,7 +299,7 @@ img {
 }
 
 #response {
-  user-select: initial;
+  user-select: text !important;
 }
 
 .notibar {
@@ -442,6 +461,7 @@ window.open {
 
   .window.minimized {
     display: none !important;
+    transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
   .window-body {
@@ -658,8 +678,6 @@ table {
   width: 100%;
   background-color: white;
 }
-tbody {
-}
 th, td {
   padding: 10px;
   border: 1px solid #ccc;
@@ -719,4 +737,70 @@ td input:focus {
   color: white !important;
   height: calc(100% - 37px);
   border: none;
+}
+
+.mini-guide {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 300px;
+  width: 100%;
+  background: black;
+  padding: 15px;
+  color: white;
+  display: none;
+}
+.mini-guide .guidelogo {
+  position: absolute;
+  top: 300px;
+  left: 39.8%;
+  background-color: black;
+  padding: 10px;
+  padding-left: 100px !important;
+  padding-right: 100px;
+  border-radius: 7px;
+}
+
+.mini-guide .guidegame {
+  position: absolute;
+  top: 315px;
+  left: 41.8%;
+  height: 32px;
+}
+
+.mini-guide button {
+  border-radius: 0px;
+  width: 97.8%;
+  height: 50px;
+  font-size: 24px;
+}
+
+.mini-guide .guideset {
+  position: absolute;
+  top: 315px;
+  left: 54%;
+  height: 32px;
+}
+
+.mini-guide.active {
+  display: block;
+  opacity: 1;
+}
+
+#storebutton {
+  line-height: 10px;
+  height: 80px;
+  width: 100%;
+  border-radius: 6px;
+  text-align: left;
+}
+#storebutton img {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+#appsearch {
+  width: 97.9%;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  padding-left: 10px;
 }
