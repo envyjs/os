@@ -7,11 +7,7 @@
   `;
 
   // Create a window dynamically
-  createWindow(windowTitle, customHTML, [
-    { label: 'Close', action: closeWindow },
-    { label: 'Minimize', action: minimizeWindow },
-    { label: 'Maximize', action: maximizeWindow }
-  ]);
+  createWindow(windowTitle, customHTML, 600, 350);
 })();
 
 notifier.create('Hello from the Example App', 'info', 5000);
