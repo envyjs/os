@@ -262,6 +262,15 @@ img {
   cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
 
+.taskbar-button {
+  background: none;
+  border-radius: 9px;
+  border: 2px solid #4a4b5033;
+  background-color: rgba(86, 85, 88, 0);
+  backdrop-filter: brightness(0.7)blur(10px);
+  height: 56px;
+}
+
 #userland {
   cursor: url('./Assets/cursor/cursor.cur'),auto !important;
 }
