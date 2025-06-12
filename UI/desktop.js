@@ -3,7 +3,6 @@ loadScript('./Libs/bg.js')
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">10.0.2804 Alpha</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">

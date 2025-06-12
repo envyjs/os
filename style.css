@@ -433,6 +433,7 @@ window.open {
   min-width: 20px !important;
   height: 20px;
   width: 10px !important;
+  border-radius: 2px !important;
 }
 
 .window-header-buttons {
@@ -444,17 +445,17 @@ window.open {
 }
 
 .window-close-btn {
-  background-color: red !important;
+  background: linear-gradient(to bottom, #ff6759 0%,#ff877c 0%,#cf0404 100%) !important; 
   border: none !important;
 }
 
 .window-maximize-btn {
-  background-color: green !important;
+  background: linear-gradient(to bottom, #bbdd66 0%,#8ab66b 44%,#398235 100%) !important;
   border: none !important;
 }
 
 .window-minimize-btn {
-  background-color: yellow !important;
+  background: linear-gradient(to bottom, #f1e767 0%,#feb645 100%) !important;
   border: none !important;
 }
 .window.maximized {
