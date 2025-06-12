@@ -405,6 +405,7 @@ img {
     transition: opacity 0.4s ease, transform 0.4s ease; /* Smooth transition */
     color: white;
     display: initial !important;
+    box-shadow: 3px 4px 4px black;
 }
 
 window.open {
@@ -418,8 +419,7 @@ window.open {
 }
 
 .window-header {
-
-  background-color: #333333;
+  background: linear-gradient(to right, #1e1e1e 20%,#3f3f3f 100%) !important;
     display: flex;
     position: relative;
     padding: 10px;
@@ -751,45 +751,25 @@ td input:focus {
 
 .mini-guide {
   position: absolute;
-  top: 0px;
-  left: 0px;
-  height: 300px;
-  width: 100%;
-  background: black;
-  padding: 15px;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  height: 260px;
+  width: 500px;
+  background-color: rgba(86, 85, 88, 0);
+  backdrop-filter: brightness(0.3)blur(10px);
+  padding: 40px;
   color: white;
   display: none;
-}
-.mini-guide .guidelogo {
-  position: absolute;
-  top: 300px;
-  left: 39.8%;
-  background-color: black;
-  padding: 10px;
-  padding-left: 100px !important;
-  padding-right: 100px;
-  border-radius: 7px;
-}
-
-.mini-guide .guidegame {
-  position: absolute;
-  top: 315px;
-  left: 41.8%;
-  height: 32px;
+  border-radius: 10px;
 }
 
 .mini-guide button {
   border-radius: 0px;
-  width: 97.8%;
+  width: 99.8%;
   height: 50px;
   font-size: 24px;
-}
-
-.mini-guide .guideset {
-  position: absolute;
-  top: 315px;
-  left: 54%;
-  height: 32px;
 }
 
 .mini-guide.active {

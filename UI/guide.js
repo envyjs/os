@@ -8,9 +8,6 @@ content.innerHTML = `
     <button>Friends (0 online)</button>
     <br><br>
     <button>Messages (0 unread)</button>
-        <img class="guidelogo" src="./Assets/envy.svg" height="40px">
-        <img class="guidegame" src="./Assets/dashboard/joystick.svg">
-        <img class="guideset" src="./Assets/dashboard/settings.svg">
 </div>
 `;
 document.getElementById("userland").appendChild(content);
