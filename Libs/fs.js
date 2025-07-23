@@ -159,7 +159,7 @@ class VirtualFileSystem {
             filesContainer.innerHTML = ''; // Clear existing list
 
             if (files.length === 0) {
-                filesContainer.innerHTML = "<p>No files stored yet.</p>";
+                filesContainer.innerHTML = "<h1>Empty.</h1><p>Try putting something in this folder :3</p>";
                 return;
             }
 

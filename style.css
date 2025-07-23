@@ -666,7 +666,7 @@ window.open {
 }
 
 .lx {
-  background-color: #366caa;
+  background: linear-gradient(135deg, rgba(30,87,153,1) 0%,rgba(41,137,216,1) 50%,rgba(125,185,232,1) 100%);
 }
 .cl {
   background-color: #1f8657;
@@ -793,4 +793,57 @@ td input:focus {
   border-radius: 6px;
   margin-bottom: 20px;
   padding-left: 10px;
+}
+
+.filericon {
+  background: linear-gradient(135deg, rgba(91,91,91,1) 0%,rgba(188,188,188,1) 100%);
+  padding-top: 12px;
+  padding-bottom: 6px;
+  padding-left: 15px;
+  margin-top: auto;
+  padding-right: 15px;
+  border-radius: 4px;
+  border: none;
+}
+
+.filertab {
+  background: linear-gradient(135deg, rgba(249,249,249,1) 0%,rgba(188,188,188,1) 100%);
+  padding-bottom: 50px !important;
+  margin-bottom: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  color: black !important;
+  border-radius: 4px;
+  border: none;
+}
+
+.ftabbar {
+  background: linear-gradient(135deg, rgba(125,126,125,1) 0%,rgba(14,14,14,1) 100%);
+  margin-top: -20px;
+  padding-top: 10px;
+  padding-left: 10px;
+  margin-bottom: -10px;
+  margin-left: -20px;
+  margin-right: -20px;
+}
+
+.filertabnew {
+  background: linear-gradient(135deg, rgba(249,249,249,1) 0%,rgba(188,188,188,1) 100%);
+  color: black;
+  padding-bottom: 50px;
+  min-width: 50px !important;
+  min-height: 50px !important;
+  border-radius: 99px;
+  border: none;
+}
+
+.filertext {
+  background: linear-gradient(135deg, rgba(91,91,91,1) 0%,rgba(188,188,188,1) 100%);
+  padding-top: 10px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+  margin-top: auto;
+  padding-right: 15px;
+  border-radius: 4px;
+  border: none;
 }
