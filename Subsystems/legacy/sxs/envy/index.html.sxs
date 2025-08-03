@@ -1,0 +1,980 @@
+<!-- fuck you atom -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta property="og:title" content="Envy, the free OS" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      property="og:description"
+      content="Envy is an environment for locked down Windows and ChromeOS devices."
+    />
+    <meta property="og:image" content="envy.js.org/assets/boo.png" />
+    <title>Envy</title>
+  </head>
+
+  <body>
+    <audio src="assets/audio/boot.mp3"></audio>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@ungap/custom-elements-builtin"></script>
+    <script type="module" src="https://unpkg.com/x-frame-bypass"></script>
+    <script type="module">
+      import html from "https://unpkg.com/@datkat21/html";
+      import Gamepad from "./js/gamepad.app.js";
+      Gamepad.exec({ Lib: { html, setupReturns: (_) => undefined } });
+    </script>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <div
+      class="bar"
+      style="
+        border-radius: 7px; /* Set border-radius to make it rounded */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add box shadow for the floating effect */
+        margin: 10px; /* Add padding for better visual appearance */
+      "
+    >
+      <span
+        style="
+          text-align: left;
+          display: flex;
+          flex-shrink: 0;
+          height: 45px;
+          gap: 10px;
+          align-items: center;
+        "
+      >
+        <div
+          class="contentBar"
+          style="padding-left: 5px; display: flex; overflow-x: auto; gap: 5px"
+        >
+          <img
+            src="assets/brand/boo.jpg"
+            style="height: 32px; width: 32px; border-radius: 7px"
+            onclick="showBooWindow()"
+            id="start-menu"
+          />
+          <img
+            src="icons/search.jpg"
+            alt="Search"
+            height="32"
+            width="32"
+            style="border-radius: 7px"
+            onclick="showotherSearch()"
+          />
+          <img
+            src="assets/brand/store.jpg"
+            alt="Search"
+            height="32"
+            width="32"
+            style="border-radius: 7px"
+            onclick="showstore()"
+          />
+        </div>
+      </span>
+
+      <div
+        class="bar-placeholder"
+        style="display: flex; overflow-x: auto"
+      ></div>
+      <span
+        style="
+          text-align: center;
+          flex-shrink: 0;
+          display: flex;
+          height: 45px;
+          gap: 6px;
+          align-items: center;
+          margin-left: auto;
+        "
+      >
+        <img
+          id="neny"
+          src="assets/qs/qs.png"
+          width="25"
+          height="25"
+          onclick="showWifi()"
+        />
+        <h3>
+          <div
+            id="clock"
+            style="display: flex; justify-content: center; align-items: center"
+          ></div>
+        </h3>
+      </span>
+    </div>
+    <div id="contextMenu" class="context-menu" style="display: none">
+      <a onclick="displaypanel()">Display settings</a>
+      <a onclick="emoji()">Emojis</a>
+      <a onclick="location.reload()">Refresh</a>
+      <a onclick="widgetinit()">Widgets</a>
+    </div>
+    <div class="hidden">
+      <div id="Teresa">
+        <div id="tabs">
+          <center>
+            <br />
+            <span
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 2px;
+              "
+            >
+              <br /><br /><img
+                onclick="showlock()"
+                src="icons/lock.png"
+                width="32"
+                height="32"
+                style="border-radius: 10px"
+              /><img />
+              <span
+                style="
+                  display: flex;
+                  justify-content: flex-start;
+                  align-items: flex-start;
+                  gap: 20px;
+                  flex-direction: column;
+                "
+              >
+                <h4 style="margin: 0">| Welcome back.</h4>
+              </span>
+            </span>
+            <br /><br />
+          </center>
+
+          <button class="ripple" onclick="showAboutWindow()">About Envy</button>
+          <button class="ripple" onclick="aspenplus()">Aspen Start</button>
+          <button class="ripple" onclick="showstore()">Envy Store</button>
+          <button class="ripple" onclick="showSettingsWindow()">
+            Settings
+          </button>
+          <button class="ripple" onclick="showWeather()">Weather</button>
+        </div>
+      </div>
+      <div id="teresasearch">
+        <iframe src="https://www.google.com/webhp?igu=1"></iframe>
+      </div>
+      <div id="userinit">
+        <center>
+          <h3>Welcome to Envy.</h3>
+          <button class="ripple">
+            <img src="icons/user.png" style="border-radius: 10px" /><br />
+            <p>Local user</p>
+          </button>
+          <button class="ripple">
+            <img
+              src="assets/brand/zeon.png"
+              height="48"
+              width="48"
+              style="border-radius: 10px"
+            /><br />
+            <p>Zeon user</p>
+          </button>
+        </center>
+      </div>
+      <div id="teresalock">
+        <style>
+          #teresalock {
+            background-image: url("wp2.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+          }
+        </style>
+        <script>
+          function UpdateTime() {
+            let x = new Date();
+            let hours = x.getHours().toString().padStart(2, "0"); // 18
+            let minutes = x.getMinutes().toString().padStart(2, "0"); // 37
+            let timeString = `${hours}:${minutes}`; // example: 18:37
+            let elements = document.querySelectorAll("#time");
+            elements.forEach(function (elm) {
+              if (elm === undefined || elm === null) return;
+              elm.innerText = timeString;
+            });
+          }
+          UpdateTime();
+          setInterval(UpdateTime, 1000); // 60000ms -> 60 sec/1 min delay
+          // Delete lockscreen func.
+
+          function RemoveLockScreen() {
+            let element = document.querySelector(".winbox #teresalock");
+            if (element) element = element.closest(".winbox").remove();
+          }
+        </script>
+
+        <center>
+          <h1 style="font-size: 72px; margin-bottom: 0" id="time">00:00</h1>
+          <h2>This system is locked.</h2>
+          <!-- 00:00 is fallback time incase it breaks -->
+        </center>
+        <br />
+        <center><img src=icons/lock.png onclick="RemoveLockScreen()"></center>
+      </div>
+      <div id="teresalogin">
+        <style>
+          #teresalogin {
+            background: rgb(0, 35, 94);
+            background: linear-gradient(
+              0deg,
+              rgba(0, 35, 94, 1) 0%,
+              rgba(0, 0, 0, 1) 80%
+            );
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+          }
+        </style>
+        <script>
+          // Delete lockscreen func.
+
+          function RemoveLockScreen2() {
+            let element = document.querySelector(".winbox #teresalogin");
+            if (element) element = element.closest(".winbox").remove();
+          }
+        </script>
+
+        <center>
+          <img
+            src="assets/zeon.png"
+            style="border-radius: 10px"
+            height="100"
+            width="100"
+          />
+          <h2>Zeon user</h2>
+          <input type="password" placeholder="Password" /><button
+            class="ripple"
+            onclick="RemoveLockScreen2()"
+          >
+            Go
+          </button>
+          <br /><br />
+          <button class="ripple">Switch users</button>
+        </center>
+      </div>
+      <div id="teresadual">
+        <center>
+          <br />
+          <img src="icons/tops.png" onclick="showDualWindow()" />
+          <img src="icons/term.png" onclick="showTelegram()" />
+        </center>
+      </div>
+      <div id="TeresaZwei">
+        <center>
+          <br />
+          <span
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 2px;
+            "
+          >
+            <br /><br /><img
+              src="icons/shop.png"
+              style="border-radius: 10px"
+            /><img />
+            <span
+              style="
+                display: flex;
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 10px;
+                flex-direction: column;
+              "
+            >
+              <h3 style="margin: 0">| Envy Store</h3>
+            </span>
+          </span>
+          <h3>New to Envy</h3>
+          <button class="ripple" onclick="id1()">Piskel for Envy</button>
+          <button class="ripple" onclick="id9()">Maps (Beta)</button>
+          <h3>Envy Testing apps</h3>
+          <button class="ripple" onclick="files()">ArcGPKit</button>
+          <button class="ripple" onclick="files()">
+            Cherry Transition Kit
+          </button>
+          <button class="ripple" onclick="id6()">Calculator</button>
+          <button class="ripple" onclick="files()">File Explorer</button>
+          <h3>Media on Envy</h3>
+          <button class="ripple" onclick="id8()">Envy Music</button>
+          <button class="ripple" onclick="showInvidious()">YouTube</button>
+          <h3>Remember Envy4?</h3>
+          <button class="ripple" onclick="id8()">Legacy Notepad</button>
+          <button class="ripple" onclick="id7()">Virtual x86</button>
+          <h3>Gaming just got easier!</h3>
+          <button class="ripple" onclick="id4()">Eaglercraft</button>
+          <button class="ripple" onclick="id5()">Resent Client</button>
+          <button class="ripple" onclick="id10()">Word Game</button>
+        </center>
+      </div>
+      <div id="TeresaMark">
+        <style>
+          #TeresaMark {
+            height: 100%;
+            background: rgb(255, 0, 0);
+            background: linear-gradient(
+              45deg,
+              rgba(255, 0, 0, 1) 0%,
+              rgba(20, 104, 203, 1) 100%
+            );
+          }
+        </style>
+        <center>
+          <button class="ripple" onclick="history.back()">&lt;</button>
+          <input type="text" placeholder="Enter your URL" />
+          <button class="ripple">Go ></button>
+          <button class="ripple" onclick="history.forward()">&gt;</button>
+        </center>
+        <iframe id="myIframe" src="https://www.google.com/webhp?igu=1"></iframe>
+      </div>
+      <div id="teresadrei">
+        <center>
+          <h2>Select a widget</h2>
+          <img
+            src="icons/aspen.webp"
+            height="48"
+            width="48"
+            onclick="widgetgallery()"
+          />
+        </center>
+      </div>
+      <div id="teresaoobe">
+        <style>
+          #teresaoobe {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background-clip: text;
+            background: linear-gradient(
+              45deg,
+              rgba(131, 58, 180, 1) 0%,
+              rgba(253, 29, 29, 1) 50%,
+              rgba(252, 176, 69, 1) 100%
+            );
+            background-size: 200% 200%;
+            animation: gradientAnimation 2s linear forwards;
+          }
+
+          @keyframes gradientAnimation {
+            0%,
+            100% {
+              background-position: 0% 0%;
+            }
+            50% {
+              background-position: 100% 0%;
+            }
+          }
+
+          @keyframes slideFadeIn {
+            from {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+        </style>
+        <script>
+          function nosetup() {
+            let element = document.querySelector(".winbox #teresaoobe");
+            if (element) element = element.closest(".winbox").remove();
+            new WinBox({
+              title: "Welcome to Envy",
+              class: ["no-max", "no-min", "no-close", "eclipsemono"],
+              x: "center",
+              y: "center",
+              width: "50%",
+              height: "75%",
+              header: 0,
+              top: 0,
+              right: 0,
+              bottom: 45,
+              left: 0,
+              modal: true,
+              mount: document.getElementById("stage2").cloneNode(true),
+            });
+          }
+        </script>
+        <center>
+          <img
+            style="animation: slideFadeIn 1s ease-out; border-radius: 20px"
+            src="assets/boo.png"
+            height="64"
+            width="64"
+          />
+          <h2 style="animation: slideFadeIn 1s ease-out">Welcome to Envy.</h2>
+          <h3 style="animation: slideFadeIn 1s ease-out">
+            Let's reinvent the desktop.
+          </h3>
+          <button
+            class="ripple"
+            style="animation: slideFadeIn 1s ease-out"
+            onclick="nosetup()"
+          >
+            Let's start</button
+          ><br /><br />
+          <img
+            style="animation: slideFadeIn 1s ease-out"
+            src="icons/access.png"
+            onclick="accesspanel()"
+          />
+        </center>
+      </div>
+      <div id="stage2">
+        <style>
+          #stage2 {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: rgb(131, 58, 180);
+            background: linear-gradient(
+              45deg,
+              rgba(131, 58, 180, 1) 0%,
+              rgba(253, 29, 29, 1) 50%,
+              rgba(252, 176, 69, 1) 100%
+            );
+          }
+        </style>
+        <script>
+          function skipsetup() {
+            let element = document.querySelector(".winbox #stage2");
+            if (element) element = element.closest(".winbox").remove();
+          }
+
+          function zeonsetup() {
+            let element = document.querySelector(".winbox #stage2");
+            if (element) element = element.closest(".winbox").remove();
+            new WinBox({
+              title: "Welcome to Envy",
+              class: ["no-max", "no-min", "no-close", "eclipsemono"],
+              x: "center",
+              y: "center",
+              width: "50%",
+              height: "75%",
+              header: 0,
+              top: 0,
+              right: 0,
+              bottom: 45,
+              left: 0,
+              modal: true,
+              mount: document.getElementById("zeonsetup").cloneNode(true),
+            });
+          }
+        </script>
+        <center>
+          <img
+            src="assets/zeon.png"
+            style="border-radius: 10px"
+            height="64"
+            width="64"
+          />
+          <h2>Do you want to login with Zeon?</h2>
+          <button class="ripple" onclick="zeonsetup()">Yes</button>
+          <button class="ripple" onclick="skipsetup()">Skip</button>
+        </center>
+      </div>
+      <div id="zeonsetup">
+        <style>
+          #zeonsetup {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: rgb(131, 58, 180);
+            background: linear-gradient(
+              45deg,
+              rgba(131, 58, 180, 1) 0%,
+              rgba(253, 29, 29, 1) 50%,
+              rgba(252, 176, 69, 1) 100%
+            );
+          }
+        </style>
+        <script>
+          function finishzeonsetup() {
+            let element = document.querySelector(".winbox #zeonsetup");
+            if (element) element = element.closest(".winbox").remove();
+          }
+          function backtostage2() {
+            let element = document.querySelector(".winbox #zeonsetup");
+            if (element) element = element.closest(".winbox").remove();
+            nosetup();
+          }
+        </script>
+        <center>
+          <img
+            src="assets/zeon.png"
+            style="border-radius: 10px"
+            height="64"
+            width="64"
+          />
+          <h2>Sign into Zeon</h2>
+          <button class="ripple" onclick="zeoniframe()">
+            Don't have a Zeon account?</button
+          ><br /><br />
+          <input id="zuser" type="text" placeholder="Username" /><br /><br />
+          <input
+            id="zpass"
+            type="password"
+            placeholder="Password"
+          /><br /><br />
+          <button class="ripple" onclick="oobelogin()">Go!</button>
+          <button class="ripple" onclick="backtostage2()">Back</button>
+        </center>
+      </div>
+      <div id="aspenplus">
+        <center>
+          <style>
+            #aspenplus {
+              height: 100%;
+              background: rgb(180, 152, 35);
+              background: linear-gradient(
+                45deg,
+                rgba(180, 152, 35, 1) 0%,
+                rgba(203, 20, 20, 1) 100%
+              );
+            }
+          </style>
+          <br />
+          <b style="margin-right: 10px">Aspen Start </b>
+          <button class="ripple" onclick="id3()">Browser</button
+          ><button class="ripple" onclick="flipify()">Flipify</button>
+          <br />
+          <h2>Welcome to Aspen Start</h2>
+          <input type="text" placeholder="Search Aspen..." /><br /><br />
+          <button class="ripple">Search Aspen</button
+          ><button class="ripple">Search Flipify</button>
+        </center>
+      </div>
+      <div id="about">
+        <style>
+          #about {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: rgb(63, 0, 255);
+            background: linear-gradient(
+              45deg,
+              rgb(0, 0, 0) 0%,
+              rgb(75, 75, 75) 100%
+            );
+          }
+        </style>
+        <center>
+          <button class="ripple" class="ripple" onclick="shownet()">
+            Overview
+          </button>
+          <button class="ripple" onclick="chooseFolder()">Storage</button
+          ><br /><br />
+          <span
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <br /><br /><img
+              src="assets/brand/boo.png"
+              width="90"
+              height="90"
+              style="border-radius: 20px"
+            /><img />
+            <span
+              style="
+                display: flex;
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 10px;
+                flex-direction: column;
+              "
+            >
+              <img
+                src="assets/brand/boo2.png"
+                height="40"
+                width="110"
+                style="margin: 0"
+              />
+              <!-- <h1 style="margin: 0">Envy</h1> -->
+              <h3 style="margin: 0">Version 7.0 Public Beta 5</h3>
+            </span>
+          </span>
+        </center>
+      </div>
+      <div id="files">
+        <center id="filelist">
+          <br />
+          <button class="ripple">&lt;</button
+          ><input type="text" placeholder="Address bar" /><button
+            class="ripple"
+          >
+            &gt;
+          </button>
+        </center>
+      </div>
+      <div id="log">
+        <center>
+          <br />
+          <img src="assets/boo.png" width="64" height="64" /><img />
+          <h1>Credits</h1>
+          <p>
+            <b
+              >This site uses the
+              <a href="http://dsans.davidstudios.uk/">DSans font.</a></b
+            >
+          </p>
+        </center>
+      </div>
+      <div id="net">
+        <center>
+          <br />
+          <p>(empty)</p>
+        </center>
+      </div>
+      <div id="cc">
+        <center>
+          <img src="assets\brand\banner.png" width="100%" />
+          <br /><br />
+          <img src="icons/access.png" onclick="accesspanel()" />
+          <img src="icons/backup.png" onclick="backuppanel()" />
+          <img src="icons/game.png" onclick="transpanel()" />
+          <img
+            src="icons/display.png"
+            width="48"
+            height="48"
+            onclick="displaypanel()"
+          />
+          <img src="icons/ext.png" onclick="duallink()" />
+          <img src="icons/trans.png" onclick="interpanel()" />
+          <img src="icons/taskbar.png" onclick="taskpanel()" />
+          <img src="icons/user.png" onclick="userpanel()" />
+        </center>
+      </div>
+      <div id="ccaccess">
+        <center>
+          <br />
+          <h2>Accessbility</h2>
+          <button class="ripple">Enable OpenDyslexic font</button><br /><br />
+          <button class="ripple">High contrast themes</button>
+        </center>
+      </div>
+      <div id="backup2">
+        <center>
+          <br />
+          <h2>Backup</h2>
+          <h3>How often do you want to backup Envy?</h3>
+          <button class="ripple">Never</button>
+          <button class="ripple">Every day</button>
+          <button class="ripple">Every week</button>
+          <button class="ripple">Every month</button>
+          <h3>Where do you want to backup Envy?</h3>
+          <input type="text" />
+        </center>
+      </div>
+      <div id="ccbackup">
+        <center>
+          <br />
+          <h2>Backup and reset</h2>
+          <button class="ripple" onclick="backup2panel()">
+            Backup your system</button
+          ><br /><br />
+          <button class="ripple" onclick="resetconfirm()">
+            Reset your system
+          </button>
+        </center>
+      </div>
+      <div id="ccdisplay">
+        <center>
+          <br />
+          <h2>Envy themes</h2>
+          <button class="ripple" onclick="dark()">Dark (default)</button>
+          <button class="ripple" onclick="light()">Light</button>
+          <h2>Custom themes</h2>
+          <button class="ripple" onclick="urlbox()">Type in an image URL</button
+          ><br />
+          <button class="ripple" onclick="winboxbox()">
+            Choose a window color</button
+          ><br />
+          <h2>Aspen colors</h2>
+        </center>
+      </div>
+      <div id="ccinter">
+        <center>
+          <br />
+          <h2>Let's talk language.</h2>
+          <h3>What language do you speak?</h3>
+          <form action="/action_page.php">
+            <select id="tasks" name="tasks">
+              <option value="tasks">Select an option</option>
+              <option value="tasks">Arabic (???)</option>
+              <option value="tasks">English (UK)</option>
+              <option value="tasks">German (Germany)</option>
+              <option value="tasks">Italian (Italy)</option>
+              <option value="tasks">Japanese (Japan)</option>
+              <option value="tasks">Polish (Poland)</option>
+              <option value="tasks">Russian (Russia)</option>
+              <option value="tasks">Turkish (Turkey)</option>
+              <option value="tasks">Ukrainian (Ukraine)</option>
+            </select>
+            <!-- <input type="submit"> -->
+          </form>
+        </center>
+      </div>
+      <div id="cctask">
+        <center>
+          <br />
+          <h2>Taskbar functions</h2>
+          <h3>Search</h3>
+          <form action="/action_page.php">
+            <label for="tasks">Search appearence</label>
+            <select id="tasks" name="tasks">
+              <option value="tasks">Icon</option>
+              <option value="tasks">Box</option>
+            </select>
+            <!-- <input type="submit"> -->
+          </form>
+          <h2>Taskbar theming</h2>
+          <button class="ripple" onclick="colorbox()">
+            Choose a taskbar color</button
+          ><br />
+        </center>
+      </div>
+      <div id="urlbox">
+        <center>
+          <br />
+          <h2>Type in your URL</h2>
+          <input type="text" id="newid" />
+          <button class="ripple" onclick="setWallpaper()">Apply</button>
+        </center>
+      </div>
+      <div id="colorbox">
+        <center>
+          <br />
+          <h2>Select your color</h2>
+          <button class="ripple" onclick="changetaskbarcolor('#992d1f')">
+            Red
+          </button>
+          <button class="ripple" onclick="changetaskbarcolor('#99661f')">
+            Orange
+          </button>
+          <button class="ripple" onclick="changetaskbarcolor('#1f993d')">
+            Green
+          </button>
+          <button class="ripple" onclick="changetaskbarcolor('#0b2247')">
+            Blue
+          </button>
+          <br />
+          <button class="ripple" onclick="changetaskbarcolor('#210b38')">
+            Purple
+          </button>
+          <button class="ripple" onclick="changetaskbarcolor('#000000')">
+            Black
+          </button>
+          <br />
+        </center>
+      </div>
+      <div id="winboxbox">
+        <center>
+          <br />
+          <h2>Select your window color</h2>
+          <button class="ripple" onclick="setWinboxColor('#992d1f')">
+            Red
+          </button>
+          <button class="ripple" onclick="setWinboxColor('#99661f')">
+            Orange
+          </button>
+          <button class="ripple" onclick="setWinboxColor('#1f993d')">
+            Green
+          </button>
+          <button class="ripple" onclick="setWinboxColor('#0b2247')">
+            Blue
+          </button>
+          <br />
+          <button class="ripple" onclick="setWinboxColor('#210b38')">
+            Purple
+          </button>
+          <button class="ripple" onclick="setWinboxColor('#000000')">
+            Black
+          </button>
+          <br />
+        </center>
+      </div>
+      <div id="viewww">
+        <center>
+          <br />
+          <button class="ripple">
+            Controller extension (Installed by system)
+          </button>
+        </center>
+      </div>
+      <div id="addextension">
+        <center>
+          <br />
+          <input type="text" placeholder="Type a filename" />
+          <button class="ripple">Add</button>
+        </center>
+      </div>
+      <div id="duallink">
+        <center>
+          <br />
+          <h2>Extensions</h2>
+          <button class="ripple" onclick="extensionview()">
+            View installed extensions</button
+          ><br /><br />
+          <button class="ripple" onclick="addextension()">
+            Apply an extension to your system
+          </button>
+        </center>
+      </div>
+      <div id="cctrans">
+        <center>
+          <br />
+          <h2>Controllers</h2>
+          <h3>Please type in your speed below:</h3>
+          <input type="text" placeholder="1 - 20" />
+        </center>
+      </div>
+      <div id="ccuser">
+        <center>
+          <br />
+          <h2>Change or create a user</h2>
+          <span id="loginStatus"></span><br /><br />
+          <button class="ripple" onclick="envynet()">Use a Zeon account</button
+          ><br /><br />
+          <button class="ripple" onclick="logout()">
+            Log out of your Zeon account</button
+          ><br /><br />
+          <button class="ripple">Manage your Zeon account</button>
+        </center>
+      </div>
+      <div id="envynet">
+        <center>
+          <br />
+          <h2>Sign into Zeon</h2>
+          <button class="ripple" onclick="zeoniframe()">
+            Don't have a Zeon account?</button
+          ><br /><br />
+          <input id="zuser" type="text" placeholder="Username" /><br /><br />
+          <input
+            id="zpass"
+            type="password"
+            placeholder="Password"
+          /><br /><br />
+          <button class="ripple" onclick="loginGUI()">Go!</button>
+        </center>
+      </div>
+      <div id="zeonerr">
+        <center>
+          <br />
+          <img src="icons/info.png" />
+          <h3>Some information you entered is incorrect. Please try again.</h3>
+        </center>
+      </div>
+      <div id="zeonsuccess">
+        <center>
+          <br />
+          <img src="icons/info.png" />
+          <h2 id="zwelcomename"></h2>
+          <h3>Welcome back!</h3>
+        </center>
+      </div>
+      <div id="err">
+        <center>
+          <br />
+          <img src="icons/info.png" width="64" height="64" /><img />
+          <!-- May replace info icon with an error icon/SVG (David)-->
+          <h1>Oops!</h1>
+          <p>
+            It seems like Envy has encountered an error. Please ignore this
+            unless you have seen this multiple times.
+          </p>
+        </center>
+      </div>
+      <div id="resetconfirm">
+        <script>
+          function noreset() {
+            let element = document.querySelector(".winbox #resetconfirm");
+            if (element) element = element.closest(".winbox").remove();
+          }
+          function yesreset() {
+            let element = document.querySelector(".winbox #resetconfirm");
+            if (element) element = element.closest(".winbox").remove();
+            resetinit();
+          }
+        </script>
+        <center>
+          <br />
+          <img src="icons/info.png" width="64" height="64" /><img />
+          <h1>Woah!</h1>
+          <p>Are you sure you want to reset your system?</p>
+          <p>Resetting your system does the following:</p>
+          <p>- Log you out of Zeon</p>
+          <p>- Remove all data</p>
+          <button class="ripple" onclick="yesreset()">Yes</button
+          ><button class="ripple" onclick="noreset()">No</button>
+        </center>
+      </div>
+      <div id="resetinit">
+        <center>
+          <br />
+          <img src="icons/info.png" width="64" height="64" /><img />
+          <h1>Resetting system...</h1>
+          <h3>Do not exit this page.</h3>
+        </center>
+      </div>
+      <div id="widgallery">
+        <center>
+          <h4>Quick Dial</h4>
+          <button class="ripple" onclick="id3()">Aspen Browser</button><br />
+          <button class="ripple" onclick="flipify()">Aspen Flipify</button>
+        </center>
+      </div>
+      <div id="emoji">
+        <emoji-picker></emoji-picker>
+      </div>
+      <div id="content"></div>
+    </div>
+    <script src="js/winbox.bundle.min.js"></script>
+    <script src="scripts.js"></script>
+    <script src="js/zeon.js"></script>
+    <script src="storeid.js"></script>
+    <script type="module" src="import.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
+  </body>
+</html>

@@ -156,8 +156,8 @@ button, input {
     height: 32px;
     min-width: 200px;
     font: inherit;
-    border-radius: 99px;
-  cursor: url('./Assets/cursor/cursor.cur'),auto !important;
+    border-radius: 5px;
+    cursor: url('./Assets/cursor/cursor.cur'),auto !important;
     transition: 0.3s;
 }
 
@@ -447,16 +447,19 @@ window.open {
 .window-close-btn {
   background: linear-gradient(to bottom, #ff6759 0%,#ff877c 0%,#cf0404 100%) !important; 
   border: none !important;
+  filter: drop-shadow(0px 3px 4px #000);
 }
 
 .window-maximize-btn {
   background: linear-gradient(to bottom, #bbdd66 0%,#8ab66b 44%,#398235 100%) !important;
   border: none !important;
+  filter: drop-shadow(0px 3px 4px #000);
 }
 
 .window-minimize-btn {
   background: linear-gradient(to bottom, #f1e767 0%,#feb645 100%) !important;
   border: none !important;
+  filter: drop-shadow(0px 3px 4px #000);
 }
 .window.maximized {
   height: calc(100% - 73px) !important;
@@ -796,54 +799,56 @@ td input:focus {
 }
 
 .filericon {
-  background: linear-gradient(135deg, rgba(91,91,91,1) 0%,rgba(188,188,188,1) 100%);
+  background: linear-gradient(135deg, rgba(91,91,91,1) 0%,rgba(33,33,33,1) 100%);
   padding-top: 12px;
   padding-bottom: 6px;
+  filter: drop-shadow(4px 5px 4px #000);
   padding-left: 15px;
   margin-top: auto;
   padding-right: 15px;
   border-radius: 4px;
-  border: none;
-}
-
-.filertab {
-  background: linear-gradient(135deg, rgba(249,249,249,1) 0%,rgba(188,188,188,1) 100%);
-  padding-bottom: 50px !important;
-  margin-bottom: 10px;
-  padding-left: 15px;
-  padding-right: 15px;
-  color: black !important;
-  border-radius: 4px;
-  border: none;
-}
-
-.ftabbar {
-  background: linear-gradient(135deg, rgba(125,126,125,1) 0%,rgba(14,14,14,1) 100%);
-  margin-top: -20px;
-  padding-top: 10px;
-  padding-left: 10px;
-  margin-bottom: -10px;
-  margin-left: -20px;
-  margin-right: -20px;
-}
-
-.filertabnew {
-  background: linear-gradient(135deg, rgba(249,249,249,1) 0%,rgba(188,188,188,1) 100%);
-  color: black;
-  padding-bottom: 50px;
-  min-width: 50px !important;
-  min-height: 50px !important;
-  border-radius: 99px;
   border: none;
 }
 
 .filertext {
-  background: linear-gradient(135deg, rgba(91,91,91,1) 0%,rgba(188,188,188,1) 100%);
+  background: linear-gradient(135deg, rgb(52, 52, 52) 0%,rgba(13,13,13,1) 100%);
   padding-top: 10px;
   padding-bottom: 5px;
   padding-left: 15px;
+  filter: drop-shadow(4px 5px 4px #000);
   margin-top: auto;
   padding-right: 15px;
   border-radius: 4px;
   border: none;
+}
+
+.file-list {
+  margin-top: 13px;
+}
+
+#fileName {
+  top: 35px;
+  width: 70%;
+  position: absolute;
+  left: 0px;
+  border-radius: 0px;
+}
+
+#saveFile {
+  top: 35px;
+  min-width: 29%;
+  position: absolute;
+  left: 71.5%;
+  height: 38px;
+  border-radius: 0px;
+}
+
+.verticalLine {
+  border-left: 3px solid #555555;
+}
+
+.install-button { 
+  position: absolute;
+  bottom: 30px;
+  right: 40px;
 }

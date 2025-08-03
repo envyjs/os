@@ -139,7 +139,7 @@ function htmlToRtf(html) {
             <option value="justifyFull">Justify</option>
         </select>
         <button onclick="openFile()">Open</button>
-        <button onclick="saveAsRTF()" style="height: 30px; width: 58px; position: absolute; left: 435px; top: 48px;">Save</button>
+        <button onclick="saveFile()" style="height: 30px; width: 58px; position: absolute; left: 435px; top: 48px;">Save</button>
         <button onclick="execCommand('bold')" style="height: 30px; width: 45px; position: absolute; left: 146px; top: 48px;"><b>B</b></button>
         <button onclick="execCommand('italic')" style="height: 30px; width: 45px; position: absolute; left: 203px; top: 48px;"><i>I</i></button>
         <button onclick="execCommand('underline')" style="height: 30px; width: 45px; position: absolute; left: 260px; top: 48px;"><u>U</u></button>
@@ -147,7 +147,7 @@ function htmlToRtf(html) {
     </div>
 
     <div class="editor-container">
-        <div class="editor" contenteditable="true">
+        <div class="editor" id="fileContent" contenteditable="true">
         </div>
     </div>
   `;
