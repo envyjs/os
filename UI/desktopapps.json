@@ -1,5 +1,9 @@
 [
     {
+        "name": "Calculator (Legacy)",
+        "url": "./Apps/CalculatorLeg.js"
+    },
+    {
         "name": "Cello",
         "url": "./Apps/Cello.js"
     },
@@ -26,5 +30,9 @@
     {
         "name": "Terminal",
         "url": "./Apps/Terminal.js"
+    },
+    {
+        "name": "Weather (Legacy)",
+        "url": "./Apps/Weather.js"
     }
 ]

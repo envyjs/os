@@ -19,6 +19,39 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Regular.otf");
+  font-style: normal;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Italic.ttf");
+  font-style: italic;
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Bold.ttf");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "opendyslexic";
+  src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: eulexia;
+  src: url("http://dyslexicfonts.com/fonts/eulexia.ttf");
+}
+
 body {
   user-select: none;
   font-family: 'Inter', 'ReadexPro';
@@ -1194,4 +1227,88 @@ td input:focus {
   top: -6px;
   left: -6px;
   cursor: nw-resize;
+}
+/* If you are still here, run. eWinBox styles incoming (I didn't know what I was doing back then) */
+
+:root[data-theme="dark"] {
+  --text-color: #ffffff;
+  --bg-color: #2f2f2f;
+  --bg-color-darker: 0, 0, 0;
+  --invert: 0;
+}
+
+:root[data-theme="light"] {
+  --text-color: #000000;
+  --bg-color: #f0f0f0;
+  --bg-color-darker: 255, 255, 255;
+  --invert: 1;
+}
+.wb-body {
+  background-color: #202020;
+  border-radius: 10px;
+}
+.wb-full {
+  display: none;
+  background-color: var(--bg-color);
+  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(25px);
+}
+.winbox.eclipsemono {
+  /* background: var(--bg-color-darker); */
+  background: rgba(var(--bg-color-darker), 0.5);
+  -webkit-backdrop-filter: blur(100px);
+  backdrop-filter: blur(100px);
+}
+.winbox.eclipselock {
+  background: var(--bg-color-darker);
+}
+.noshadow.winbox {
+  box-shadow: unset !important;
+}
+.winbox.eclipselock .wb-body {
+  color: var(--text-color);
+  background: var(--bg-color-darker);
+}
+
+.winbox.eclipsemono .wb-body {
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+.winbox.eclipsemono .wb-title {
+  color: var(--text-color);
+}
+.winbox.eclipsemono .wb-control {
+  filter: invert(var(--invert));
+}
+.winbox {
+  border-radius: 10px; /* Rounded corners added here */
+  animation: popUp 0.3s forwards;
+}
+
+@keyframes popUp {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.wb-title {
+  font-family: "Inter", "DSans Regular", system-ui, Roboto, Oxygen, Ubuntu,
+    Cantarell, "Vazirmatn", sans-serif;
+  font-size: 14px; /* Adjust the font size as needed */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wb-bottom-window-class {
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
 }
