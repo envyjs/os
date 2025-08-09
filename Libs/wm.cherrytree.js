@@ -531,3 +531,4 @@ function stopResize() {
   document.removeEventListener("mouseup", stopResize);
   document.removeEventListener("touchend", stopResize);
 }
+console.log("[WM] Cherry Tree Window Manager loaded");

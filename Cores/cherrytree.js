@@ -171,3 +171,4 @@ import Ws from "../Libs/wm.cherrytree.js";
     time: performance.now(),
   });
 })();
+console.log("[CORE] Cherry Tree core loaded");

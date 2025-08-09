@@ -2298,4 +2298,4 @@ function id1() {
     });
     let index = addTaskbarItem(appName, appIcon, wb);
   }
-  
+  console.log("[EWBL] eWinBox layer loaded");

@@ -257,3 +257,4 @@ export default {
   },
 };
 
+console.log("[GP] eWinBox Gamepad library loaded");

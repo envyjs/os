@@ -230,3 +230,5 @@ function executeJSFile(scriptContent) {
 
         // Initialize VFS when the page loads
         window.onload = initVFS;
+
+console.log("[VFS] Correr VFS loaded");

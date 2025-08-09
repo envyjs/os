@@ -637,3 +637,4 @@
   };
   window.WinBox = U;
 }).call(this);
+console.log("[WB] WinBox loaded");

@@ -162,3 +162,5 @@ const Vfs = {
 };
 
 export default Vfs
+
+console.log("[VFS] eWinBox VFS loaded");

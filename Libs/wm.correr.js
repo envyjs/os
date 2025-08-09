@@ -243,3 +243,4 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+console.log("[WM] Correr Window Manager loaded");

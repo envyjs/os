@@ -42,5 +42,5 @@ let hasClicked = false;
         document.querySelector("audio").play();
       } 
     }); //startup funnies
-console.log("[CORE] Core loaded");
+console.log("[CORE] Correr core loaded");
 loadScript('./UI/lock.js');
