@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>Envy</title>
         <link rel="stylesheet" href="style.css">
-        <meta charset="utf8" />
+        <meta charset="utf-8" />
         <meta property="og:title" content="Envy WebUI" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
@@ -14,13 +14,26 @@
     <body>
         <audio src="./Assets/audio/boot.mp3"></audio>
         <div id="userland"></div>
+        <!-- Load all of the neccessary libraries and cores Envy relies on (as of 2026 Update)-->
         <script src="./Libs/zip.js"></script>
         <script src="./Libs/noti.js"></script>
-        <script src="./Libs/wm.js"></script>
+        <script src="./Libs/wm.correr.js"></script>
         <script src="./Libs/crypt.js"></script>
         <script src="./Libs/um.js"></script>
         <script src="./Libs/gamepad.js"></script>
-        <script src="core.js"></script>
-        <script src="./Libs/fs.js"></script>
+        <script src="./Libs/vfs.correr.js"></script>
+        <script src="./Libs/vfs.ewinbox.js"></script>
+        <script type="module" src="./Libs/jquery.js"></script>
+        <!-- fallback for chrome because webkit is awful and stupid -->
+        <script>
+          window.jQuery ||
+            document.write(
+              '<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.js">\x3C/script>'
+            );
+        </script>
+        <!-- The latest and greatest core. It is reccomended to use this core when making apps for Envy -->
+        <script src="./Cores/correr.js"></script>
+        <!-- Semi-legacy core. You can still use this core when making apps for Envy but it is depreciated -->
+        <script type="module" src="./Cores/cherrytree.js"></script>
     </body>
 </html>

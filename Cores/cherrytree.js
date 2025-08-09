@@ -11,9 +11,9 @@
      ///////////     @@@@@@@  @   @   @     @
                                            @
 */
-// Modified for use on Envy v8.0
-import Html from "./libs/html.js";
-import Ws from "./libs/windowSystem.js";
+// Modified for use on Envy 10 2026 Update for 2024 Update backwards compatibility
+import Html from "../Libs/html.js";
+import Ws from "../Libs/wm.cherrytree.js";
 
 (async () => {
   let Security = {};
@@ -151,7 +151,7 @@ import Ws from "./libs/windowSystem.js";
         const nam = appCat[1];
         const securedCats = ["system", "ui"];
         return await this.startFromUrl(
-          `./pkgs/${cat}/${nam}.js`,
+          `../Packages/${cat}/${nam}.js`,
           args,
           rwp !== true ? securedCats.includes(cat) : true
         );

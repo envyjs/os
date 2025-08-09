@@ -1,5 +1,5 @@
-import Html from "../../libs/html.js";
-import Ws from "../../libs/windowSystem.js";
+import Html from "../../Libs/html.js";
+import Ws from "../../Libs/wm.cherrytree.js";
 
 let myWindow;
 

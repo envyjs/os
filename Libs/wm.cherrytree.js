@@ -16,7 +16,7 @@ let initialLeft;
 let initialTop;
 let windowPid = -1;
 
-import Html from "./html.js";
+import Html from "../Libs/html.js";
 
 let core = {};
 

@@ -1,4 +1,4 @@
-import Html from "../../libs/html.js";
+import Html from "../../Libs/html.js";
 
 let wrapper;
 
@@ -10,10 +10,6 @@ const pkg = {
     console.log("Hello from BM app", Root);
     const loadingScreen = document.querySelector("#loading");
     if (loadingScreen) loadingScreen.remove();
-
-    wrapper = new Html("p").text("Welcome").appendTo("body");
-
-    await Root.Core.pkg.run("ui:Desktop", [], true);
     await Root.Core.pkg.run("apps:Example", [], true);
   },
   end: async function () {
