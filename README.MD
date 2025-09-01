@@ -3,5 +3,5 @@
 <h2>THIS IS A PRERELEASE VERSION!! EXPECT BUGS!!</h2>
 <h1>Envy WebUI 2026 Update (10.0.2944)</h1>
 <p>This repo contains the base system to run Correr and GWM.</p>
-<img src="Assets/demo.png" height="400px">
+<img src="Assets/demonew.png" height="400px">
 </div>
