@@ -1,0 +1,13 @@
+# Copyright 2025 Envy Group
+
+name: Build
+
+on: [push, pull_request]
+
+concurrency:
+  group: ci-${{github.event_name}}-${{github.ref}}
+  cancel-in-progress: ${{github.event_name == 'push'}}
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR: ${{github.workspace}}/build

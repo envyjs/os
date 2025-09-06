@@ -1,0 +1,1 @@
+@REM Envy Kernel build script for Windows and compatible operating systems (ReactOS)
