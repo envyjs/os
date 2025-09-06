@@ -160,7 +160,7 @@ canvas {
 }
 
 .display {
-  font-family: Menlo;
+  font-family: 'Ubuntu Mono';
   font-size: 18px;
   background-color: #e6e6e6;
   width: 99%;
