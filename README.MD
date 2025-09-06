@@ -1,4 +1,4 @@
-<p>Developer? We reccomend reading up on the <a href="/Docs/index.md">Envy Hybrid API Documentation</a>.</p>
+<p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
 <div align="center">
 <h2>THIS IS A PRERELEASE VERSION!! EXPECT BUGS!!</h2>
 <h1>Envy 10 2026 Update (10.0.3006.24)</h1>
