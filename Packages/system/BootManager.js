@@ -10,7 +10,7 @@ const pkg = {
     console.log("Hello from BM app", Root);
     const loadingScreen = document.querySelector("#loading");
     if (loadingScreen) loadingScreen.remove();
-    await Root.Core.pkg.run("apps:Example", [], true);
+    // await Root.Core.pkg.run("apps:Example", [], true);
   },
   end: async function () {
     wrapper.cleanup();
