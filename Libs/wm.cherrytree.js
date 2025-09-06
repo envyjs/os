@@ -143,7 +143,7 @@ export default {
         }
 
         let titlebar = thisWin.querySelector(".win-titlebar .title");
-        titlebar.innerHTML = this.options.title;
+        titlebar.innerHTML = this.options.title + " - Legacy Mode";
 
         let content = thisWin.querySelector(".win-content");
         content.innerHTML = this.options.content;
