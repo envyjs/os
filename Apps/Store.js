@@ -24,7 +24,7 @@
 let appsData = []; // Store JSON data globally
 
 // Fetch JSON and update HTML
-fetch('https://store.envy.ink/guide/apps.json')
+fetch('https://envyjs.github.io/store/guide/apps.json')
 .then(response => response.json())
 .then(data => {
     appsData = data; // Store data globally
