@@ -1,0 +1,21 @@
+#include <efi.h>
+#include <efilib.h>
+
+#define VERSION_MAJOR 10
+#define VERSION_MINOR 0
+#define VERSION_BUILD 3051
+
+EFI_STATUS
+EFIAPI
+efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
+{
+    // Initialize the GNU-EFI library
+    InitializeLib(ImageHandle, SystemTable);
+    Print(L"Envy Kernel (Version %d.%d.%d)\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+
+    // Wait for a keypress to prevent the app from exiting immediately
+    SystemTable->ConIn->Reset(SystemTable->ConIn, FALSE);
+    while (SystemTable->ConIn->ReadKeyStroke(SystemTable->ConIn, NULL) != EFI_SUCCESS);
+
+    return EFI_SUCCESS;
+}
