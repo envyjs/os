@@ -12,6 +12,7 @@ fi
 # If Homebrew is found, install nasm
 echo "Homebrew found. Installing nasm..."
 brew install nasm
+exec ./arch.sh
 elif [[ "$OSTYPE" == "linux"* ]]; then
     if [[ -f /etc/os-release ]]; then
     . /etc/os-release
@@ -23,6 +24,7 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
         fi
         echo "Fedora-based distribution detected. Installing nasm with dnf..."
         sudo dnf install -y nasm
+        exec ./arch.sh
     # Check for Debian-based distro
     elif [[ "$ID" == "debian" || "$ID_LIKE" == *"debian"* ]]; then
         # Check if apt is available
@@ -33,6 +35,7 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
         echo "Debian-based distribution detected. Installing nasm with apt..."
         sudo apt update
         sudo apt install -y nasm
+        exec ./arch.sh
     else
         echo "Unsupported Linux distribution. This script supports Fedora-based and Debian-based distros only."
         exit 1
