@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Function to display the menu
+# Envy Kernel architectural selection script for macOS/Linux
+
 show_menu() {
     echo""
     echo "Envy Kernel Build Menu"
@@ -8,6 +9,7 @@ show_menu() {
     echo "Please select a build architecture:"
     echo "1. Build for i386"
     echo "2. Build for AMD64"
+    echo "3. Build for armv8 (WIP)"
     echo""
     echo "Enter a number from the list: "
 }
@@ -19,15 +21,19 @@ while true; do
 
     case $choice in
         1)
-            echo "Building Envy Kernel for i386"
+            exec "./Compilation/i386.sh"
             break
             ;;
         2)
-            echo "Building Envy Kernel for AMD64"
+            exec "./Compilation/amd64.sh"
+            break
+            ;;
+        3)
+            exec "./Compilation/armv8.sh"
             break
             ;;
         *)
-            echo "Invalid choice."
+            echo "Invalid choice. Returning to menu."
             ;;
     esac
 done

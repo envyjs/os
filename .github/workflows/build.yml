@@ -11,3 +11,38 @@ concurrency:
 env:
   BUILD_TYPE: Release
   BUILD_DIR: ${{github.workspace}}/build
+
+  jobs:
+  get-info:
+    name: Info
+    runs-on: ubuntu-24.04
+    outputs:
+      shorthash: ${{steps.vars.outputs.shorthash}}
+      commit: ${{steps.vars.outputs.commit}}
+    steps:
+      - uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+      - name: Commit Count and Git Hash
+        id: vars
+        run: |
+          echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+          echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
+  
+  Linux:
+    name: i386
+    runs-on: ubuntu-24.04
+    needs: get-info
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Compile for i386
+        run: |
+          chmod +x ./Tools/Compilation/i386.sh
+          ./Tools/Compilation/i386.sh
+          echo Done testing
