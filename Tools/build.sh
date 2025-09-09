@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # Envy Kernel build script for macOS/Linux
+# Make all script files in the Tools directory executable (*nix only)
+chmod +x ./*.sh
+chmod +x ./Compilation/*.sh
 
 # Check the operating system
 if [[ "$OSTYPE" == "darwin"* ]]; then
