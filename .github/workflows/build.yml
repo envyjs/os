@@ -1,24 +1,24 @@
 # Copyright 2025 Envy Group
 
-name: Build
+name: Build Envy Kernel
 
 on: [push, pull_request]
 
 concurrency:
-  group: ci-${{github.event_name}}-${{github.ref}}
-  cancel-in-progress: ${{github.event_name == 'push'}}
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 env:
   BUILD_TYPE: Release
-  BUILD_DIR: ${{github.workspace}}/build
+  BUILD_DIR: ${{ github.workspace }}/build
 
-  jobs:
+jobs:
   get-info:
     name: Info
     runs-on: ubuntu-24.04
     outputs:
-      shorthash: ${{steps.vars.outputs.shorthash}}
-      commit: ${{steps.vars.outputs.commit}}
+      shorthash: ${{ steps.vars.outputs.shorthash }}
+      commit: ${{ steps.vars.outputs.commit }}
     steps:
       - uses: actions/checkout@main
         with:
@@ -26,12 +26,10 @@ env:
       - name: Commit Count and Git Hash
         id: vars
         run: |
-          echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_ENV
           echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
-  
-  Linux:
+
+  i386:
     name: i386
     runs-on: ubuntu-24.04
     needs: get-info
@@ -40,8 +38,10 @@ env:
         with:
           submodules: recursive
           fetch-depth: 0
-
       - name: Compile for i386
+        env:
+          BUILD_TYPE: ${{ env.BUILD_TYPE }}
+          BUILD_DIR: ${{ env.BUILD_DIR }}
         run: |
           chmod +x ./Tools/Compilation/i386.sh
           ./Tools/Compilation/i386.sh
