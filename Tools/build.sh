@@ -37,7 +37,7 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
         sudo apt install -y nasm
         exec ./arch.sh
     # Check for Arch-based distro
-    elif [[ "$ID" == "arch" || "$ID_LIKE" == *"debian"* ]]; then
+    elif [[ "$ID" == "arch" || "$ID_LIKE" == *"arch"* ]]; then
         # Check if pacman is available
         if ! command -v pacman >/dev/null 2>&1; then
             echo "pacman not found. Please ensure pacman is installed."
