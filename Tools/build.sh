@@ -36,6 +36,16 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
         sudo apt update
         sudo apt install -y nasm
         exec ./arch.sh
+    # Check for Arch-based distro
+    elif [[ "$ID" == "arch" || "$ID_LIKE" == *"debian"* ]]; then
+        # Check if pacman is available
+        if ! command -v pacman >/dev/null 2>&1; then
+            echo "pacman not found. Please ensure pacman is installed."
+            exit 1
+        fi
+        echo "Arch-based distribution detected. Installing nasm with pacman..."
+        sudo pacman -S nasm
+        exec ./arch.sh
     else
         echo "Unsupported Linux distribution. This script supports Fedora-based and Debian-based distros only."
         exit 1
