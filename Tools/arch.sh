@@ -21,14 +21,17 @@ while true; do
 
     case $choice in
         1)
+            mkdir ../Output/bin/i386/
             exec "./Compilation/i386.sh"
             break
             ;;
         2)
+            mkdir ../Output/bin/AMD64/
             exec "./Compilation/amd64.sh"
             break
             ;;
         3)
+            mkdir ../Output/bin/armv8/
             exec "./Compilation/armv8.sh"
             break
             ;;

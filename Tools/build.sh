@@ -5,6 +5,11 @@
 chmod +x ./*.sh
 chmod +x ./Compilation/*.sh
 
+# Make a output folder for the compil
+mkdir ../Output/
+mkdir ../Output/bin/
+mkdir ../Output/boot/
+
 # Check the operating system
 if [[ "$OSTYPE" == "darwin"* ]]; then
 # Check if Homebrew is installed
@@ -52,9 +57,13 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
     else
         echo "Unsupported Linux distribution. This script supports Fedora-based and Debian-based distros only."
         exit 1
-    fi
+    fi  
 else
     echo "Cannot determine Linux distribution. /etc/os-release not found."
+    exit 1
+fi
+elif [[ "$OSTYPE" == "msys"* ]]; then 
+    echo "Windows is not supported, quitting."
     exit 1
 fi
 else
