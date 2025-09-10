@@ -1,3 +1,3 @@
 # dir: /Kernel/System/Neutral
 
-todo: kernel versioning system
+This is the directory where all of the platform neutral code is stored

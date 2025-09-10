@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Envy Kernel build script for macOS/Linux
+# Envy Kernel build script for macOS/Linux (Git for Windows bash not supported)
+
 # Make all script files in the Tools directory executable (*nix only)
 chmod +x ./*.sh
 chmod +x ./Compilation/*.sh
@@ -8,7 +9,7 @@ chmod +x ./Compilation/*.sh
 # Make a output folder for the compil
 mkdir ../Output/
 mkdir ../Output/bin/
-mkdir ../Output/boot/
+mkdir ../Output/install/
 
 # Check the operating system
 if [[ "$OSTYPE" == "darwin"* ]]; then
