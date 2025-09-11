@@ -26,6 +26,7 @@ jobs:
       - name: Commit Count and Git Hash
         id: vars
         run: |
+          sudo apt install nasm
           echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
 
