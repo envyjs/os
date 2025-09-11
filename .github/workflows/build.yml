@@ -46,3 +46,39 @@ jobs:
           chmod +x ./Tools/Compilation/i386.sh
           ./Tools/Compilation/i386.sh
           echo Done testing
+
+  AMD64:
+    name: AMD64
+    runs-on: ubuntu-24.04
+    needs: get-info
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Compile for AMD64
+        env:
+          BUILD_TYPE: ${{ env.BUILD_TYPE }}
+          BUILD_DIR: ${{ env.BUILD_DIR }}
+        run: |
+          chmod +x ./Tools/Compilation/AMD64.sh
+          ./Tools/Compilation/AMD64.sh
+          echo Done testing
+
+  armv8:
+    name: ARM64 (armv8)
+    runs-on: ubuntu-24.04
+    needs: get-info
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Compile for armv8 (arm64)
+        env:
+          BUILD_TYPE: ${{ env.BUILD_TYPE }}
+          BUILD_DIR: ${{ env.BUILD_DIR }}
+        run: |
+          chmod +x ./Tools/Compilation/armv8.sh
+          ./Tools/Compilation/armv8.sh
+          echo Done testing
