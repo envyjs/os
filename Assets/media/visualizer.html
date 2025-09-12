@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="visualizer"></canvas>
+    <script>
+        const canvas = document.getElementById("visualizer");
+        const ctx = canvas.getContext("2d");
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+
+        let time = 0;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+
+            for (let i = 0; i < 360; i += 10) {
+                let angle = (i + time * 1) * (Math.PI / 180); // Slowed down
+                let radius = 150 + Math.sin(time * 0.02 + i * 0.1) * 70; // More dynamic
+                let x = Math.cos(angle) * radius;
+                let y = Math.sin(angle) * radius;
+                let hue = (i * 2 + time * 2) % 360;
+                
+                ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(x, y, 15 + Math.sin(time * 0.05 + i) * 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            time += 0.5; // Slower movement
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+:root[data-theme="dark"] {
+    --text-color: #ffffff;
+    --bg-color: #2f2f2f;
+    --bg-color-darker: 0, 0, 0;
+    --invert: 0;
+  }
+  
+  :root[data-theme="light"] {
+    --text-color: #000000;
+    --bg-color: #f0f0f0;
+    --bg-color-darker: 255, 255, 255;
+    --invert: 1;
+  }
+  .wb-body {
+    background-color: #202020;
+    border-radius: 10px;
+  }
+  .wb-full {
+    display: none;
+    background-color: var(--bg-color);
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+  }
+  .winbox.eclipsemono {
+    background: linear-gradient(to right, #1e1e1e 20%,#3f3f3f 100%) !important;
+  }
+  .winbox.eclipselock {
+    background: var(--bg-color-darker);
+  }
+  .noshadow.winbox {
+    box-shadow: unset !important;
+  }
+  .winbox.eclipselock .wb-body {
+    color: var(--text-color);
+    background: var(--bg-color-darker);
+  }
+  
+  .winbox.eclipsemono .wb-body {
+    color: var(--text-color);
+    background: var(--bg-color);
+  }
+  .winbox.eclipsemono .wb-title {
+    color: var(--text-color);
+  }
+  .winbox.eclipsemono .wb-control {
+    filter: invert(var(--invert));
+  }
+  .winbox {
+    border-radius: 5px; /* Rounded corners added here */
+    animation: popUp 0.3s forwards;
+  }
+  
+  @keyframes popUp {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .wb-title {
+    font-family: "Inter", "DSans Regular", system-ui, Roboto, Oxygen, Ubuntu,
+      Cantarell, "Vazirmatn", sans-serif;
+    font-size: 14px; /* Adjust the font size as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .wb-bottom-window-class {
+    border-radius: 10px;
+  }
+  
+  .hidden {
+    display: none;
+  }

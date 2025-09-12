@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<HTML>
+    <HEAD>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script type="text/javascript" src="app.js"></script>
+		<link rel="stylesheet" href="app.css" type="text/css" />
+
+        <title>
+            Clock
+        </title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+            * { font-family: inter; }
+
+            /* New styles for the textbox */
+            .textbox-container {
+                position: absolute;
+                top: 10px; /* Adjust as needed */
+                right: 10px; /* Adjust as needed */
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            .textbox-container:hover {
+                opacity: 1;
+            }
+
+            .textbox {
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            input {
+                padding: 15px;
+                background: white;
+                color: black;
+                border: solid 1px;
+                border-radius: 5px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+        <script>
+          function addDarkmodeWidget() {
+            new Darkmode().showWidget();
+          }
+          window.addEventListener('load', addDarkmodeWidget);
+        </script>
+        <style>
+            .clock-container {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            body, html {
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+        </style>
+    </HEAD>
+    <BODY>
+        <!-- Textbox container -->
+        <div class='textbox-container'>
+            <input type="text" class="textbox" id="userInput" placeholder="Enter custom format">
+        </div>
+
+        <div class='clock-container'>
+            <h1>
+                <span class='time'></span>
+            </h1>
+        </div>
+
+        <script>
+            // Function to update the time with custom format
+            function updateTime() {
+                // Get the current date and time
+                var currentTime = new Date();
+                
+                // Get hours, minutes, seconds, and milliseconds
+                var hours = currentTime.getHours();
+                var minutes = currentTime.getMinutes();
+                var seconds = currentTime.getSeconds();
+                var milliseconds = currentTime.getMilliseconds();
+                
+                // Add leading zero if single digit
+                hours = (hours < 10 ? "0" : "") + hours;
+                minutes = (minutes < 10 ? "0" : "") + minutes;
+                seconds = (seconds < 10 ? "0" : "") + seconds;
+                
+                // Ensure milliseconds are three digits
+                if (milliseconds < 100) {
+                    milliseconds = "0" + milliseconds;
+                }
+                if (milliseconds < 10) {
+                    milliseconds = "00" + milliseconds;
+                }
+                
+                // Get the custom format entered by the user
+                var customFormat = document.getElementById("userInput").value;
+                
+                // If no custom format is entered, use the default format
+                if(customFormat === "") {
+                    customFormat = "It's {hh}:{mm}.";
+                }
+                
+                // Replace placeholders with actual values in the custom format
+                customFormat = customFormat.replace("{hh}", hours);
+                customFormat = customFormat.replace("{mm}", minutes);
+                customFormat = customFormat.replace("{ss}", seconds);
+                customFormat = customFormat.replace("{ms}", milliseconds);
+                
+                // Update the content of the <span> element with the custom formatted time
+                document.querySelector('.time').textContent = customFormat;
+            }
+            
+            // Call updateTime function initially to set the time
+            updateTime();
+            
+            // Call updateTime function every millisecond to update the time
+            setInterval(updateTime, 1);
+        </script>
+    </BODY>
+</HTML>

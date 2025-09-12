@@ -1,0 +1,166 @@
+body {
+  color: #ffffff;
+  font-family: 'Inter', system-ui,
+    Roboto, Oxygen, Ubuntu, Cantarell, 'Vazirmatn', 'opendyslexic', sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+.hidden {
+  display: none;
+}
+.bar {
+  position: fixed;
+  height: 45px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 98.5%;
+  opacity: 0.9;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  background-color: rgba(23, 22, 22, 0.5);
+  outline: 1px solid rgba(20, 20, 20, 0.5);
+}
+
+#Teresa {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#tabs {
+  background-color: #333;
+  padding: 10px;
+}
+
+#tabs button {
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+#content {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+
+#bottom-menu {
+  background-color: #444; /* Different color for the bottom menu */
+  padding: 10px;
+  position: sticky;
+  bottom: 1;
+  text-align: center;
+}
+
+#bottom-menu button {
+  background-color: #666; /* Different color for the bottom menu buttons */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.bar p {
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+}
+
+.bar span {
+  margin-right: 10px;
+}
+
+.context-menu {
+  position: fixed;
+  text-align: center;
+  background: #0e0f0f;
+  border: 1px solid black;
+  z-index: 999999;
+  border-radius: 5px;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {  
+  from {  
+      opacity:0;  
+  }  
+
+  to {  
+      opacity:1;  
+  }  
+}
+
+.context-menu {
+  padding: 0px;
+  margin: 0px;
+  min-width: 150px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu a {
+  padding-bottom: 7px;
+  padding-top: 7px;
+  border: 1px solid #2f2f2f;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.context-menu a:hover {
+  background-color: #1d1e1f;
+}
+
+button, input {
+  appearance: none;
+  font: inherit;
+  padding: 6px 12px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #1d1e1f;
+  border: 1px solid #2f2f2f;
+  outline: none;
+  cursor: pointer;
+
+}
+button:hover, input:hover {
+  background-color: #1d1e1f;
+}
+select {
+  font: inherit;
+  padding: 6px 12px;
+  border-radius: 5px;
+  color: #ffffff;
+  background: #1d1e1f;
+  border: 1px solid #2f2f2f;
+  outline: none;
+  cursor: pointer;
+
+}
+select:hover {
+  background-color: #1d1e1f;
+}
