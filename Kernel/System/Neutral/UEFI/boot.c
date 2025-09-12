@@ -1,3 +1,6 @@
+// File: boot.c
+// Purpose: Initialises boot for UEFI systems (all architectures)
+// Copyright Envy Group 2022-2025, licensed under the Envy Public License
 #include <efi.h>
 #include <efilib.h>
 #include <./Neutral/ver.h>
