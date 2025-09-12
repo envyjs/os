@@ -12,8 +12,8 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2026 Update",
-    version: "10.0.3079",
-    extra: "Beta",
+    version: "10.0.3084",
+    extra: "Release",
     codename: "Rhenium"
 };
 

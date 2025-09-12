@@ -68,5 +68,3 @@ function filterApps() {
     );
     displayApps(filteredApps); // Update UI
 }
-
-notifier.create('Store v3 is in ALPHA state. EXPECT BUGS.', 'info', 5000);
