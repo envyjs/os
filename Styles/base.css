@@ -86,7 +86,7 @@ canvas {
   position: absolute;
   top: 0;
   left: 0;
-  background: url(../Assets/Wave.jpg);
+  background: url(../Assets/wallpaper/beta/wp.jpg);
   background-size: cover;
   z-index: -5;
 }
@@ -105,7 +105,7 @@ canvas {
 }
 
 #userlogintile {
-  background-image: url(./Assets/Wave.jpg);
+  background-image: url(../Assets/wallpaper/beta/wp.jpg);
   background-size: cover;
 }
 
