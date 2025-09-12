@@ -10,7 +10,7 @@
       </div>
       <div class="verticalLine" style="width: 70%; padding-left: 30px">
         <h2>Welcome to the Envy Installer</h2>
-        <p>To install Envy 10 2026 Update, click Next and follow the onscreen instructions.</p>
+        <p>To install Envy 10 2027 Update, click Next and follow the onscreen instructions.</p>
         <p>To quit, close this window and reboot your computer.</p>
         <button class="install-button">Next</button>
       </div>
