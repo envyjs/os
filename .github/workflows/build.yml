@@ -26,7 +26,6 @@ jobs:
       - name: Commit Count and Git Hash
         id: vars
         run: |
-          sudo apt install nasm
           echo "shorthash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit=$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
 
@@ -44,6 +43,7 @@ jobs:
           BUILD_TYPE: ${{ env.BUILD_TYPE }}
           BUILD_DIR: ${{ env.BUILD_DIR }}
         run: |
+          sudo apt install nasm
           chmod +x ./Tools/Compilation/i386.sh
           ./Tools/Compilation/i386.sh
           echo Done testing
@@ -62,6 +62,7 @@ jobs:
           BUILD_TYPE: ${{ env.BUILD_TYPE }}
           BUILD_DIR: ${{ env.BUILD_DIR }}
         run: |
+          sudo apt install nasm
           chmod +x ./Tools/Compilation/AMD64.sh
           ./Tools/Compilation/AMD64.sh
           echo Done testing
@@ -80,6 +81,7 @@ jobs:
           BUILD_TYPE: ${{ env.BUILD_TYPE }}
           BUILD_DIR: ${{ env.BUILD_DIR }}
         run: |
+          sudo apt install gcc
           chmod +x ./Tools/Compilation/armv8.sh
           ./Tools/Compilation/armv8.sh
           echo Done testing
