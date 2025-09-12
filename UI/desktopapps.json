@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Calculator (Legacy)",
+        "url": "./Apps/CalculatorLeg.js"
+    },
+    {
+        "name": "Cello",
+        "url": "./Apps/Cello.js"
+    },
+    {
+        "name": "Envy Store",
+        "url": "./Apps/Store.js"
+    },
+    {
+        "name": "Filer",
+        "url": "./Apps/Filer.js"
+    },
+    {
+        "name": "Lexis",
+        "url": "./Apps/Lexis.js"
+    },
+    {
+        "name": "Media",
+        "url": "./Apps/Media.js"
+    },
+    {
+        "name": "Settings",
+        "url": "./Apps/Settings.js"
+    },
+    {
+        "name": "Terminal",
+        "url": "./Apps/Terminal.js"
+    },
+    {
+        "name": "Weather (Legacy)",
+        "url": "./Apps/Weather.js"
+    }
+]
