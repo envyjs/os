@@ -14,6 +14,7 @@ content.innerHTML = `
         </div>
         <div class="notibar">
         <img src="./Assets/bell.svg">
+        
         </div>
     </div>
     <div id="sem" style="padding: 10px;">
