@@ -1,6 +1,6 @@
       // The read-only disk image from Leaning Technologies' fast cloud backend
       const cloudDevice = await CheerpX.CloudDevice.create(
-        "wss://disks.webvm.io/debian_large_20230522_5044875331.ext2"
+        "./Assets/debian.ext2"
       );
       // Read-write local storage for disk blocks, it is used both as a cache and as persisteny writable storage
       const idbDevice = await CheerpX.IDBDevice.create("block1");
