@@ -3,5 +3,5 @@
 // Copyright Envy Group 2022-2025, licensed under the Envy Public License
 #define VERSION_MAJOR 10
 #define VERSION_MINOR 0
-#define VERSION_BUILD 3117
+#define VERSION_BUILD 3174
 #define VERSION_REV 0

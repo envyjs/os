@@ -17,7 +17,7 @@ const terminal = document.getElementById('terminal');
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.3117");},
+      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.3174");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -73,6 +73,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.3117]");
+    createOutputLine("Envy [Version 10.0.3174]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();
