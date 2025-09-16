@@ -67,6 +67,7 @@ jobs:
           sudo apt install nasm
           chmod +x ./Tools/buildactions.sh
           ./Tools/buildactions.sh
+          pwd
           chmod +x ./Tools/Compilation/AMD64.sh
           ../Tools/Compilation/AMD64.sh
           echo Done testing
