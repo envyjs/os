@@ -46,8 +46,8 @@ jobs:
           sudo apt install nasm
           chmod +x ./Tools/buildactions.sh
           ./Tools/buildactions.sh
-          chmod +x ./Tools/Compilation/i386.sh
-          ../Tools/Compilation/i386.sh
+          chmod +x /home/runner/work/os/os/Tools/Compilation/i386.sh
+          /home/runner/work/os/os/Tools/Compilation/i386.sh
           echo Done testing
 
   AMD64:
@@ -68,8 +68,8 @@ jobs:
           chmod +x ./Tools/buildactions.sh
           ./Tools/buildactions.sh
           pwd
-          chmod +x ./Tools/Compilation/AMD64.sh
-          ../Tools/Compilation/AMD64.sh
+          chmod +x /home/runner/work/os/os/Tools/Compilation/AMD64.sh
+          /home/runner/work/os/os/Tools/Compilation/AMD64.sh
           echo Done testing
 
   armv8:
@@ -89,6 +89,6 @@ jobs:
           sudo apt install gcc
           chmod +x ./Tools/buildactions.sh
           ./Tools/buildactions.sh
-          chmod +x ./Tools/Compilation/armv8.sh
-          ../Tools/Compilation/armv8.sh
+          chmod +x /home/runner/work/os/os/Tools/Compilation/armv8.sh
+          /home/runner/work/os/os/Tools/Compilation/armv8.sh
           echo Done testing
