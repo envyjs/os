@@ -2,6 +2,11 @@
 
 # Envy Kernel architectural selection script for macOS/Linux
 
+if [[ "$OSTYPE" == "msys"* ]]; then
+    echo "Windows is not supported, quitting."
+    exit 1
+fi
+
 show_menu() {
     echo""
     echo "Envy Kernel Build Menu"
