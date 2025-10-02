@@ -1,29 +1,19 @@
-mov ah, 0x0e ; tty mode
-mov al, 'E'
-int 0x10
-mov al, 'n'
-int 0x10
-mov al, 'v'
-int 0x10
-mov al, 'y'
-int 0x10
-mov al, ' '
-int 0x10
-mov al, 'K'
-int 0x10
-mov al, 'e'
-int 0x10
-mov al, 'r'
-int 0x10
-mov al, 'n'
-int 0x10
-mov al, 'e'
-int 0x10
-mov al, 'l'
-int 0x10
+org 0x7c00                ; Set origin to boot sector load address
 
-jmp $ ; jump to current address = infinite loop
+mov si, msg              ; SI points to message
 
-; padding and magic number
-times 510 - ($-$$) db 0
-dw 0xaa55 
+print_loop:
+    mov ah, 0x0e         ; BIOS teletype function
+    lodsb                ; Load byte at DS:SI into AL, increment SI
+    cmp al, 0            ; Check for null terminator
+    je done_print
+    int 0x10             ; Print character in AL
+    jmp print_loop
+
+done_print:
+    jmp $                ; Infinite loop
+
+msg: db 'Starting Envy...', 0
+
+times 510 - ($ - $$) db 0
+dw 0xaa55               ; Boot sector signature
