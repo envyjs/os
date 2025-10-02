@@ -12,7 +12,7 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2027 Update",
-    version: "10.0.3174",
+    version: "10.0.3721",
     extra: "Alpha",
     codename: "Astatine"
 };
