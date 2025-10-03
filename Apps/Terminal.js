@@ -42,7 +42,7 @@ const terminal = document.getElementById('terminal');
         const milliseconds = Math.floor((now - performance.timing.navigationStart) % 1000);
         return `Uptime: ${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
       },
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4221");},
+      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4304");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -98,6 +98,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.4221]");
+    createOutputLine("Envy [Version 10.0.4304]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();

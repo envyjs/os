@@ -14,8 +14,8 @@
   <button>Address Book</button>
   <h2>Information</h2>
   <button onclick="loadScript('./Apps/AboutCanary.js');">System Information</button>
-  <button>Log Files</button>
-  <button>Network Information</button>
+  <button onclick="loadScript('./Apps/Server/Log.js');">Log Files</button>
+  <button onclick="loadScript('./Apps/Server/NI.js');">Network Information</button>
   </center>
   `;
 
