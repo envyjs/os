@@ -1,9 +1,10 @@
 loadScript('./Libs/bg.js')
+loadScript('./Registry/Local/Envy/StartupApps.js');
 
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">Envy v10.0.3721 ALPHA</p>
+    <p class="watermark">Envy v10.0.3811 ALPHA</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">
@@ -19,7 +20,7 @@ content.innerHTML = `
     </div>
     <div id="sem" style="padding: 10px;">
         <span style="display: flex; gap: 15px;">
-            <img src="./Assets/user/Cat.jpg" height="45px" style="border-radius: 99px">
+            <img src="./Assets/user/cat.jpg" height="45px" style="border-radius: 99px">
             <h3 style="margin-top: 11px">User</h3>
         </span>
         <span style="max-height: 100px;">

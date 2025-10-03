@@ -13,11 +13,26 @@ const terminal = document.getElementById('terminal');
     const commands = {
       help: () => {
         createOutputLine("Built-in commands:");
-        createOutputLine("(clear, cls), date, echo, help, ver");
+        createOutputLine("(clear, cls), date, echo, (exec, start), help, serve, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.3721");},
+      exec: (args) => {
+        if (args.length === 0) {
+          return "Usage: exec <app_path>";
+        }
+        const scriptPath = args[0];
+        loadScript(scriptPath);
+      },
+      start: (args) => {
+        if (args.length === 0) {
+          return "Usage: start <app_path>";
+        }
+        const scriptPath = args[0];
+        loadScript(scriptPath);
+      },
+      serve: () => {createOutputLine("Starting Envy Server..."); loadScript('./Apps/Server.js');},
+      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.3811");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -73,6 +88,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.3721]");
+    createOutputLine("Envy [Version 10.0.3811]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();

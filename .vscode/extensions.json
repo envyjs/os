@@ -4,6 +4,8 @@
   "recommendations": [
     // Trim only touched lines.
     "NathanRidley.autotrim",
+    // Live Server for WebUI localhosting
+    "ritwickdey.liveserver",
     // ESLint support.
     "dbaeumer.vscode-eslint",
     // Prettier support.
