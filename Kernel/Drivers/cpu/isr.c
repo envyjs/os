@@ -2,7 +2,7 @@
 #include "idt.h"
 #include "../screen.h"
 #include "../keyboard.h"
-#include "../../System/libc/string.h"
+#include "../../System/Neutral/libc/string.h"
 #include "timer.h"
 #include "ports.h"
 

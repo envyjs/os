@@ -1,8 +1,11 @@
+// File: kernel.c
+// Purpose: The main kernel C file
+// Copyright Envy Group 2025-2026, licensed under the Envy Public License
 #include "../../Drivers/cpu/isr.h"
 #include "../../Drivers/screen.h"
 #include "kernel.h"
-#include "../libc/string.h"
-#include "../libc/mem.h"
+#include "./libc/string.h"
+#include "./libc/mem.h"
 
 void main() {
     isr_install();

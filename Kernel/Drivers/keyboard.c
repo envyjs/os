@@ -2,8 +2,8 @@
 #include "./cpu/ports.h"
 #include "./cpu/isr.h"
 #include "screen.h"
-#include "../System/libc/string.h"
-#include "../System/libc/function.h"
+#include "../System/Neutral/libc/string.h"
+#include "../System/Neutral/libc/function.h"
 #include "../System/Neutral/kernel.h"
 
 #define BACKSPACE 0x0E
