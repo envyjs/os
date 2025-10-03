@@ -12,6 +12,8 @@
         <h2>Welcome to the Envy Installer</h2>
         <p>To install Envy 10 2027 Update, click Next and follow the onscreen instructions.</p>
         <p>To quit, close this window and reboot your computer.</p>
+
+        <button class="install-button2" onclick="loadScript('./UI/recovery.js')">Recovery</button>
         <button class="install-button">Next</button>
       </div>
     </div>
@@ -20,3 +22,4 @@
   // Create a window dynamically
   createWindow(windowTitle, customHTML, 700, 450);
 })();
+document.body.style.backgroundColor = "#0f0f0fff";

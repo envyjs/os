@@ -1,10 +1,18 @@
 loadScript('./Libs/bg.js')
 loadScript('./Registry/Local/Envy/StartupApps.js');
 
+let hasClicked = false;
+    document.addEventListener("click", (e) => {
+      if (!hasClicked) {
+        hasClicked = true;
+        document.querySelector("audio").play();
+      } 
+    }); //startup funnies
+
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">Envy v10.0.3811 ALPHA</p>
+    <p class="watermark">Envy v10.0.4221 ALPHA</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">

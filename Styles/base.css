@@ -886,3 +886,9 @@ td input:focus {
   bottom: 30px;
   right: 40px;
 }
+
+.install-button2 { 
+  position: absolute;
+  bottom: 30px;
+  right: 260px;
+}

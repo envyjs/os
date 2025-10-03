@@ -13,7 +13,7 @@ const terminal = document.getElementById('terminal');
     const commands = {
       help: () => {
         createOutputLine("Built-in commands:");
-        createOutputLine("(clear, cls), date, echo, (exec, start), help, serve, ver");
+        createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, serve, uptime, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
@@ -31,8 +31,18 @@ const terminal = document.getElementById('terminal');
         const scriptPath = args[0];
         loadScript(scriptPath);
       },
-      serve: () => {createOutputLine("Starting Envy Server..."); loadScript('./Apps/Server.js');},
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.3811");},
+      recenv: () => {createOutputLine("Starting Recovery Environment..."); loadScript('./UI/recovery.js');},
+      serve: () => {createOutputLine("Starting Envy Server..."); loadScript('./UI/server.js');},
+      uptime: () => {
+        const now = new Date();
+        const uptimeSeconds = Math.floor((now - performance.timing.navigationStart) / 1000);
+        const hours = Math.floor(uptimeSeconds / 3600);
+        const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+        const seconds = uptimeSeconds % 60;
+        const milliseconds = Math.floor((now - performance.timing.navigationStart) % 1000);
+        return `Uptime: ${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
+      },
+      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4221");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -88,6 +98,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.3811]");
+    createOutputLine("Envy [Version 10.0.4221]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();
