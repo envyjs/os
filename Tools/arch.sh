@@ -52,6 +52,7 @@ while true; do
                 [Nn]* ) echo "Aborted."; exit 1 ;;
                 * ) echo "Please answer yes or no."; exit 1 ;;
             esac
+            ;;
         *)
             echo "Invalid choice. Returning to menu."
             ;;
