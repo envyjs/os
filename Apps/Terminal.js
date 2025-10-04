@@ -12,8 +12,10 @@ const terminal = document.getElementById('terminal');
 
     const commands = {
       help: () => {
-        createOutputLine("Built-in commands:");
-        createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, serve, uptime, ver");
+        createOutputLine("Envy Terminal, version v10.0.4304 (2027 Update)");
+        createOutputLine("These shell commands are defined internally.  Type `help' to see this list.");
+        createOutputLine("Type `help name' to find out more about the function `name'.");
+        createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, serve, uname, uptime, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
@@ -31,6 +33,14 @@ const terminal = document.getElementById('terminal');
         const scriptPath = args[0];
         loadScript(scriptPath);
       },
+      uname: (args) => {
+        if (args[0] === '-a') {
+          return "Envy 10.0.4304 2027 Update Neutral Envy";
+        } if (args[0] === '-r') {
+          return "10.0.4304";
+        } else {
+          return "Envy";
+        } },
       recenv: () => {createOutputLine("Starting Recovery Environment..."); loadScript('./UI/recovery.js');},
       serve: () => {createOutputLine("Starting Envy Server..."); loadScript('./UI/server.js');},
       uptime: () => {
