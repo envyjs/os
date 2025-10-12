@@ -12,10 +12,10 @@ const terminal = document.getElementById('terminal');
 
     const commands = {
       help: () => {
-        createOutputLine("Envy Terminal, version v10.0.4304 (2027 Update)");
+        createOutputLine("Envy Terminal, version v10.0.4523 (2027 Update)");
         createOutputLine("These shell commands are defined internally.  Type `help' to see this list.");
         createOutputLine("Type `help name' to find out more about the function `name'.");
-        createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, serve, uname, uptime, ver");
+        createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, uname, uptime, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
@@ -35,13 +35,13 @@ const terminal = document.getElementById('terminal');
       },
       uname: (args) => {
         if (args[0] === '-a') {
-          return "Envy 10.0.4304 2027 Update Neutral Envy";
+          return "Envy 10.0.4523 2027 Update Neutral Envy";
         } if (args[0] === '-r') {
-          return "10.0.4304";
+          return "10.0.4523";
         } else {
           return "Envy";
         } },
-      recenv: () => {createOutputLine("Starting Recovery Environment..."); loadScript('./UI/recovery.js');},
+      // recenv: () => {createOutputLine("Starting Recovery Environment..."); loadScript('./UI/recovery.js');},
       serve: () => {createOutputLine("Starting Envy Server..."); loadScript('./UI/server.js');},
       uptime: () => {
         const now = new Date();
@@ -52,7 +52,7 @@ const terminal = document.getElementById('terminal');
         const milliseconds = Math.floor((now - performance.timing.navigationStart) % 1000);
         return `Uptime: ${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
       },
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4304");},
+      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4523");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -108,6 +108,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.4304]");
+    createOutputLine("Envy [Version 10.0.4523]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();

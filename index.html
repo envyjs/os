@@ -2,9 +2,6 @@
 <html lang="en">
     <head>
         <title>Envy</title>
-        <link rel="stylesheet" href="./Styles/base.css">
-        <link rel="stylesheet" href="./Styles/cherrytree.css">
-        <link rel="stylesheet" href="./Styles/ewinbox.css">
         <meta charset="utf-8" />
         <meta property="og:title" content="Envy WebUI" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,39 +11,19 @@
         />
     </head>
     <body>
-        <audio src="./Assets/audio/boot.mp3"></audio>
         <div id="userland"></div>
-        <!-- Load all of the neccessary libraries Envy relies on (as of 2027 Update)-->
-        <script src="./Libs/zip.js"></script>
-        <script src="./Libs/noti.js"></script>
-        <script src="./Libs/wm.correr.js"></script>
-        <script src="./Libs/winbox.js"></script>
-        <script src="./Libs/crypt.js"></script>
-        <script src="./Libs/mue.js"></script>
-        <script src="./Libs/gamepad.correr.js"></script>
-        <script src="./Libs/vfs.correr.js"></script>
-        <script type="module" src="./Libs/vfs.ewinbox.js">
-            window.vfs = Vfs
-            window.Vfs = Vfs
-        </script>
-        <script src="./Libs/cheerpx.js"></script>
-        <script type="module" src="./Libs/html.js"></script>
-        <script type="module" src="./Libs/gamepad.ewinbox.js"></script>
-        <script type="module" src="./API/Linux.Initialize.js"></script>
-        <script type="module" src="./Libs/jquery.js"></script>
-        <!-- fallback for chrome because webkit is awful and stupid -->
         <script>
-          window.jQuery ||
-            document.write(
-              '<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.js">\x3C/script>'
-            );
+          var script = document.createElement('script');
+          script.src = './Cores/correr.js';
+          script.onload = function() {
+          };
+          script.onerror = function() {
+            var msg = document.createElement('div');
+            msg.style.cssText = 'color: red; background: #fff3f3; padding: 10px; border: 1px solid #f00; margin: 10px;';
+            msg.textContent = 'Correr has failed to load. Envy cannot continue.';
+            document.body.insertBefore(msg, document.body.firstChild);
+          };
+          document.body.appendChild(script);
         </script>
-        <!-- All of the cores Envy relies on, from newest to oldest. -->
-        <!-- The latest and greatest core. It is reccomended to use this core when making apps for Envy -->
-        <script src="./Cores/correr.js"></script>
-        <!-- Semi-legacy core. You can still use this core when making apps for Envy but it is depreciated -->
-        <script type="module" src="./Cores/cherrytree.js"></script>
-        <!-- DO NOT MAKE ANY NEW APPS WITH THIS CORE. I BEG OF YOU. -->
-        <script src="./Libs/ewinboxloader.js"></script>
     </body>
 </html>

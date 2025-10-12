@@ -1,0 +1,172 @@
+
+body {
+  color: #fff;
+}
+
+.window-titlebar {
+  color: white;
+}
+
+.window-content {
+  padding: 10px;
+}
+
+.window-buttons {
+  padding: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.window-buttons button {
+  padding: 5px;
+  cursor: pointer;
+}
+  
+  .window {
+    position: absolute;
+    display: flex;
+    color: white;
+    display: initial !important;
+}
+
+window.open {
+  opacity: 1; /* Become visible */
+  transform: scale(1); /* Normalize the scale */
+}
+
+.window.close {
+  opacity: 0; /* Fade out */
+  transform: scale(0.9); /* Shrink slightly */
+}
+
+.window-header {  
+  background: #3f3f3f;
+    display: flex;
+    position: relative;
+    padding: 6px;
+    height: 15px;
+    border-bottom: 1px solid #444;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.window-header button {
+  min-width: 20px !important;
+  height: 20px;
+  width: 10px !important;
+  border-radius: 2px !important;
+}
+
+.window-header-buttons {
+  display: flex !important;
+  gap: 10px !important;
+  position: absolute;
+  right: 10px;
+  margin-top: -2px !important;
+}
+.window-close-btn {background: red !important; }.window-maximize-btn {background: green !important;}.window-minimize-btn {display: none;}
+.window.maximized {
+  height: calc(100%) !important;
+    width: 100% !important;
+    left: 0px !important;
+    top: 0px !important;
+    border-radius: 0;
+    position: absolute;
+    background-color: #1e1e1e;
+    z-index: 9999;
+  }
+
+  .window.minimized {
+    display: none !important;
+  }
+
+  .window-body {
+  padding: 20px;
+  overflow-y: auto !important;
+  background-color: #1e1e1e;
+  color: white !important;
+  overflow-x: auto;
+    border: 4px solid #444;
+  }
+  
+  /* Opening animation using popUp */
+  .window.open {
+    animation: popUp 0.0s forwards; /* Duration of 0.4s */
+  }
+  
+  /* Closing animation using popDown */
+  .window.close {
+    animation: popDown 0.3s forwards;
+  }
+
+  .resize-handle {
+    position: absolute;
+    background-color: #444; /* Darker background color for the resize handle */
+    z-index: 1;
+    width: 10px; /* Optional: Set width for better visibility */
+    height: 10px; /* Optional: Set height for better visibility */
+    border-radius: 2px; /* Optional: Slight rounding for aesthetics */
+}
+
+  
+  /* Side handles */
+  .resize-handle.top,
+  .resize-handle.bottom {
+    width: 100%;
+    height: 3px;
+  }
+  
+  .resize-handle.left,
+  .resize-handle.right {
+    height: 100%;
+    width: 3px;
+  }
+  .resize-handle.top {
+    top: -5px;
+    left: 0;
+    cursor: ns-resize;
+    opacity: 0;
+  }
+  
+  .resize-handle.bottom {
+    bottom: -5px;
+    left: 0;
+    cursor: ns-resize;
+    opacity: 0;
+  }
+  
+  .resize-handle.left {
+    left: -5px;
+    top: 0;
+    cursor: ew-resize;
+    opacity: 0;
+  }
+  
+  .resize-handle.right {
+    right: -5px;
+    top: 0;
+    cursor: ew-resize;
+    opacity: 0;
+  }
+#terminal {
+  user-select: text;
+}
+.output {
+  color: #b0b0b0;
+}
+.input {
+  display: flex;
+  background: #1e1e1e;
+  border: none;
+  outline: none;
+  color: #ffffff !important;
+  flex-grow: 1;
+  border-radius: 0px !important;
+}
+.ti {
+  border-radius: 0px;
+  border: 0;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  flex-grow: 1;
+}

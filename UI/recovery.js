@@ -13,7 +13,7 @@
     <br><br>
     <button style="width: 100%; height: 130px; padding-left: 20px; text-align: left;" onclick="loadScript('./Apps/Terminal.js')">
     <h2>Recover from backup</h2>
-    <p>Access a recovery terminal.</p>
+    <p>If you have a backup you want to restore from.</p>
     </button>
     <br><br>
     <button style="width: 100%; height: 130px; padding-left: 20px; text-align: left;" onclick="location.reload();">
@@ -27,3 +27,6 @@
 })();
 
 document.body.style.backgroundColor = "#0f0f0fff";
+document.querySelectorAll('.window-minimize-btn').forEach(el => el.style.display = 'none');
+document.querySelectorAll('.window-maximize-btn').forEach(el => el.style.display = 'none');
+document.querySelectorAll('.window-close-btn').forEach(el => el.style.display = 'none');

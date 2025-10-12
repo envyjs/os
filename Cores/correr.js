@@ -12,7 +12,7 @@ console.log(
 
 const SysInfo = {
     string: "Envy 10 2027 Update",
-    version: "10.0.4304",
+    version: "10.0.4523",
     extra: "Alpha",
     codename: "Astatine"
 };
@@ -34,7 +34,19 @@ function loadScript(url, callback) {
     };
     document.head.appendChild(script);
 }
-
+loadScript('./Libs/wm.correr.js')
+loadScript('./Libs/vfs.correr.js')
+loadScript('./Libs/zip.js')
 console.log("[CORE] Correr core loaded");
 
-loadScript('./UI/env.js');
+fetch('./UI/env.js', { method: 'HEAD' })
+    .then(response => {
+        if (response.ok) {
+            loadScript('./UI/env.js');
+        } else {
+            loadScript('./UI/nogui.js');
+        }
+    })
+    .catch(() => {
+        loadScript('./UI/nogui.js');
+    });

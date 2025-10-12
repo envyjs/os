@@ -1,18 +1,12 @@
 loadScript('./Libs/bg.js')
 loadScript('./Registry/Local/Envy/StartupApps.js');
 
-let hasClicked = false;
-    document.addEventListener("click", (e) => {
-      if (!hasClicked) {
-        hasClicked = true;
-        document.querySelector("audio").play();
-      } 
-    }); //startup funnies
-
 var content = document.createElement("div");
 content.innerHTML = `
+
+<audio src="./Assets/audio/boot.mp3"></audio>
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">Envy WebUI v10.0.4304 ALPHA</p>
+    <p class="watermark">Envy WebUI Hybrid v10.0.4523 ALPHA</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">
@@ -39,6 +33,14 @@ content.innerHTML = `
 </div>
 `;
 document.getElementById("userland").appendChild(content);
+
+let hasClicked = false;
+    document.addEventListener("click", (e) => {
+      if (!hasClicked) {
+        hasClicked = true;
+        document.querySelector("audio").play();
+      } 
+    }); //startup funnies
 
 // Function to toggle opacity of the overlay
 function semshow() {

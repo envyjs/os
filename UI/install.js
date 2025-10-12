@@ -23,3 +23,6 @@
   createWindow(windowTitle, customHTML, 700, 450);
 })();
 document.body.style.backgroundColor = "#0f0f0fff";
+
+document.querySelectorAll('.window-minimize-btn').forEach(el => el.style.display = 'none');
+document.querySelectorAll('.window-maximize-btn').forEach(el => el.style.display = 'none');
