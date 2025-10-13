@@ -21,7 +21,7 @@
 
 ```
 /os/
-├── API                   # WebUI mini-apps that communicate with standard apps
+├── API                    # WebUI mini-apps that communicate with standard apps
 ├── Apps                   # WebUI applications (such as Filer)
 │   └── Server             # Envy Server apps
 ├── Assets                 # Images, audio, etc
