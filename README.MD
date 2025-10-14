@@ -16,12 +16,39 @@
 <li>Envy Legacy Compatibilty (Cherry Tree, eWinBox)</li>
 <li>Envy WebUI</li>
 <h2>Download Envy</h2>
-| Device type    | Envy flavor | Download (Architecture)                                 | Compile guide |
-|----------------|-------------|---------------------------------------------------------|---------------|
-| Embedded       | Server      | i386 (BIOS, UEFI) \| AMD64 (BIOS, UEFI) \| ARM64 (UEFI) | Server guide  |
-| Desktop/Laptop | Hybrid      | i386 (BIOS, UEFI) \| AMD64 (BIOS, UEFI) \| ARM64 (UEFI) | Hybrid guide  |
-| Mobile         | Go          | ARM32 (WIM, UEFI) \| ARM64 (WIM, UEFI)                  | Go guide      |
-| Server         | Server      | AMD64 (BIOS, UEFI) \| ARM64 (UEFI)                      | Server guide  |
+<table class="tg"><thead>
+  <tr>
+    <th class="tg-0pky">Device type</th>
+    <th class="tg-0pky">Envy flavor</th>
+    <th class="tg-0pky">Download (Architecture)</th>
+    <th class="tg-0pky">Compile guide</th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky">Embedded</td>
+    <td class="tg-0pky">Server</td>
+    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
+    <td class="tg-0pky">Server guide</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Desktop/Laptop</td>
+    <td class="tg-0pky">Hybrid</td>
+    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
+    <td class="tg-0pky">Hybrid guide</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Mobile</td>
+    <td class="tg-0pky">Go</td>
+    <td class="tg-0pky">ARM32 (WIM, UEFI) | ARM64 (WIM, UEFI)</td>
+    <td class="tg-0pky">Go guide</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">Server</td>
+    <td class="tg-0pky">Server</td>
+    <td class="tg-0pky">AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
+    <td class="tg-0pky">Server guide</td>
+  </tr>
+</tbody></table>
 <h2>Directory structure</h2>
 
 ```
