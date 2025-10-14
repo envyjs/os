@@ -230,13 +230,42 @@ button:hover {
 }
 
 @media (max-width: 500px) {
-  .taskbar {
-  border: 2px solid #4a4b5033;
-  background-color: rgba(86, 85, 88, 0);
-  backdrop-filter: brightness(0.7)blur(10px);
-  bottom: 0px;
-  width: calc(100% - 19px) !important; 
-  padding-right: 0px !important;
+  body{
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+  }
+  canvas {
+    display: none !important;
+  }
+  .notification {
+    padding: 15px 20px;
+    border-radius: 15px;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 200px;
+    max-height: 30px;
+    position: absolute;
+    top: 75px;
+    left: 10px;
+    opacity: 0;
+    z-index: 9999 !important;
+  }
+  #appsearch {
+    display: none !important;
+  }
+  #apps {
+    margin-left: -100px !important;
+    width: 145% !important;
+    background-color: #1e1e1e;
+  }
+  #storebutton h2 {
+    font-size: 17px !important;
+  }
+  #storebutton p {
+    font-size: 10px !important;
   }
 
   .window-header {
@@ -246,9 +275,10 @@ button:hover {
     position: absolute;
     top: 0px !important;
     left: 0px !important;
-    height: calc(100% - 56px) !important;
+    height: calc(100% - 60px) !important;
     width: 100% !important;
     border-radius: 0px !important;
+    border: none !important;
   }
 
   .sm {
@@ -891,4 +921,23 @@ td input:focus {
   position: absolute;
   bottom: 30px;
   right: 260px;
+}
+#goui {
+  /* something */
+}
+#goguide {
+  position: absolute !important;
+  left: 0px !important;
+  bottom: 0px !important;
+  width: 100% !important;
+  height: 60px !important;
+  background-color: #000000;
+}
+#goguide img {
+  padding-left: 40px;
+  padding-top: 15px;
+  padding-right: 35px;
+  min-height: 30px;
+  height: 30px;
+  max-width: 25%;
 }

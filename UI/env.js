@@ -1,7 +1,7 @@
 // env.js
 // This file sets up the environment by loading different scripts based on the specified type.
 
-const type = 'desktop'; // Change this to 'desktop', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
+const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
 
 // Function to load and execute a script depending on the type
 
@@ -22,6 +22,7 @@ if (type === 'desktop') {
     document.head.appendChild(link3);
     loadScript('./Libs/html.js')
     loadScript('./Libs/ewinboxloader.js')
+    loadScript('./Libs/jsmediatags.js');
     loadScript('./Libs/noti.js')
     loadScript('./Libs/winbox.js')
     loadScript('./Libs/gamepad.correr.js')
@@ -82,6 +83,20 @@ if (type === 'serverwc') {
     loadScript('./UI/server.js');
 }
 // Alternative shell types
+if (type === 'go') {
+    const link3 = document.createElement('link');
+    link3.rel = 'stylesheet';
+    link3.href = './Styles/base.css';
+    document.head.appendChild(link3);
+    loadScript('./Libs/html.js')
+    loadScript('./Libs/noti.js')
+    loadScript('./Libs/winbox.js')
+    loadScript('./Libs/gamepad.correr.js')
+    loadScript('./Libs/jquery.js')
+    loadScript('./Libs/jsmediatags.js');
+    loadScript('./Libs/crypt.js')
+    loadScript('./UI/go.js')
+}
 if (type === 'install') {
     const link3 = document.createElement('link');
     link3.rel = 'stylesheet';

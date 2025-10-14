@@ -1,46 +1,21 @@
 (function() {
   const windowTitle = 'Media';
   const customHTML = `
-  <div style="border-radius: 9px">
+  <div>
   <input type="file" id="audioFile" accept="audio/*" />
   <center>
+    <img id="albumArt" width="250" style="display:none; border-radius: 3px;" />
+    <h2><span id="title">-</span></h2>
+    <p><strong><span id="artist">-</span></strong></p>
+    <p><strong><span id="album">-</span></strong></p>
+
   <audio style="width: 100%" id="audioPlayer" controls>
         Your browser does not support the audio element.
     </audio>
     </center>
-    </div>
-    <canvas id="visualizer"></canvas>`;
-  createWindow(windowTitle, customHTML, 600, 350);
+    </div>`;
+  createWindow(windowTitle, customHTML, 600, 560);
 })();
-
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
-let time = 0;
-
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-
-  for (let i = 0; i < 360; i += 10) {
-      let angle = (i + time * 1) * (Math.PI / 180); // Slowed down
-      let radius = (Math.min(canvas.width, canvas.height) / 3) + Math.sin(time * 0.02 + i * 0.1) * 70; // Dynamic scaling
-      let x = Math.cos(angle) * radius;
-      let y = Math.sin(angle) * radius;
-      let hue = (i * 2 + time * 2) % 360;
-      
-      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-      ctx.beginPath();
-      ctx.arc(x, y, 15 + Math.sin(time * 0.05 + i) * 5, 0, Math.PI * 2);
-      ctx.fill();
-  }
-  
-  ctx.restore();
-  time += 0.3; // Slower movement
-  requestAnimationFrame(animate);
-}
-
-animate();
 
 const audioFileInput = document.getElementById('audioFile');
         const audioPlayer = document.getElementById('audioPlayer');
@@ -53,6 +28,39 @@ const audioFileInput = document.getElementById('audioFile');
                 const objectURL = URL.createObjectURL(file);
                 audioPlayer.src = objectURL;
                 audioPlayer.play(); // Play automatically after selection
-                notifier.create('Now Playing:' + file.name, 'info', 5000);
             }
         });
+document.getElementById('audioFile').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      jsmediatags.read(file, {
+        onSuccess: function(tag) {
+          const tags = tag.tags;
+
+          // Set text fields
+          document.getElementById('title').textContent = tags.title || 'Unknown';
+          document.getElementById('artist').textContent = tags.artist || 'Unknown';
+          document.getElementById('album').textContent = tags.album || 'Unknown';
+
+          // Handle album art
+          const picture = tags.picture;
+          if (picture) {
+            const base64String = picture.data
+              .map(byte => String.fromCharCode(byte))
+              .join('');
+            const imageUrl = `data:${picture.format};base64,${btoa(base64String)}`;
+            const img = document.getElementById('albumArt');
+            img.src = imageUrl;
+            img.style.display = 'block';
+          } else {
+            document.getElementById('albumArt').style.display = 'none';
+            console.log('No album art found.');
+          }
+        },
+        onError: function(error) {
+          console.error("Error reading file:", error);
+          alert("Failed to read file metadata.");
+        }
+      });
+    });
