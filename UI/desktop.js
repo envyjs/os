@@ -6,7 +6,7 @@ content.innerHTML = `
 
 <audio src="./Assets/audio/boot.mp3"></audio>
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">Envy WebUI Public Alpha 1 v10.0.4523</p>
+    <p class="watermark">Envy WebUI Alpha v10.0.4523</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">

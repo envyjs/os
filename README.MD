@@ -2,9 +2,9 @@
 <p>Found a bug? Read the <a href="CONTRIBUTING.md">Contributing README</a>.</p>
 <h2>THIS IS A PRERELEASE VERSION!! EXPECT BUGS!!</h2>
 <br>
-<img src="./Assets/brand/big.webp" height="100">
-<BR><BR>
-<h1>Envy 2027 Update Public Alpha 1 (10.0.4523)</h1>
+<span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
+<BR>
+<h1>Envy 2027 Update Prerelease (10.0.4523)</h1>
 
 > [!NOTE]
 > We have limited resources/time at the moment, if you want to contribute you are free to do so.
@@ -16,7 +16,6 @@
 <li>Envy Go (Envy Mobile UI)</li>
 <li>Envy Legacy Compatibilty (Cherry Tree, eWinBox)</li>
 <li>Envy WebUI</li>
-<br>
 <h2>Directory structure</h2>
 
 ```
@@ -41,7 +40,7 @@
 │   └── ui                 # Legacy desktop
 ├── Registry               # Envy Registry
 │   └── local              # Local registry
-│       └── apps           # Envy-made registry
+│       └── Envy           # Envy-made registry
 ├── Styles                 # CSS for Envy WebUI
 ├── Submodules             # 3rd party repositories
 ├── Tools                  # Scripts, etc to help set up and run Envy
