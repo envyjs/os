@@ -4,7 +4,7 @@
 <br>
 <img src="./Assets/brand/big.webp" height="100">
 <BR><BR>
-<h1>Envy 2027 Update Public Alpha 1(10.0.4523)</h1>
+<h1>Envy 2027 Update Public Alpha 1 (10.0.4523)</h1>
 
 > [!NOTE]
 > We have limited resources/time at the moment, if you want to contribute you are free to do so.
