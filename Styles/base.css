@@ -435,6 +435,17 @@ img {
     }
 }
 
+.uploadlabel {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #000000;
+  border: 1px solid gray;
+  color: white;
+  border-radius: 99px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
 .window-titlebar {
   color: white;
   padding: 10px;

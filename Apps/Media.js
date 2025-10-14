@@ -2,19 +2,21 @@
   const windowTitle = 'Media';
   const customHTML = `
   <div>
-  <input type="file" id="audioFile" accept="audio/*" />
+  <input type="file" id="audioFile" accept="audio/*" style="display:none;"/>
   <center>
     <img id="albumArt" width="250" style="display:none; border-radius: 3px;" />
     <h2><span id="title">-</span></h2>
-    <p><strong><span id="artist">-</span></strong></p>
-    <p><strong><span id="album">-</span></strong></p>
-
+    <p><strong>by <span id="artist">-</span></strong> - <strong><span id="album">-</span></strong></p>
+    <p></p>
+<br>
   <audio style="width: 100%" id="audioPlayer" controls>
         Your browser does not support the audio element.
     </audio>
+  <br><br>
+  <label for="audioFile" class="uploadlabel">Upload</label>
     </center>
     </div>`;
-  createWindow(windowTitle, customHTML, 600, 560);
+  createWindow(windowTitle, customHTML, 600, 580);
 })();
 
 const audioFileInput = document.getElementById('audioFile');
