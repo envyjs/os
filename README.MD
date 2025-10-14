@@ -1,14 +1,13 @@
-<p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
-<p>Found a bug? Read the <a href="CONTRIBUTING.md">Contributing README</a>.</p>
-<h2>THIS IS A PRERELEASE VERSION!! EXPECT BUGS!!</h2>
-<br>
-<span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
-<BR>
-<h1>Envy 2027 Update Prerelease (10.0.4523)</h1>
 
+<span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
+<p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
 > [!NOTE]
 > We have limited resources/time at the moment, if you want to contribute you are free to do so.
 
+> [!NOTE]
+> Please note that this is also a pre-release version of Envy and that bugs and issues may arise.
+
+<p>Envy is a upcoming OS for any type of device, wherever it is a measly thin PC or a full blown server or workstation, Envy likely has a version for that.</p>
 <img src="Assets/readme/demos/4523.png" height="400px" alt="A screenshot of Envy, running several demonstration apps">
 <p>This repo contains everything you need to run:</p>
 <li>Envy Aiya</li>
@@ -16,6 +15,13 @@
 <li>Envy Go (Envy Mobile UI)</li>
 <li>Envy Legacy Compatibilty (Cherry Tree, eWinBox)</li>
 <li>Envy WebUI</li>
+<h2>Download Envy</h2>
+| Device type    | Envy flavor | Download (Architecture)                                 | Compile guide |
+|----------------|-------------|---------------------------------------------------------|---------------|
+| Embedded       | Server      | i386 (BIOS, UEFI) \| AMD64 (BIOS, UEFI) \| ARM64 (UEFI) | Server guide  |
+| Desktop/Laptop | Hybrid      | i386 (BIOS, UEFI) \| AMD64 (BIOS, UEFI) \| ARM64 (UEFI) | Hybrid guide  |
+| Mobile         | Go          | ARM32 (WIM, UEFI) \| ARM64 (WIM, UEFI)                  | Go guide      |
+| Server         | Server      | AMD64 (BIOS, UEFI) \| ARM64 (UEFI)                      | Server guide  |
 <h2>Directory structure</h2>
 
 ```
