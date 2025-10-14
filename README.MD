@@ -1,6 +1,7 @@
 
 <span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
 <p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
+
 > [!NOTE]
 > We have limited resources/time at the moment, if you want to contribute you are free to do so.
 
@@ -8,7 +9,7 @@
 > Please note that this is also a pre-release version of Envy and that bugs and issues may arise.
 
 <p>Envy is a upcoming OS for any type of device, wherever it is a measly thin PC or a full blown server or workstation, Envy likely has a version for that.</p>
-<img src="Assets/readme/demos/4523.png" height="400px" alt="A screenshot of Envy, running several demonstration apps">
+<img src="Assets/readme/demos/4523.png" height="400px" alt="A screenshot of the Envy desktop flavor, running several demonstration apps">
 <p>This repo contains everything you need to run:</p>
 <li>Envy Aiya</li>
 <li>Envy Kernel</li>
@@ -26,25 +27,25 @@
 <tbody>
   <tr>
     <td class="tg-0pky">Embedded</td>
-    <td class="tg-0pky">Server</td>
+    <td class="tg-0pky"><a href="/Docs/flavors/server.md">Server</a></td>
     <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
     <td class="tg-0pky">Server guide</td>
   </tr>
   <tr>
     <td class="tg-0pky">Desktop/Laptop</td>
-    <td class="tg-0pky">Hybrid</td>
+    <td class="tg-0pky"><a href="/Docs/flavors/desktop.md">Desktop</a></td>
     <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
     <td class="tg-0pky">Hybrid guide</td>
   </tr>
   <tr>
     <td class="tg-0pky">Mobile</td>
     <td class="tg-0pky">Go</td>
-    <td class="tg-0pky">ARM32 (WIM, UEFI) | ARM64 (WIM, UEFI)</td>
+    <td class="tg-0pky">ARM32 (UEFI) | ARM32 (WIM) | ARM64 (UEFI) | ARM64 (WIM)</td>
     <td class="tg-0pky">Go guide</td>
   </tr>
   <tr>
     <td class="tg-0pky">Server</td>
-    <td class="tg-0pky">Server</td>
+    <td class="tg-0pky"><a href="/Docs/flavors/server.md">Server</a></td>
     <td class="tg-0pky">AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
     <td class="tg-0pky">Server guide</td>
   </tr>
