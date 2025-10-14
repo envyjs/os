@@ -7,6 +7,7 @@ const type = 'desktop'; // Change this to 'desktop', 'live', 'nogui', 'install',
 
 // Desktop types
 if (type === 'desktop') {
+    loadScript('./Libs/lang.js')
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = './Styles/cherrytree.css';
@@ -29,8 +30,10 @@ if (type === 'desktop') {
     loadScript('./Libs/crypt.js')
     loadScript('./API/Linux.Initialize.js')
     loadScript('./UI/lock.js');
+    loadScript('./Apps/Welcome.js');
 }
 if (type === 'live') {
+    loadScript('./Libs/lang.js')
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = './Styles/cherrytree.css';
@@ -54,6 +57,7 @@ if (type === 'live') {
     loadScript('./API/System.LiveAlert.js');
 }
 if (type === 'serverwc') {
+    loadScript('./Libs/lang.js')
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = './Styles/cherrytree.css';

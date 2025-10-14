@@ -1,0 +1,10 @@
+{
+  "en": {
+    "envy.oobe.title": "Welcome",
+    "envy.oobe.description": "Before you continue, there are a few more steps you need to take before you start using Envy."
+  },
+  "es": {
+    "envy.oobe.title": "Bienvenido",
+    "envy.oobe.description": "Antes de continuar, hay algunos pasos más que debe seguir antes de comenzar a usar Envy."
+  }
+}
