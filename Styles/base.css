@@ -301,6 +301,13 @@ button:hover {
     right: 25px !important;
     padding-right: 0px !important;
   }
+  .desktoptogobutton {
+    border: none !important;
+    background: none !important;
+    backdrop-filter: brightness(1)blur(0px) !important;
+    right: 50px !important;
+    padding-right: 0px !important;
+  }
   .date {
     border: none !important;
     background: none !important;
@@ -394,6 +401,22 @@ img {
   align-self: center !important;
   padding-left: 15px;
   padding-top: 15px;
+  padding-right: 15px;
+  border-radius: 15px;
+}
+
+.gotodesktopbutton {
+  color: white;
+  text-align: right;
+  line-height: 15px;
+  border: 2px solid #4a4b5033;
+  background-color: rgba(86, 85, 88, 0);
+  backdrop-filter: brightness(0.7)blur(10px);
+  height: 40px;
+  min-width: 40px;
+  align-items: center !important;
+  align-self: center !important;
+  padding-left: 15px;
   padding-right: 15px;
   border-radius: 15px;
 }

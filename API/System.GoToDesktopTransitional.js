@@ -1,5 +1,14 @@
 const element = document.querySelector('.keyboard');
 const element2 = document.querySelector('#goui');
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './Styles/cherrytree.css';
+    document.head.appendChild(link);
+    const link2 = document.createElement('link');
+    link2.rel = 'stylesheet';
+    link2.href = './Styles/ewinbox.css';
+    document.head.appendChild(link2);
 element.style.display = 'none';
 element2.style.display = 'none';
-loadScript('./UI/desktop.js');
+loadScript('./Libs/ewinboxloader.js');
+loadScript('./UI/gotodesktop.js');
