@@ -91,6 +91,7 @@ if (type === 'go') {
     loadScript('./Libs/html.js')
     loadScript('./Libs/noti.js')
     loadScript('./Libs/winbox.js')
+    loadScript('./Libs/osk.js')
     loadScript('./Libs/gamepad.correr.js')
     loadScript('./Libs/jquery.js')
     loadScript('./Libs/jsmediatags.js');

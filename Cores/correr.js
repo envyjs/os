@@ -9,17 +9,6 @@ console.log(
     "color: auto;font-style:italic;font-size:1.2rem",
     "color: auto;font-size:1.2rem"
 );
-
-const SysInfo = {
-    string: "Envy 10 2027 Update",
-    version: "10.0.4523",
-    extra: "Alpha",
-    codename: "Astatine",
-    apilevel: 3,
-};
-
-console.log(SysInfo.string, SysInfo.version, SysInfo.extra);
-
 function loadScript(url, callback) {
     var script = document.createElement('script');
     script.type = 'text/javascript';

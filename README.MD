@@ -57,6 +57,7 @@
 ├── API                    # WebUI mini-apps that communicate with standard apps
 ├── Apps                   # WebUI applications (such as Filer)
 │   └── Server             # Envy Server apps
+│   └── Go                 # Envy Go apps
 ├── Assets                 # Images, audio, etc
 ├── Cores                  # WebUI applications (such as Filer)
 ├── Docs                   # Documentation

@@ -12,13 +12,14 @@ const terminal = document.getElementById('terminal');
 
     const commands = {
       help: () => {
-        createOutputLine("Envy Terminal, version v10.0.4523 (2027 Update)");
+        createOutputLine("Envy Terminal, version v10.0.5122 (2027 Update)");
         createOutputLine("These shell commands are defined internally.  Type `help' to see this list.");
         createOutputLine("Type `help name' to find out more about the function `name'.");
         createOutputLine("(clear, cls), date, echo, (exec, start), help, recenv, uname, uptime, ver");
       },
       echo: (args) => args.join(' '),
       date: () => new Date().toLocaleString(),
+      hwinfo: () => {return "Detected Lumia 950 (RM-1104)";},
       exec: (args) => {
         if (args.length === 0) {
           return "Usage: exec <app_path>";
@@ -35,9 +36,9 @@ const terminal = document.getElementById('terminal');
       },
       uname: (args) => {
         if (args[0] === '-a') {
-          return "Envy 10.0.4523 2027 Update Neutral Envy";
+          return "Envy 10.0.5122 2027 Update Neutral Envy";
         } if (args[0] === '-r') {
-          return "10.0.4523";
+          return "10.0.5122";
         } else {
           return "Envy";
         } },
@@ -52,7 +53,7 @@ const terminal = document.getElementById('terminal');
         const milliseconds = Math.floor((now - performance.timing.navigationStart) % 1000);
         return `Uptime: ${hours}h ${minutes}m ${seconds}s ${milliseconds}ms`;
       },
-      ver: () => {createOutputLine("Envy 10 2027 Update 10.0.4523");},
+      ver: () => {createOutputLine("Envy 2027 Update 10.0.5122");},
       clear: () => { terminal.innerHTML = ''; },
       cls: () => { terminal.innerHTML = ''; },
     };
@@ -108,6 +109,6 @@ const terminal = document.getElementById('terminal');
     };
 
     // Initialize the terminal
-    createOutputLine("Envy [Version 10.0.4523]");
+    createOutputLine("Envy [Version 10.0.5122]");
     createOutputLine("Copyright (C) Envy Group 2022-2027")
     createInputLine();

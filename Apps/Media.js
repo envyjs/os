@@ -9,7 +9,7 @@
     <p><strong>by <span id="artist">-</span></strong> - <strong><span id="album">-</span></strong></p>
     <p></p>
 <br>
-  <audio style="width: 100%" id="audioPlayer" controls>
+  <audio style="object-fit: contain; border: none;" id="audioPlayer" controls >
         Your browser does not support the audio element.
     </audio>
   <br><br>

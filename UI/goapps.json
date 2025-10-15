@@ -4,16 +4,20 @@
         "url": "./Apps/Cello.js"
     },
     {
+        "name": "Dialer",
+        "url": "./Apps/Go/Dialer.js"
+    },
+    {
         "name": "Envy Store",
         "url": "./Apps/Store.js"
     },
     {
-        "name": "Lexis",
-        "url": "./Apps/Lexis.js"
-    },
-    {
         "name": "Media",
         "url": "./Apps/Media.js"
+    },
+    {
+        "name": "Project Mercury",
+        "url": "./API/System.GoToDesktopTransitional.js"
     },
     {
         "name": "Settings",

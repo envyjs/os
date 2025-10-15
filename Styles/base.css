@@ -229,7 +229,7 @@ button:hover {
   border-radius: 15px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 650px) {
   body{
     overflow-y: hidden !important;
     overflow-x: hidden !important;
@@ -253,6 +253,11 @@ button:hover {
     opacity: 0;
     z-index: 9999 !important;
   }
+
+.active-shift {
+  background-color: #aaa;
+  color: white;
+}
   #appsearch {
     display: none !important;
   }
@@ -444,6 +449,137 @@ img {
   border-radius: 99px;
   cursor: pointer;
   margin-bottom: 10px;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  padding-bottom: 15px;
+  background-color: #4b4b4b;
+  position: fixed;
+  z-index: 10000;
+  bottom: 0;
+  left: 0px;
+  width: 99%;}
+
+.keyboard.hidden {
+  display: none;
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.key {
+  background-color: #202020;
+  padding-right: 0px;
+  padding-top: 10px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 22px;
+  transition: background-color 0.2s;
+  min-width: 30px;
+  min-height: 37px;
+}
+
+.key--space {
+  min-width: 200px;
+  min-height: 1px !important;
+  padding-bottom: 10px;
+}
+
+.key--enter {
+  min-width: 50px;
+  min-height: 1px !important;
+}
+
+.key:hover {
+  background-color: #757575;
+}
+
+audio::-webkit-media-controls-play-button,
+audio::-webkit-media-controls-panel {
+  background-color: var(#363636) !important;
+}
+
+audio::-webkit-media-controls-enclosure {
+  border-radius: 10px;
+}
+
+
+
+.dialer {
+  padding: 0px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+}
+
+#display {
+  width: 92%;
+  font-size: 24px;
+  padding: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.dkey {
+  padding: 10px;
+  min-width: 50px;
+  min-height: 60px;
+  font-size: 18px;
+  border: none;
+  background-color: #4d4d4d;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.key:hover {
+  background-color: #ccc;
+}
+
+.actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#call, #clear {
+  flex: 1;
+  padding: 10px;
+  margin: 0 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 20px;
+  min-height: 60px;
+}
+
+#call {
+  background-color: #4caf50;
+  color: white;
+}
+
+#clear {
+  background-color: #f44336;
+  color: white;
 }
 
 .window-titlebar {
@@ -934,12 +1070,13 @@ td input:focus {
   right: 260px;
 }
 #goui {
-  /* something */
+  z-index: -999 !important;
 }
 #goguide {
   position: absolute !important;
   left: 0px !important;
   bottom: 0px !important;
+  z-index: -999 !important;
   width: 100% !important;
   height: 60px !important;
   background-color: #000000;

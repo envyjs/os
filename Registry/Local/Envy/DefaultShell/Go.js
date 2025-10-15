@@ -1,0 +1,1 @@
+loadScript('./UI/goui.js');
