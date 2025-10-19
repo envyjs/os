@@ -1,4 +1,5 @@
 <img height="20" src="https://img.shields.io/github/languages/count/envyjs/os"/>
+<img height="20" src="https://img.shields.io/github/repo-size/envyjs/os"/>
 <span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
 <p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
 
