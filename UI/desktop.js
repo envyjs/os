@@ -6,7 +6,7 @@ content.innerHTML = `
 
 <audio src="./Assets/audio/boot.mp3"></audio>
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
-    <p class="watermark">Envy WebUI Alpha v10.0.5122</p>
+    <p class="watermark">Envy WebUI Alpha v10.0.5473</p>
     <div class="taskbar" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
         <div class="sm" onclick="semshow()">
         <img src="./Assets/envy.svg" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;" height="26px" class="smst">
@@ -24,6 +24,9 @@ content.innerHTML = `
         <span style="display: flex; gap: 15px;">
             <img src="./Assets/user/cat.jpg" height="45px" style="border-radius: 99px">
             <h3 style="margin-top: 11px">User</h3>
+        <button class="gotodesktopbutton" onclick="loadScript('./API/System.DesktopToGoTransitional.js')">
+        <img src="./Assets/goguide/gotodesktop.svg">
+        </button>
         </span>
         <span style="max-height: 100px;">
         <div style="gap: 10px; display: flex; flex-direction: column; width: 100% !important" id="dapps">

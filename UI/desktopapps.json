@@ -32,6 +32,10 @@
         "url": "./Apps/Terminal.js"
     },
     {
+        "name": "Tour",
+        "url": "./Apps/Tour.Desktop.js"
+    },
+    {
         "name": "Weather (Legacy)",
         "url": "./Apps/Weather.js"
     }

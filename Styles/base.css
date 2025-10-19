@@ -383,9 +383,32 @@ img {
   cursor: url('../Assets/cursor/cursor.cur'),auto !important;
 }
 
+.centerpls {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translate(10%, -50%);
+  transform: translate(10%, -50%);
+}
+
 #response {
   user-select: text !important;
 }
+
+
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    .nav-buttons {
+      margin-top: 0px;
+    }
+    .buttonnav {
+      min-height: 35px !important;
+      min-width: 35px !important;
+      border-radius: 99px;
+    }
 
 .notibar {
   color: white;

@@ -1,7 +1,7 @@
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="goui">
-<p>GOUI Shell v10.0.5122, running on Lumia 950<p>
+<p>GOUI Shell v10.0.5473<p>
     <div style="gap: 10px; display: flex; flex-direction: column; width: 100% !important" id="gapps">
     </div>
 </div>

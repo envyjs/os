@@ -1,4 +1,4 @@
-
+<img height="20" src="https://img.shields.io/github/languages/count/envyjs/os"/>
 <span style="display:block;text-align:center"><img src="./Assets/readme/banner.png"></span>
 <p>Developer? We reccomend reading up on the <a href="/Docs/README.md">Envy Hybrid API Documentation</a>.</p>
 
@@ -39,7 +39,7 @@
   </tr>
   <tr>
     <td class="tg-0pky">Mobile</td>
-    <td class="tg-0pky">Go</td>
+    <td class="tg-0pky"><a href="/Docs/flavors/go.md">Go</a></td>
     <td class="tg-0pky">ARM32 (UEFI) | ARM32 (WIM) | ARM64 (UEFI) | ARM64 (WIM)</td>
     <td class="tg-0pky">Go guide</td>
   </tr>
