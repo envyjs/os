@@ -20,6 +20,13 @@
 }
 
 @font-face {
+  font-family: 'Adwaita Sans';
+  src: url('../Assets/fonts/AdwaitaSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "opendyslexic";
   src: url("http://dyslexicfonts.com/fonts/OpenDyslexic-Regular.otf");
   font-style: normal;
@@ -54,7 +61,7 @@
 
 body {
   user-select: none;
-  font-family: 'Inter', 'ReadexPro';
+  font-family: 'Adwaita Sans', 'ReadexPro';
   overflow: hidden;
   cursor: url('../Assets/cursor/cursor.cur'),auto !important;
   color: #fff;
