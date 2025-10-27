@@ -1,8 +1,8 @@
 @font-face {
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 400;
-    src: local(''), url('../Assets/fonts/Inter-Regular.woff2')
+  font-family: 'Adwaita Sans';
+  src: url('../Assets/fonts/AdwaitaSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face {
@@ -15,13 +15,6 @@
 @font-face {
   font-family: 'Ubuntu Mono';
   src: url('../Assets/fonts/UbuntuMono-R.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Adwaita Sans';
-  src: url('../Assets/fonts/AdwaitaSans-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
