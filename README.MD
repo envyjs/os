@@ -39,7 +39,7 @@
   </tr>
   <tr>
     <td class="tg-0pky">arm64</td>
-    <td class="tg-0pky">Microsoft Lumia 950 only for now<</td>
+    <td class="tg-0pky">Microsoft Lumia 950 only for now</td>
     <td class="tg-0pky">ISO image, WIM image, compile guide</td>
   </tr>
   <tr>
