@@ -5,6 +5,9 @@ const canvas = Screen.getMode();
 canvas.zbuffering = true;
 canvas.psmz = Z16S;
 Screen.setMode(canvas);
+Keyboard.init();
+Mouse.init();
+Network.init();
 
 // enable frame counter and vsync
 Screen.setFrameCounter(true);
