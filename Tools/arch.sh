@@ -9,13 +9,16 @@ fi
 
 show_menu() {
     echo""
-    echo "Envy Kernel Build Menu"
+    echo "Envy Build Menu"
     echo "======================"
     echo "Please select a build architecture:"
     echo "1. Build for i386"
     echo "2. Build for AMD64"
-    echo "3. Build for armv8 (WIP)"
-    echo "4. Build for armv8 with Android (WIP)"
+    echo "3. Build for armv8 natively (Lumia 950/XL only)"
+    echo "4. Build for armv8 with Android (WIP) (Lumia 950/XL only)"
+    echo "5. Build for armv8 as WIM (Lumia 950/XL only)"
+    echo "6. Build for armv7 as WIM (Lumia phones only)"
+    echo "7. Build for PS2 standalone (AthenaJS)"
     echo""
     echo "Enter a number from the list: "
 }
@@ -58,6 +61,21 @@ while true; do
                 [Nn]* ) echo "Aborted."; exit 1 ;;
                 * ) echo "Please answer yes or no."; exit 1 ;;
             esac
+            ;;
+        5)
+            mkdir ../Output/wim/armv8/
+            exec "./Compilation/armv8wim.sh"
+            break
+            ;;
+        6)
+            mkdir ../Output/wim/armv7/
+            exec "./Compilation/armv7wim.sh"
+            break
+            ;;
+        7)
+            mkdir ../Output/bin/ps2/
+            exec "./Compilation/ps2.sh"
+            break
             ;;
         *)
             echo "Invalid choice. Returning to menu."

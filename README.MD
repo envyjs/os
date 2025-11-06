@@ -37,7 +37,7 @@
   <tr>
     <td class="tg-0pky">Desktop/Laptop</td>
     <td class="tg-0pky"><a href="/Docs/flavors/desktop.md">Desktop</a></td>
-    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
+    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI) | MIPS (PS2)</td>
     <td class="tg-0pky">Hybrid guide</td>
   </tr>
   <tr>
@@ -76,6 +76,8 @@
 │   └── apps               # Legacy apps
 │   └── system             # Legacy services
 │   └── ui                 # Legacy desktop
+├── Platforms              # Ports of Envy WebUI to other platforms
+│   └── ps2                # PlayStation 2 port
 ├── Registry               # Envy Registry
 │   └── local              # Local registry
 │       └── Envy           # Envy-made registry

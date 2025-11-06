@@ -52,7 +52,7 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
             echo "pacman not found. Please ensure pacman is installed."
             exit 1
         fi
-        echo "Arch-based distribution detected. Installing nasm with pacman..."
+        echo "Arch-based distribution detected. Installing packages..."
         sudo pacman -S nasm
         exec ./arch.sh
     else
