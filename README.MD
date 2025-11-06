@@ -22,35 +22,35 @@
 <h2>Download Envy</h2>
 <table class="tg"><thead>
   <tr>
-    <th class="tg-0pky">Device type</th>
-    <th class="tg-0pky">Envy flavor</th>
-    <th class="tg-0pky">Download (Architecture)</th>
-    <th class="tg-0pky">Compile guide</th>
+    <th class="tg-0pky">CPU</th>
+    <th class="tg-0pky">Machines</th>
+    <th class="tg-0pky">How to get</th>
   </tr></thead>
 <tbody>
   <tr>
-    <td class="tg-0pky">Embedded</td>
-    <td class="tg-0pky"><a href="/Docs/flavors/server.md">Server</a></td>
-    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
-    <td class="tg-0pky">Server guide</td>
+    <td class="tg-0pky">amd64</td>
+    <td class="tg-0pky">64-bit x86-family machines with AMD or Intel CPUs</td>
+    <td class="tg-0pky">ISO image, compile guide</td>
   </tr>
   <tr>
-    <td class="tg-0pky">Desktop/Laptop</td>
-    <td class="tg-0pky"><a href="/Docs/flavors/desktop.md">Desktop</a></td>
-    <td class="tg-0pky">i386 (BIOS, UEFI) | AMD64 (BIOS, UEFI) | ARM64 (UEFI) | MIPS (PS2)</td>
-    <td class="tg-0pky">Hybrid guide</td>
+    <td class="tg-0pky">arm</td>
+    <td class="tg-0pky">Nokia/Microsoft Lumia line of phones, original Raspberry Pi</td>
+    <td class="tg-0pky">ISO image, WIM image, compile guide</td>
   </tr>
   <tr>
-    <td class="tg-0pky">Mobile</td>
-    <td class="tg-0pky"><a href="/Docs/flavors/go.md">Go</a></td>
-    <td class="tg-0pky">ARM32 (UEFI) | ARM32 (WIM) | ARM64 (UEFI) | ARM64 (WIM)</td>
-    <td class="tg-0pky">Go guide</td>
+    <td class="tg-0pky">arm64</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">ISO image, WIM image, compile guide</td>
   </tr>
   <tr>
-    <td class="tg-0pky">Server</td>
-    <td class="tg-0pky"><a href="/Docs/flavors/server.md">Server</a></td>
-    <td class="tg-0pky">AMD64 (BIOS, UEFI) | ARM64 (UEFI)</td>
-    <td class="tg-0pky">Server guide</td>
+    <td class="tg-0pky">i386</td>
+    <td class="tg-0pky">32-bit x86-family generic machines ("PC clones")</td>
+    <td class="tg-0pky">ISO image, compile guide</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">mips</td>
+    <td class="tg-0pky">PlayStation 2 game console</td>
+    <td class="tg-0pky">ISO image, ELF file, compile guide</td>
   </tr>
 </tbody></table>
 <h2>Directory structure</h2>
