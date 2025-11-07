@@ -7,4 +7,4 @@ content.innerHTML = `
 </div>
 `;
 document.getElementById("userland").appendChild(content);
-loadScript('./Registry/Local/Envy/DefaultShell/Go.js');
+loadScript('./UI/lock.go.js');

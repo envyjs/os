@@ -30,8 +30,7 @@ if (type === 'desktop') {
     loadScript('./Libs/cheerpx.js')
     loadScript('./Libs/crypt.js')
     loadScript('./API/Linux.Initialize.js')
-    loadScript('./UI/lock.js');
-    loadScript('./Apps/Welcome.js');
+    loadScript('./UI/lock.desktop.js');
 }
 if (type === 'live') {
     loadScript('./Libs/lang.js')

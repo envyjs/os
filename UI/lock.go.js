@@ -1,6 +1,6 @@
 var content = document.createElement("div");
 content.innerHTML = `
-    <div id="lock" onclick="loadScript('./UI/desktop.js');">
+    <div id="lock" onclick="loadScript('./Registry/Local/Envy/DefaultShell/Go.js');">
     <div class="ld">
         <div id="lockdateDisplay"></div>
     </div>  
