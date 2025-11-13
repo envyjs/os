@@ -1,4 +1,5 @@
-
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
 function execCommand(command, value = null) {
   document.execCommand(command, false, value);
 }

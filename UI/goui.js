@@ -1,7 +1,7 @@
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="goui">
-<p>GOUI Shell v10.0.5742<p>
+<p>GOUI Shell v10.0.5901<p>
     <div style="gap: 10px; display: flex; flex-direction: column; width: 100% !important" id="gapps">
     </div>
 </div>

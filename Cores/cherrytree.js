@@ -1,3 +1,5 @@
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
 
 ////////////////////////
 //  Cherry Tree Core  //
@@ -12,6 +14,8 @@
                                            @
 */
 // Modified for use on Envy 10 2027 Update for 2024 Update backwards compatibility
+
+// This source code is licensed under the MIT License, found in /os/Docs/licenses/cherrytree/
 import Html from "../Libs/html.js";
 import Ws from "../Libs/wm.cherrytree.js";
 

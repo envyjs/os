@@ -1,5 +1,9 @@
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 // Envy Correr custom core
 // (c) OwnedByWuigi, Envy Group 2024-2027
+// This source code is published under the Envy Public License.
 
 console.log(
     "%cBoo!\n%cIf someone told you to copypaste something here, there's a 11/10 chance you don't know what you're doing. \n \nPasting any code into this console can expose your private account information and/or files to external sources. Use this console at your own risk.%c\n\nIn the rare case that you %cdo %cknow what you're doing, please contribute to this project kthxbye :3 \n\nhttps://github.com/envyjs/os",
