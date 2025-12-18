@@ -1,7 +1,7 @@
 // env.js
 // This file sets up the environment by loading different scripts based on the specified type.
 
-const type = 'go'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
+const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
 const prerelease = 'yes'; //Change this to 'yes' or 'no'
 
 if (prerelease === 'yes') {
