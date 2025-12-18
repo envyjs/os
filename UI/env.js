@@ -2,10 +2,21 @@
 // This file sets up the environment by loading different scripts based on the specified type.
 
 const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
-const prerelease = 'yes'; //Change this to 'yes' or 'no'
+const prerelease = 'true';
+const devmodeenabled = 'no';
+const watermarktype = 'none'; // Change this to 'live' or 'none' as needed
 
-if (prerelease === 'yes') {
-    loadScript('./API/Watermark.js')
+if (prerelease === 'true') {
+    loadScript('./Apps/System/PrereleaseWatermark.js')
+}
+if (watermarktype === 'live') {
+    loadScript('./Apps/System/LiveWatermark.js')
+}
+if (devmodeenabled === 'yes') {
+    loadScript('./Apps/System/DevWatermark.js')
+}
+if (devmodeenabled === 'no') {
+    loadScript('./Apps/System/IntegrityCheck.js')
 }
 
 // Function to load and execute a script depending on the type

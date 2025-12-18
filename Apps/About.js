@@ -8,7 +8,7 @@
   <img src="./Assets/brand/big.webp" height="60">
   </center>
   <h2 style="line-height: 5px;">Envy</h2>
-  <p>Version 10.0.5935</p>
+  <p>Version 10.0.5941</p>
   <p>Copyright (C) Envy Group 2022-2027</p>
   <p>This product is licensed under the Envy Public License</p>
   `;
