@@ -1,8 +1,5 @@
 #!/bin/bash
 # Envy WebUI compilation script for PS2
-echo "Building Envy WebUI for PS2"
-cp ./Platforms/ps2/athena.ini ./Output/bin/ps2/
-cp ./Platforms/ps2/correr.js ./Output/bin/ps2/
 echo "Building Envy ISO for PS2"
 mkdir ./Output/iso/ps2/
 echo "Building Envy ISO for PS2 Phat (FW 2.10-2.13)"
