@@ -170,3 +170,11 @@ window.open {
   color: #ffffff;
   flex-grow: 1;
 }
+
+.watermark {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  line-height: 4px;
+  text-align: right;
+}

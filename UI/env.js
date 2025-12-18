@@ -1,7 +1,12 @@
 // env.js
 // This file sets up the environment by loading different scripts based on the specified type.
 
-const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
+const type = 'go'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
+const prerelease = 'yes'; //Change this to 'yes' or 'no'
+
+if (prerelease === 'yes') {
+    loadScript('./API/Watermark.js')
+}
 
 // Function to load and execute a script depending on the type
 
@@ -118,4 +123,12 @@ if (type === 'recovery') {
     link3.href = './Styles/base.css';
     document.head.appendChild(link3);
     loadScript('./UI/recovery.js');
+}
+
+if (type === 'nogui') {
+    const link3 = document.createElement('link');
+    link3.rel = 'stylesheet';
+    link3.href = './Styles/base.css';
+    document.head.appendChild(link3);
+    loadScript('./UI/nogui.js');
 }

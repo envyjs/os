@@ -314,11 +314,6 @@ button:hover {
     backdrop-filter: brightness(1)blur(0px) !important;
     right: 60px !important;
   }
-  .watermark {
-    bottom: 70px !important; 
-    width: 100%;
-    padding-left: 50%;
-  }
   #sem {
     left: 0 !important;
     bottom: 54px !important;
@@ -456,12 +451,10 @@ img {
 
 .watermark {
   position: absolute;
-  bottom: 5px;
-  font-size: 24px;
+  top: 0px;
+  right: 10px;
   line-height: 4px;
-  opacity: 0.4;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  text-align: right;
 }
 
 @keyframes popUp {

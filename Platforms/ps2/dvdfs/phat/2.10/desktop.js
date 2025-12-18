@@ -3,7 +3,6 @@ loadScript('bg.js')
 var content = document.createElement("div");
 content.innerHTML = `
 <div id="desktop">
-    <p class="watermark">Envy WebUI Alpha v10.0.5902</p>
     <div class="taskbar">
         <div class="sm" onclick="semshow()">
         <img src="envy.svg" style="height="26px" class="smst">
