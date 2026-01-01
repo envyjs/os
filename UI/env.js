@@ -3,7 +3,7 @@
 
 const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
 const prerelease = 'true';
-const devmodeenabled = 'no';
+const devmodeenabled = 'no'; // Change this to 'yes' or 'no' as needed
 const watermarktype = 'none'; // Change this to 'live' or 'none' as needed
 
 if (prerelease === 'true') {

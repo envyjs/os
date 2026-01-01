@@ -1,7 +1,7 @@
 /* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* vim: set ts=2 et sw=2 tw=80: */
 
-// Envy Correr custom cores
+// Envy Correr custom core
 // (c) OwnedByWuigi, Envy Group 2024-2027
 // This source code is published under the Envy Public License.
 

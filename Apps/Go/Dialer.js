@@ -84,7 +84,11 @@ keys.forEach(key => {
 callBtn.addEventListener("click", () => {
   const number = display.value;
   if (number) {
-    alert(`Calling ${number}...`);
+    if (number === "01189998819991197253") {
+      alert("funny");
+    } else {
+      alert(`Calling ${number}...`);
+    }
     display.value = "";
   } else {
     alert("Please enter a number.");
