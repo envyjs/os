@@ -12,7 +12,6 @@ popd
 
 rem --- Toolchain paths ---
 set TOOLSDIR=%PROJECTROOT%\tools
-set PATH=%TOOLSDIR%;%PATH%
 
 rem --- Source tree ---
 set SRC_BOOT=%PROJECTROOT%\Kernel\boot
@@ -25,8 +24,6 @@ set ISO=%OUT%\ISO
 rem --- Build configuration ---
 set BUILDMODE=DEBUG
 
-for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set BRANCH=%%b
-
 echo.
 echo ============================================================
 echo   NuKernel Build Environment Loaded
@@ -34,14 +31,18 @@ echo   Project Root: %PROJECTROOT%
 echo   Build Mode:   %BUILDMODE%
 echo ============================================================
 echo.
+rem --- Fix PATH before endlocal ---
+set "PATH=%TOOLSDIR%;%PATH%"
 
 endlocal & (
-    set PROJECTROOT=%PROJECTROOT%
-    set TOOLSDIR=%TOOLSDIR%
-    set SRC_BOOT=%SRC_BOOT%
-    set SRC_KRNL=%SRC_KRNL%
-    set OUT=%OUT%
-    set ISO=%ISO%
-    set BUILDMODE=%BUILDMODE%
-    set PATH=%PATH%
+    set "PROJECTROOT=%PROJECTROOT%"
+    set "TOOLSDIR=%TOOLSDIR%"
+    set "SRC_BOOT=%SRC_BOOT%"
+    set "SRC_KRNL=%SRC_KRNL%"
+    set "OUT=%OUT%"
+    set "ISO=%ISO%"
+    set "BUILDMODE=%BUILDMODE%"
 )
+
+rem Export PATH safely (outside parentheses)
+set "PATH=%TOOLSDIR%;%PATH%"
