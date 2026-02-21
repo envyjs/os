@@ -25,6 +25,8 @@ set ISO=%OUT%\ISO
 rem --- Build configuration ---
 set BUILDMODE=DEBUG
 
+for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set BRANCH=%%b
+
 echo.
 echo ============================================================
 echo   NuKernel Build Environment Loaded

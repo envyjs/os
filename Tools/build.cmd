@@ -13,6 +13,8 @@ set SRC=Kernel\
 set OUT=Output
 set ISO=Output\ISO
 
+for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set BRANCH=%%b
+
 rem --- Ensure build and ISO directories exist ---
 if not exist "%OUT%" mkdir "%OUT%"
 if not exist "%ISO%\EFI\BOOT" mkdir "%ISO%\EFI\BOOT"
@@ -94,7 +96,7 @@ dir "%ISO%"
 echo.
 echo === Creating ISO ===
 
-set ISOFILE=NuKernel-%NUKERNEL_VERSION%-%TIMESTAMP%.iso
+set ISOFILE=%NUKERNEL_VERSION%-%BRANCH%-%TIMESTAMP%.iso
 
 echo Creating ISO: %ISOFILE%
 
