@@ -1,3 +1,0 @@
-#pragma once 
-#define NUKERNEL_VERSION L"10.0.5941" 
-#define NUKERNEL_TIMESTAMP L"260221-2140"
