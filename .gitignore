@@ -5,6 +5,8 @@
 
 # Envy Kernel output files/logs
 Output/
+# Envy NuKernel buildinfo, made during build
+Kernel/boot/buildinfo.h
 
 # User-specific files
 *.rsuser

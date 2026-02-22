@@ -71,9 +71,6 @@ lld-link /subsystem:efi_application /entry:efi_main /machine:x64 ^
 
 copy "%OUT%\BOOTX64.EFI" "%ISO%\EFI\BOOT\BOOTX64.EFI" >nul
 
-echo.
-echo ISO/EFI/BOOT contents:
-dir "%ISO%\EFI\BOOT"
 
 echo.
 echo === Building kernel ===
@@ -88,10 +85,6 @@ ld.lld -nostdlib -z max-page-size=0x1000 ^
 llvm-objcopy -O binary "%OUT%\kernel.elf" "%OUT%\kernel.bin"
 
 copy "%OUT%\kernel.bin" "%ISO%\kernel.bin" >nul
-
-echo.
-echo ISO root contents:
-dir "%ISO%"
 
 echo.
 echo === Creating ISO ===
