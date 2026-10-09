@@ -62,16 +62,17 @@
 │   └── Server             # Envy Server apps
 │   └── Go                 # Envy Go apps
 ├── Assets                 # Images, audio, etc
-├── Cores                  # WebUI applications (such as Filer)
+├── Cores                  # WebUI 'cores' such as Correr
 ├── Docs                   # Documentation
-├── Kernel                 # Envy Kernel
-│   └── Drivers            # Envy Kernel drivers
-│   └── System             # Envy Kernel source code
-│       └── AMD64          # x86_64 specific code
-│       └── armv8          # ARM64 specific code
-│       └── i386           # x86_32 specific code
-│       └── Neutral        # Architecture neutral code
-├── Libs                   # Libraries needed for Envy WebUI
+├── Kernel                 # NuKernel
+│   └── Arch               # Code for specific architectures
+│   └── Boot               # Boot code
+│   └── Browser            # Internal Envy browser for NuKernel
+│   └── Drivers            # Drivers for NuKernel
+│   └── FS                 # Filesystem for NuKernel
+│   └── Lib                # Envy C Runtime
+│   └── Runtime            # Code for after the kernel is booted
+│       └── JS             # Envy internal JS engine for NuKernel
 ├── Packages               # Apps for Envy Legacy Compatibility
 │   └── apps               # Legacy apps
 │   └── system             # Legacy services
@@ -83,9 +84,7 @@
 │       └── Envy           # Envy-made registry
 ├── Styles                 # CSS for Envy WebUI
 ├── Submodules             # 3rd party repositories
-├── Tools                  # Scripts, etc to help set up and run Envy
-│   └── Compilation        # Scripts to help compile Envy Kernel
-│   └── ML                 # Scripts to help train and run Envy Aiya
+├── Tools                  # Scripts, etc to build and run NuKernel
 ├── UI                     # Envy WebUI GUI
 ```
 <h1>Self-hosting Envy WebUI (localhost)</h1>

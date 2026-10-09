@@ -53,6 +53,8 @@
 }
 
 body {
+  /* Readable fallback while the wallpaper is unavailable or still loading. */
+  background-color: #1d1c20;
   user-select: none;
   font-family: 'Adwaita Sans', 'ReadexPro';
   overflow: hidden;
