@@ -23,13 +23,14 @@ body {
 }
   
   .window {
+    box-sizing: border-box;
     position: absolute;
     display: flex;
     color: white;
     display: initial !important;
 }
 
-window.open {
+.window.open {
   opacity: 1; /* Become visible */
   transform: scale(1); /* Normalize the scale */
 }

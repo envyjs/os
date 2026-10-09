@@ -4,6 +4,10 @@
 typedef struct {char family[64],path[256];ttf_font font;int tried;} face;
 static face faces[24];static uint32_t face_count,used;
 static uint8_t memory[1536u*1024u];static cdfs *filesystem;
+typedef struct {const ttf_font *font;uint32_t glyph,size,offset;int32_t left,top,width,height;} glyph_bitmap;
+static glyph_bitmap glyphs[256];static uint32_t glyph_count,glyph_used,rasterizations;
+static uint8_t glyph_pixels[512u*1024u],glyph_scratch[512u*512u];
+uint32_t font_rasterization_count(void){return rasterizations;}
 static int space(char c){return c==' '||c=='\t'||c=='\n'||c=='\r';}
 static char lower(char c){return c>='A'&&c<='Z'?(char)(c+32):c;}
 static int same(const char *a,const char *b){while(*a&&lower(*a)==lower(*b)){a++;b++;}return *a==*b;}
@@ -42,6 +46,7 @@ void font_face(const char *family,const char *sources,const char *stylesheet){
     }
 }
 void font_init(cdfs *fs){filesystem=fs;face_count=used=0;
+    glyph_count=glyph_used=rasterizations=0;
     font_face("Adwaita Sans","url('/Envy/Assets/fonts/AdwaitaSans-Regular.ttf')","/Envy/index.html");
     font_face("ReadexPro","url('/Envy/Assets/fonts/ReadexPro-Regular.ttf')","/Envy/index.html");
     font_face("Ubuntu Mono","url('/Envy/Assets/fonts/UbuntuMono-R.ttf')","/Envy/index.html");
@@ -68,8 +73,26 @@ int32_t font_advance(int font,uint32_t cp,uint32_t size){uint32_t glyph;const tt
     return f?ttf_advance(f,glyph,size):(int32_t)(size+1)/2;}
 typedef struct {int32_t x,y;uint32_t color;} pen;
 static void pixel(void *context,int32_t x,int32_t y,uint8_t coverage){pen *p=context;framebuffer_blend(p->x+x,p->y+y,p->color,coverage);}
+typedef struct {pen pen;int32_t left,top,right,bottom;int fits;} bitmap_pen;
+static void bitmap_pixel(void *context,int32_t x,int32_t y,uint8_t coverage){
+    bitmap_pen *p=context;pixel(&p->pen,x,y,coverage);
+    if(x<-256||x>=256||y<-384||y>=128){p->fits=0;return;}
+    glyph_scratch[(y+384)*512+x+256]=coverage;
+    if(x<p->left)p->left=x;if(x>=p->right)p->right=x+1;if(y<p->top)p->top=y;if(y>=p->bottom)p->bottom=y+1;
+}
 void font_draw(int font,int32_t x,int32_t top,uint32_t cp,uint32_t size,uint32_t color){
     uint32_t glyph;const ttf_font *f=selected(font,cp,&glyph);
-    if(f){pen p={x,top+(int32_t)f->ascent*(int32_t)size/f->units,color};if(ttf_render(f,glyph,size,pixel,&p))return;}
+    if(f){int32_t baseline=top+(int32_t)f->ascent*(int32_t)size/f->units;
+        for(uint32_t i=0;i<glyph_count;i++){const glyph_bitmap *g=&glyphs[i];if(g->font!=f||g->glyph!=glyph||g->size!=size)continue;
+            for(int32_t row=0;row<g->height;row++)for(int32_t col=0;col<g->width;col++){uint8_t alpha=glyph_pixels[g->offset+row*g->width+col];if(alpha)framebuffer_blend(x+g->left+col,baseline+g->top+row,color,alpha);}return;}
+        for(uint32_t i=0;i<sizeof(glyph_scratch);i++)glyph_scratch[i]=0;
+        bitmap_pen p={{x,baseline,color},256,128,-256,-384,1};rasterizations++;
+        if(ttf_render(f,glyph,size,bitmap_pixel,&p)){
+            if(p.fits){int32_t width=p.right>p.left?p.right-p.left:0,height=p.bottom>p.top?p.bottom-p.top:0;uint32_t bytes=(uint32_t)(width*height);
+                if(glyph_count==256||bytes>sizeof(glyph_pixels)-glyph_used)glyph_count=glyph_used=0;
+                glyphs[glyph_count++]=(glyph_bitmap){f,glyph,size,glyph_used,p.left,p.top,width,height};
+                for(int32_t row=0;row<height;row++)for(int32_t col=0;col<width;col++)glyph_pixels[glyph_used+row*width+col]=glyph_scratch[(p.top+384+row)*512+p.left+256+col];glyph_used+=bytes;
+            }return;}
+    }
     char text[2]={cp>=32&&cp<127?(char)cp:'?',0};framebuffer_text_size(x,top,text,color,size);
 }

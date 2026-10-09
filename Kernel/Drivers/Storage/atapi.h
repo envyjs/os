@@ -16,6 +16,9 @@ typedef struct {
 /* Bootstrap polling driver. Serialize all operations sharing an IDE channel. */
 uint32_t atapi_probe(atapi_device *devices, uint32_t capacity);
 int atapi_media_ready(atapi_device *device);
-/* CDFS-compatible callback; reads one block using ATAPI READ(12). */
+/* CDFS-compatible callback; returns one block with bounded READ(12) read-ahead.
+   atapi_media_ready invalidates cached data; remount after changing media. */
 int atapi_read_block(void *device, uint32_t lba, uint8_t *buffer);
+uint32_t atapi_read_command_count(void);
+uint32_t atapi_cache_hit_count(void);
 #endif

@@ -69,7 +69,9 @@ dap:
 
 boot_drive db 0
 attempts db 0
-remaining dw STAGE2_SECTORS
+; Only the loader itself belongs in conventional memory. It loads the payload
+; into extended memory one sector at a time.
+remaining dw 2
 error_message db 'CD boot read failed (BIOS EDD required)', 0
 times 510-($-$$) db 0
 dw 0xaa55

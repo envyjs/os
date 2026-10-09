@@ -11,6 +11,8 @@ static variable variables[128];static uint32_t variable_count;
 typedef struct {int32_t px,percent,em;int scalar;} expression;
 static expression expressions[4096];static uint32_t expression_count;
 static int32_t font_basis=16;
+static int (*state_lookup)(const css_element *,const char *);
+void css_state_lookup(int (*lookup)(const css_element *,const char *)){state_lookup=lookup;}
 static int space(char c) {return c==' '||c=='\n'||c=='\r'||c=='\t';}
 static char lower(char c) {return c>='A'&&c<='Z'?(char)(c+32):c;}
 static uint32_t length(const char *s) {uint32_t n=0;while(s[n])n++;return n;}
@@ -50,6 +52,8 @@ static int simple_depth(const char *s,uint32_t n,const css_element *e,uint32_t d
         if(kind=='#') {if(!equal(s+begin,i-begin,e->id,0))return -1;score+=100;}
         else if(kind=='.') {if(!member(e->classes,s+begin,i-begin))return -1;score+=10;}
         else if(kind==':'&&equal(s+begin,i-begin,"root",1)&&!e->parent)score+=10;
+        else if(kind==':'&&(equal(s+begin,i-begin,"hover",1)||equal(s+begin,i-begin,"active",1))){
+            const char *state=equal(s+begin,i-begin,"hover",1)?"hover":"active";if(!state_lookup||!state_lookup(e,state))return -1;score+=10;}
         else if(kind==':'&&equal(s+begin,i-begin,"not",1)&&i<n&&s[i]=='('){uint32_t start=++i;int nesting=1;
             while(i<n&&nesting){if(s[i]=='(')nesting++;if(s[i]==')')nesting--;if(nesting)i++;}
             if(nesting)return -1;int sub=simple_depth(s+start,i-start,e,depth+1);if(sub>=0)return -1;i++;score+=10;}
@@ -68,6 +72,16 @@ static int matches(const char *s,uint32_t n,const css_element *e,uint32_t depth)
     if(s[begin-1]=='>') {int parent=matches(s,begin-1,e->parent,depth+1);return parent<0?-1:parent+score;}
     for(e=e->parent;e;e=e->parent) {int parent=matches(s,begin,e,depth+1);if(parent>=0)return parent+score;}
     return -1;
+}
+int css_selector_matches(const css_element *e,const char *selector){
+    const char *part=selector;int nesting=0;
+    for(const char *p=selector;;p++){
+        if(*p=='(')nesting++;else if(*p==')')nesting--;
+        if(!*p||(*p==','&&!nesting)){const char *start=part;while(start<p&&space(*start))start++;
+            if(start<p&&matches(start,(uint32_t)(p-start),e,0)>=0)return 1;
+            if(!*p)break;part=p+1;}
+    }
+    return 0;
 }
 static int number(const char **source,int32_t *value) {
     const char *p=*source;while(space(*p))p++;int sign=1;if(*p=='-'){sign=-1;p++;}else if(*p=='+')p++;
@@ -334,6 +348,21 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
         }
         if(!s){if(p<end)p++;continue;}
         if(!expand_variables(text,0)){if(p<end)p++;continue;}used=length(text);
+        if(equal(key,key_length,"backdrop-filter",1)||equal(key,key_length,"-webkit-backdrop-filter",1)){
+            const char *filter=text;int32_t blur=0,brightness=1000;int valid=1;
+            if(!equal(text,used,"none",1))while(*filter){while(space(*filter))filter++;if(!*filter)break;
+                if(length(filter)>=5&&equal(filter,5,"blur(",1)){filter+=5;while(space(*filter))filter++;
+                    if(*filter!=')'&&(!dimension(&filter,&blur,width,height)||blur<0||blur>=CSS_PERCENT)){valid=0;break;}
+                    if(blur>32)blur=32;
+                }else if(length(filter)>=11&&equal(filter,11,"brightness(",1)){filter+=11;while(space(*filter))filter++;
+                    if(*filter!=')'&&!decimal(&filter,&brightness)){valid=0;break;}if(*filter=='%'){brightness/=100;filter++;}
+                    if(brightness<0){valid=0;break;}if(brightness>8000)brightness=8000;
+                }else{valid=0;break;}
+                while(space(*filter))filter++;if(*filter++!=')'){valid=0;break;}
+            }
+            if(valid){set(s,ranks,CSS_BACKDROP_BLUR,blur,priority);set(s,ranks,CSS_BACKDROP_BRIGHTNESS,brightness,priority);}
+            if(p<end)p++;continue;
+        }
         if(background_declaration(s,ranks,key,key_length,text,priority,width,height,path)){if(p<end)p++;continue;}
         int property=-1;int32_t parsed=0;const char *cursor=text;
         const char *names[]={"color","background-color","font-size","line-height","text-align","display","position","left","top","right","bottom","width","height","margin-top","margin-right","margin-bottom","margin-left","padding-top","padding-right","padding-bottom","padding-left","border-width","border-color","translate-x","translate-y","font-family"};
@@ -482,6 +511,7 @@ void css_compute(const css_element *e,const css_style *parent,const char *inline
     s->value[CSS_COLOR]=parent?parent->value[CSS_COLOR]:0x202020;s->value[CSS_BACKGROUND]=-1;
     s->value[CSS_COLOR_ALPHA]=parent?parent->value[CSS_COLOR_ALPHA]:255;s->value[CSS_BACKGROUND_ALPHA]=s->value[CSS_BORDER_ALPHA]=255;
     s->value[CSS_OPACITY]=255;s->value[CSS_VISIBILITY]=parent?parent->value[CSS_VISIBILITY]:0;
+    s->value[CSS_BACKDROP_BRIGHTNESS]=1000;
     s->value[CSS_WHITE_SPACE]=parent?parent->value[CSS_WHITE_SPACE]:0;s->value[CSS_FONT_WEIGHT]=parent?parent->value[CSS_FONT_WEIGHT]:400;
     s->gradient_count=0;s->gradient_angle=180;
     s->background_image[0]=0;s->background_width=s->background_height=CSS_AUTO;
@@ -508,7 +538,9 @@ void css_compute(const css_element *e,const css_style *parent,const char *inline
     if(s->value[CSS_FONT_SIZE]<1)s->value[CSS_FONT_SIZE]=1;if(s->value[CSS_FONT_SIZE]>256)s->value[CSS_FONT_SIZE]=256;
     font_basis=s->value[CSS_FONT_SIZE];
     for(uint32_t i=0;i<CSS_PROPERTIES;i++){int32_t v=s->value[i];if(v>=EXPRESSION_BASE&&v<EXPRESSION_BASE+(int32_t)expression_count&&expressions[v-EXPRESSION_BASE].em){expression resolved=expressions[v-EXPRESSION_BASE];resolved.px+=resolved.em*font_basis;resolved.em=0;expression_value(resolved,&s->value[i]);}}
-    if(!ranks[CSS_LINE_HEIGHT]||s->value[CSS_LINE_HEIGHT]==CSS_AUTO)s->value[CSS_LINE_HEIGHT]=s->value[CSS_FONT_SIZE]+2;
+    s->line_height_spec=ranks[CSS_LINE_HEIGHT]?s->value[CSS_LINE_HEIGHT]:parent?parent->line_height_spec:CSS_AUTO;
+    s->value[CSS_LINE_HEIGHT]=s->line_height_spec;
+    if(s->value[CSS_LINE_HEIGHT]==CSS_AUTO)s->value[CSS_LINE_HEIGHT]=s->value[CSS_FONT_SIZE]+2;
     else if(s->value[CSS_LINE_HEIGHT]<=-100000)s->value[CSS_LINE_HEIGHT]=(int32_t)((int64_t)(-s->value[CSS_LINE_HEIGHT]-100000)*s->value[CSS_FONT_SIZE]/1000);
     else s->value[CSS_LINE_HEIGHT]=css_resolve(s->value[CSS_LINE_HEIGHT],s->value[CSS_FONT_SIZE]);
 }

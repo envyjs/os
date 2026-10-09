@@ -1,6 +1,7 @@
 let topZIndex = 1; // Track the highest z-index
+let nextWindowId = 0;
 function createWindow(titleText, contentHTML, width = 400, height = 300) {
-    const windowId = `window-${Date.now()}`;
+    const windowId = `window-${Date.now()}-${nextWindowId++}`;
     const windowDiv = document.createElement('div');
     windowDiv.classList.add('window');
     windowDiv.id = windowId;
@@ -89,6 +90,7 @@ function createWindow(titleText, contentHTML, width = 400, height = 300) {
 
     // Make the window draggable
     makeWindowDraggable(windowDiv, header);
+    return windowDiv;
 }
 
 // Close Window with animation
@@ -214,12 +216,16 @@ function makeWindowResizable(window, handle, direction) {
                 window.style.height = `${Math.max(window.offsetHeight + deltaY, minHeight)}px`;
             }
             if (direction.includes('left')) {
-                window.style.width = `${Math.max(window.offsetWidth - deltaX, minWidth)}px`;
-                window.style.left = `${window.offsetLeft + deltaX}px`;
+                const oldWidth = window.offsetWidth;
+                const newWidth = Math.max(oldWidth - deltaX, minWidth);
+                window.style.width = `${newWidth}px`;
+                window.style.left = `${window.offsetLeft + oldWidth - newWidth}px`;
             }
             if (direction.includes('top')) {
-                window.style.height = `${Math.max(window.offsetHeight - deltaY, minHeight)}px`;
-                window.style.top = `${window.offsetTop + deltaY}px`;
+                const oldHeight = window.offsetHeight;
+                const newHeight = Math.max(oldHeight - deltaY, minHeight);
+                window.style.height = `${newHeight}px`;
+                window.style.top = `${window.offsetTop + oldHeight - newHeight}px`;
             }
 
             lastX = e.clientX;

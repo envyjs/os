@@ -7,6 +7,12 @@
 #define ERROR 0x01u
 #define POLL_LIMIT 2000000u
 #define MAX_CHANNELS 8u
+#define READ_AHEAD_BLOCKS 16u
+static struct {atapi_device *device;uint32_t lba,count,stamp;uint8_t data[READ_AHEAD_BLOCKS*ATAPI_BLOCK_SIZE];} read_cache[4];
+static uint32_t cache_clock,read_commands,cache_hits;
+uint32_t atapi_read_command_count(void){return read_commands;}
+uint32_t atapi_cache_hit_count(void){return cache_hits;}
+static void invalidate_reads(atapi_device *device){for(uint32_t i=0;i<4;i++)if(!device||read_cache[i].device==device)read_cache[i].count=0;}
 typedef struct { uint16_t io, control; } channel;
 
 static void settle(uint16_t control) {
@@ -132,6 +138,7 @@ static int identify(atapi_device *device) {
     return ATAPI_OK;
 }
 uint32_t atapi_probe(atapi_device *devices, uint32_t capacity) {
+    invalidate_reads(0);
     if (!devices || !capacity) return 0;
     channel channels[MAX_CHANNELS];
     uint32_t count = discover_channels(channels), found = 0;
@@ -178,11 +185,9 @@ static int packet_raw(atapi_device *device, const uint8_t *cdb, uint8_t *buffer,
         if (reason != 2) return ATAPI_PROTOCOL;
         uint32_t bytes = in8(device->io + 4) | (uint32_t)in8(device->io + 5) << 8;
         if (!bytes || bytes > size - received) return ATAPI_PROTOCOL;
-        for (uint32_t i = 0; i < bytes; i += 2) {
-            uint16_t word = in16(device->io);
-            buffer[received + i] = (uint8_t)word;
-            if (i + 1 < bytes) buffer[received + i + 1] = (uint8_t)(word >> 8);
-        }
+        uint8_t *destination=buffer+received;uint32_t words=bytes/2;
+        __asm__ volatile("cld; rep insw" : "+D"(destination), "+c"(words) : "d"(device->io) : "memory");
+        if(bytes&1)buffer[received+bytes-1]=(uint8_t)in16(device->io);
         received += bytes;
         settle(device->control);
     }
@@ -209,6 +214,7 @@ static uint32_t be32(const uint8_t *p) {
     return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
 }
 int atapi_media_ready(atapi_device *device) {
+    invalidate_reads(device);
     if (!device || (device->packet_bytes != 12 && device->packet_bytes != 16)) return ATAPI_UNSUPPORTED;
     device->blocks = 0;
     device->sense_key = device->asc = device->ascq = 0;
@@ -237,15 +243,23 @@ int atapi_media_ready(atapi_device *device) {
 int atapi_read_block(void *context, uint32_t lba, uint8_t *buffer) {
     atapi_device *device = context;
     if (!device || !buffer || !device->blocks || lba >= device->blocks) return ATAPI_RANGE;
-    uint8_t cdb[16] = { 0xa8 }; /* READ(12), one cooked 2048-byte sector. */
-    for (uint32_t i = 0; i < 4; ++i) cdb[2+i] = (uint8_t)(lba >> (24 - 8*i));
-    cdb[9] = 1;
-    int result = packet(device, cdb, buffer, ATAPI_BLOCK_SIZE);
+    for(uint32_t i=0;i<4;i++)if(read_cache[i].device==device&&read_cache[i].count&&lba>=read_cache[i].lba&&lba-read_cache[i].lba<read_cache[i].count){
+        uint32_t offset=(lba-read_cache[i].lba)*ATAPI_BLOCK_SIZE;for(uint32_t b=0;b<ATAPI_BLOCK_SIZE;b++)buffer[b]=read_cache[i].data[offset+b];read_cache[i].stamp=++cache_clock;cache_hits++;return ATAPI_OK;}
+    uint32_t slot=0;for(uint32_t i=0;i<4;i++){if(!read_cache[i].count){slot=i;break;}if(read_cache[i].stamp<read_cache[slot].stamp)slot=i;}
+    read_cache[slot].count=0;
+    uint32_t first=lba&~(READ_AHEAD_BLOCKS-1u),count=device->blocks-first;if(count>READ_AHEAD_BLOCKS)count=READ_AHEAD_BLOCKS;
+    uint8_t cdb[16] = { 0xa8 }; /* READ(12), bounded sequential read-ahead. */
+    for (uint32_t i = 0; i < 4; ++i) cdb[2+i] = (uint8_t)(first >> (24 - 8*i));
+    cdb[9] = (uint8_t)count;read_commands++;
+    int result = packet(device, cdb, read_cache[slot].data, count*ATAPI_BLOCK_SIZE);
     if (result == ATAPI_DEVICE_ERROR) {
         int sense_result = sense(device);
         if (sense_result) return sense_result;
         if (device->sense_key == 2 && device->asc == 0x3a) { device->blocks = 0; return ATAPI_NO_MEDIA; }
         if (device->sense_key == 6) { device->blocks = 0; return ATAPI_DEVICE_ERROR; } /* Require remount on media change. */
     }
+    if(!result){read_cache[slot].device=device;read_cache[slot].lba=first;read_cache[slot].count=count;read_cache[slot].stamp=++cache_clock;
+        uint32_t offset=(lba-first)*ATAPI_BLOCK_SIZE;for(uint32_t b=0;b<ATAPI_BLOCK_SIZE;b++)buffer[b]=read_cache[slot].data[offset+b];}
+    else invalidate_reads(device);
     return result;
 }

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 /* Recycle decoder scratch buffers while keeping the returned pixels alive. */
-static _Alignas(16) uint8_t heap[192u*1024u*1024u];static int failed;static uint32_t generation;
+static _Alignas(16) uint8_t heap[184u*1024u*1024u];static int failed;static uint32_t generation;
 typedef struct {uint32_t size,next,available,reserved;} block;
 void image_heap_reset(void){*(block *)heap=(block){sizeof(heap)-sizeof(block),0,1,0};failed=0;generation++;}
 int image_heap_failed(void){return failed;}

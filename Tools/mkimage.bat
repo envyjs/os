@@ -21,7 +21,7 @@ set "ENVY_ARG="
 if not "%~4"=="" set "ENVY_ARG=-D ENVY_TREE='%~f4'"
 %NASM% -f bin -I "%~dp0..\Kernel\Boot\x86/" -D "STAGE1='%~f1'" -D "STAGE2='%~f2'" -D "README='%~dp0..\Kernel\Image\README.TXT'" %ENVY_ARG% "%~dp0iso.asm" -o "%~f3"
 if errorlevel 1 exit /b 1
-if "%~4"=="" if not "%~z3"=="262144" (
+if "%~4"=="" if not "%~z3"=="1048576" (
     echo ERROR: Incorrect output image size.
     exit /b 1
 )

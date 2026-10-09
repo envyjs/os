@@ -1,0 +1,8 @@
+QuickJS 2025-09-13-2, MIT license.
+Source: https://bellard.org/quickjs/quickjs-2025-09-13-2.tar.xz
+SHA-256: 996C6B5018FC955AD4D06426D0E9CB713685A00C825AA5C0418BD53F7DF8B0B4
+
+The build uses only the embeddable runtime sources.
+Local changes in quickjs.c guard OS-dependent Atomics and allocator introspection with ENVY_FREESTANDING.
+../../quickjs.c supplies the version and read-only access to lexical global bindings for the existing VM bridge.
+The kernel provides allocation, UTC clock, math, formatting, and byte routines through compat/ and support.c.

@@ -11,6 +11,79 @@ start:
     mov sp, 0x7c00
     cld
     mov [boot_drive], dl
+    ; BIOS cannot transfer a large JavaScript engine directly above 1 MiB.
+    ; Read each CD block into a scratch buffer, then copy it in protected mode.
+    in al, 0x92
+    or al, 2
+    and al, 0xfe
+    out 0x92, al
+    mov word [payload_remaining], STAGE2_SECTORS-2
+.payload_block:
+    mov byte [payload_attempts], 3
+.payload_read:
+    mov word [payload_dap+2], 1
+    mov si, payload_dap
+    mov dl, [boot_drive]
+    mov ah, 0x42
+    sti
+    int 0x13
+    jnc .payload_ready
+    xor ah, ah
+    mov dl, [boot_drive]
+    int 0x13
+    dec byte [payload_attempts]
+    jnz .payload_read
+    mov si, payload_error
+.payload_error:
+    lodsb
+    test al, al
+    jz .payload_halt
+    mov ah, 0x0e
+    mov bx, 7
+    int 0x10
+    jmp .payload_error
+.payload_halt:
+    cli
+    hlt
+    jmp .payload_halt
+.payload_ready:
+    cli
+    lgdt [gdt_pointer]
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+    jmp CODE_SELECTOR:payload_copy
+bits 32
+payload_copy:
+    mov ax, DATA_SELECTOR
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov esi, 0x10000
+    mov edi, [payload_destination]
+    mov ecx, 512
+    rep movsd
+    add dword [payload_destination], 2048
+    jmp 0x18:payload_real
+bits 16
+payload_real:
+    mov ax, 0x20
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov eax, cr0
+    and eax, ~1
+    mov cr0, eax
+    jmp 0:payload_next
+payload_next:
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, 0x7c00
+    add dword [payload_dap+8], 1
+    dec word [payload_remaining]
+    jnz start.payload_block
     ; Select VGA text mode before leaving BIOS services.
     mov ax, 0x0003
     int 0x10
@@ -107,6 +180,8 @@ gdt:
     dq 0
     dq 0x00cf9a000000ffff
     dq 0x00cf92000000ffff
+    dq 0x00009a000000ffff
+    dq 0x000092000000ffff
 gdt_end:
 gdt_pointer:
     dw gdt_end - gdt - 1
@@ -128,7 +203,7 @@ protected_start:
     mov cr0, eax
     fninit
     cld
-    call 0x9000
+    call 0x100000
 .halt:
     ; Interrupts stay disabled until a future kernel installs an IDT.
     cli
@@ -138,6 +213,18 @@ protected_start:
 boot_drive db 0
 video_mode dw 0
 mode_budget dw 0
+payload_remaining dw 0
+payload_attempts db 0
+payload_destination dd 0x100000
+align 4
+payload_dap:
+    db 16, 0
+    dw 1
+    dw 0, 0x1000
+    dq STAGE2_LBA+2
+payload_error db 'CD payload read failed', 0
 times 0x1000-($-$$) db 0
+embedded_payload:
 incbin PAYLOAD
+embedded_payload_end:
 times STAGE2_SECTORS*2048-($-$$) db 0

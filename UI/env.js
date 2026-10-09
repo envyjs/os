@@ -43,9 +43,7 @@ if (type === 'desktop') {
     loadScript('./Libs/winbox.js')
     loadScript('./Libs/gamepad.correr.js')
     loadScript('./Libs/jquery.js')
-    loadScript('./Libs/cheerpx.js')
     loadScript('./Libs/crypt.js')
-    loadScript('./API/Linux.Initialize.js')
     loadScript('./UI/lock.desktop.js');
 }
 if (type === 'live') {
@@ -67,7 +65,6 @@ if (type === 'live') {
     loadScript('./Libs/winbox.js')
     loadScript('./Libs/gamepad.correr.js')
     loadScript('./Libs/jquery.js')
-    loadScript('./Libs/cheerpx.js')
     loadScript('./Libs/crypt.js')
     loadScript('./UI/desktop.js');
     loadScript('./API/System.LiveAlert.js');
@@ -92,7 +89,6 @@ if (type === 'serverwc') {
     loadScript('./Libs/winbox.js')
     loadScript('./Libs/gamepad.correr.js')
     loadScript('./Libs/jquery.js')
-    loadScript('./Libs/cheerpx.js')
     loadScript('./Libs/crypt.js')
     loadScript('./UI/desktop.js');
     loadScript('./UI/server.js');

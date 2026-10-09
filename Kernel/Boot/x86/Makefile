@@ -11,7 +11,7 @@ TESTS ?= 0
 FONT_TESTS ?= 0
 IMAGE_TESTS ?= 0
 CFLAGS := --target=i686-none-elf -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -mno-sse -mno-mmx -msoft-float -std=c11 -Wall -Wextra -Werror -Oz -ffunction-sections -fdata-sections
-OBJECTS := $(OUT)/payload.o $(OUT)/boot.o $(OUT)/cdfs.o $(OUT)/atapi.o $(OUT)/memory.o $(OUT)/js.o $(OUT)/browser.o $(OUT)/framebuffer.o $(OUT)/html.o $(OUT)/css.o $(OUT)/ps2.o $(OUT)/ttf.o $(OUT)/font.o $(OUT)/image.o $(OUT)/image_support.o $(OUT)/images.o
+OBJECTS := $(OUT)/payload.o $(OUT)/boot.o $(OUT)/cdfs.o $(OUT)/atapi.o $(OUT)/memory.o $(OUT)/js.o $(OUT)/json.o $(OUT)/js_full.o $(OUT)/quickjs.o $(OUT)/qjs_cutils.o $(OUT)/qjs_dtoa.o $(OUT)/qjs_regexp.o $(OUT)/qjs_unicode.o $(OUT)/js_support.o $(OUT)/js_jump.o $(OUT)/browser.o $(OUT)/framebuffer.o $(OUT)/html.o $(OUT)/css.o $(OUT)/ps2.o $(OUT)/ttf.o $(OUT)/font.o $(OUT)/image.o $(OUT)/image_support.o $(OUT)/images.o
 ENVY_TREE := $(OUT)/envy.inc
 IMAGE_PREVIEWS := $(OUT)/Previews
 ifeq ($(TESTS),1)
@@ -54,7 +54,33 @@ $(OUT)/atapi.o: ../../Drivers/Storage/atapi.c ../../Drivers/Storage/atapi.h ../.
 $(OUT)/memory.o: ../../Lib/memory.c | $(OUT)
 	$(CLANG) $(CFLAGS) -c $< -o $@
 
-$(OUT)/js.o: ../../Runtime/JS/js.c ../../Runtime/JS/js.h | $(OUT)
+$(OUT)/js.o: ../../Runtime/JS/js.c ../../Runtime/JS/js.h ../../Runtime/JS/full.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+JS_DIR := ../../Runtime/JS
+JS_HEADERS := $(wildcard $(JS_DIR)/compat/*.h) $(wildcard $(JS_DIR)/vendor/quickjs/*.h) $(wildcard $(JS_DIR)/compat/sys/*.h)
+$(OUT)/js_full.o: $(JS_DIR)/full.c $(JS_DIR)/full.h $(JS_DIR)/js.h $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(CFLAGS) -mno-soft-float -I$(JS_DIR)/compat -Wno-ignored-attributes -Wno-unused-parameter -c $< -o $@
+
+QJS_DIR := $(JS_DIR)/vendor/quickjs
+QJS_FLAGS := $(CFLAGS) -std=gnu11 -mno-soft-float -I$(JS_DIR)/compat -Wno-unused-parameter -Wno-sign-compare -Wno-implicit-fallthrough -Wno-ignored-attributes -Wno-macro-redefined -Wno-unused-function -Wno-missing-field-initializers -Wno-unterminated-string-initialization
+$(OUT)/quickjs.o: $(JS_DIR)/quickjs.c $(QJS_DIR)/quickjs.c $(wildcard $(QJS_DIR)/*.h) $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(QJS_FLAGS) -c $< -o $@
+$(OUT)/qjs_cutils.o: $(QJS_DIR)/cutils.c $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(QJS_FLAGS) -c $< -o $@
+$(OUT)/qjs_dtoa.o: $(QJS_DIR)/dtoa.c $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(QJS_FLAGS) -c $< -o $@
+$(OUT)/qjs_regexp.o: $(QJS_DIR)/libregexp.c $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(QJS_FLAGS) -c $< -o $@
+$(OUT)/qjs_unicode.o: $(QJS_DIR)/libunicode.c $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(QJS_FLAGS) -c $< -o $@
+$(OUT)/js_support.o: $(JS_DIR)/support.c $(JS_HEADERS) | $(OUT)
+	$(CLANG) $(CFLAGS) -mno-soft-float -I$(JS_DIR)/compat -Wno-ignored-attributes -Wno-unused-parameter -c $< -o $@
+
+$(OUT)/js_jump.o: $(JS_DIR)/jump.asm | $(OUT)
+	$(NASM) -f elf32 $< -o $@
+
+$(OUT)/json.o: ../../Runtime/JS/json.c ../../Runtime/JS/js.h | $(OUT)
 	$(CLANG) $(CFLAGS) -c $< -o $@
 
 $(OUT)/ttf.o: ../../Runtime/Font/ttf.c ../../Runtime/Font/ttf.h | $(OUT)

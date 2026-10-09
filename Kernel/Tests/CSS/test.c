@@ -73,5 +73,13 @@ int css_self_test(void) {
     CHECK(panel_style.gradient_count==2&&panel_style.gradient_angle==90&&panel_style.gradient_color[0]==0x1e1e1e&&panel_style.value[CSS_MIN_HEIGHT]==24,108);
     css_compute(&panel,0,"transform:translateX(100%);box-sizing:border-box;flex:1;grid-template-columns:repeat(3, 1fr)",800,600,&panel_style);
     CHECK(css_resolve(panel_style.value[CSS_TRANSLATE_X],80)==80&&panel_style.value[CSS_BOX_SIZING]==1&&panel_style.value[CSS_GROW]==1000&&panel_style.value[CSS_GRID_COLUMNS]==3,109);
+    css_compute(&panel,0,"background:rgba(86,85,88,0);backdrop-filter:brightness(.7)blur(10px)",800,600,&panel_style);
+    CHECK(panel_style.value[CSS_BACKGROUND_ALPHA]==0&&panel_style.value[CSS_BACKDROP_BLUR]==10&&panel_style.value[CSS_BACKDROP_BRIGHTNESS]==700,110);
+    css_compute(&panel,&panel_style,0,800,600,&text_style);
+    CHECK(text_style.value[CSS_BACKDROP_BLUR]==0&&text_style.value[CSS_BACKDROP_BRIGHTNESS]==1000,111);
+    css_compute(&panel,0,"-webkit-backdrop-filter:blur(25px) brightness(50%);backdrop-filter:garbage",800,600,&panel_style);
+    CHECK(panel_style.value[CSS_BACKDROP_BLUR]==25&&panel_style.value[CSS_BACKDROP_BRIGHTNESS]==500,112);
+    css_compute(&panel,0,"backdrop-filter:blur(10px);backdrop-filter:none",800,600,&panel_style);
+    CHECK(panel_style.value[CSS_BACKDROP_BLUR]==0&&panel_style.value[CSS_BACKDROP_BRIGHTNESS]==1000,113);
     css_init();return 0;
 }

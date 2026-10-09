@@ -40,5 +40,7 @@ int font_self_test(cdfs *fs){
     for(uint32_t i=0;i<3;i++){const char *text="Wi: TrueType caf\xc3\xa9 0123456789";int32_t x=20;
         int face=i==0?sans:i==1?readex:mono;
         while(*text){uint32_t cp=ttf_utf8(&text);font_draw(face,x,40+(int32_t)i*48,cp,32,0xffffff);x+=font_advance(face,cp,32);}}
+    font_draw(sans,20,220,'W',32,0xffffff);uint32_t renders=font_rasterization_count();
+    font_draw(sans,70,220,'W',32,0xff0000);CHECK(font_rasterization_count()==renders,322);
     return 0;
 }

@@ -3,7 +3,7 @@
 typedef struct { uint8_t *image; uint32_t failed_lba; } test_device;
 static int read_block(void *context, uint32_t lba, uint8_t *buffer) {
     test_device *device = context;
-    if (lba >= 128 || lba == device->failed_lba) return -1;
+    if (lba >= 512 || lba == device->failed_lba) return -1;
     for (uint32_t i = 0; i < 2048; ++i) buffer[i] = device->image[lba * 2048 + i];
     return 0;
 }
@@ -13,7 +13,7 @@ static void both32(uint8_t *p, uint32_t value) {
 /* Native reads build an isolated fixture; mutations never reach the CD. */
 int cdfs_self_test(cdfs *fs, atapi_device *cd) {
     test_device device = { (uint8_t *)0x4000000, 0xffffffffu };
-    for (uint32_t i = 0; i < 128; ++i)
+    for (uint32_t i = 0; i < 512; ++i)
         if (atapi_read_block(cd, i, device.image + i*2048)) return 133;
     uint8_t *pvd = device.image + 16*2048;
     uint8_t *root = device.image + 22*2048;
@@ -23,7 +23,7 @@ int cdfs_self_test(cdfs *fs, atapi_device *cd) {
 #define CHECK(condition, code) do { if (!(condition)) return code; } while (0)
     CHECK(cdfs_mount(fs, read_block, &device) == CDFS_OK, 101);
     CHECK(cdfs_lookup(fs, "/", &node) == CDFS_OK && (node.flags & 2), 102);
-    CHECK(cdfs_lookup(fs, "/docs/readme.txt", &file) == CDFS_OK && file.lba == 121, 103);
+    CHECK(cdfs_lookup(fs, "/docs/readme.txt", &file) == CDFS_OK && file.lba == 409, 103);
     CHECK(cdfs_lookup(fs, "DOCS/README.TXT;1", &node) == CDFS_OK && node.size == file.size, 104);
     CHECK(cdfs_lookup(fs, "/DOCS/MISSING.TXT", &node) == CDFS_NOT_FOUND, 105);
     CHECK(cdfs_lookup(fs, "/DOCS/README.TXT/", &node) == CDFS_NOT_FOUND, 106);
@@ -53,7 +53,7 @@ int cdfs_self_test(cdfs *fs, atapi_device *cd) {
     root[25] |= 0x80;
     CHECK(cdfs_lookup(fs, "/DOCS", &node) == CDFS_UNSUPPORTED, 119);
     root[25] &= 0x7f;
-    both32(root + 2, 128);
+    both32(root + 2, 512);
     CHECK(cdfs_lookup(fs, "/DOCS", &node) == CDFS_INVALID, 120);
     both32(root + 2, 22);
     root[32] = 255;
@@ -70,7 +70,7 @@ int cdfs_self_test(cdfs *fs, atapi_device *cd) {
     CHECK(cdfs_read(fs, &node, 2047, data, 100, &got) == CDFS_IO && got == 1, 125);
     device.failed_lba = 0xffffffffu;
     for (uint32_t i = 0; i < 6144; ++i) device.image[i] = 0;
-    node = (cdfs_node){ 127, 4096, 0 };
+    node = (cdfs_node){ 511, 4096, 0 };
     CHECK(cdfs_read(fs, &node, 0, data, 1, &got) == CDFS_INVALID, 126);
 
     pvd[1] = 'X';
@@ -80,7 +80,7 @@ int cdfs_self_test(cdfs *fs, atapi_device *cd) {
     pvd[84] ^= 1;
     CHECK(cdfs_mount(fs, read_block, &device) == CDFS_UNSUPPORTED, 129);
     pvd[84] ^= 1;
-    both32(pvd + 158, 128);
+    both32(pvd + 158, 512);
     CHECK(cdfs_mount(fs, read_block, &device) == CDFS_INVALID, 130);
     both32(pvd + 158, 22);
     device.failed_lba = 16;

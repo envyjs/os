@@ -2,9 +2,11 @@
 #include "../../Browser/images.h"
 #include "../../Browser/html.h"
 #include "../../Browser/css.h"
+#include "../../Browser/browser.h"
 #include "../../Drivers/Video/framebuffer.h"
 #include "fixtures.h"
 static uint32_t length(const char *text){uint32_t n=0;while(text[n])n++;return n;}
+static int same(const char *a,const char *b){while(*a&&*a==*b){a++;b++;}return *a==*b;}
 static const char *clock_text="12:34";
 static const char *lookup(void *context,const char *id){(void)context;return id[0]=='c'&&id[1]=='l'&&id[2]=='o'&&id[3]=='c'&&id[4]=='k'&&!id[5]?clock_text:0;}
 static uint32_t color_at(int32_t x,int32_t y){
@@ -97,5 +99,94 @@ int image_self_test(cdfs *fs){
     CHECK(color_at(20,20)==0xff0000&&color_at(70,20)==0x0000ff&&color_at(20,50)==0x008000,440);
     html_view_render("<body><div style='position:absolute;left:10px;top:10px;width:140px;display:grid;grid-template-columns:repeat(3, 1fr);gap:10px'><div style='height:20px;background:red'></div><div style='height:20px;background:blue'></div><div style='height:20px;background:green'></div><div style='height:20px;background:black'></div></div></body>");
     CHECK(color_at(20,20)==0xff0000&&color_at(70,20)==0x0000ff&&color_at(120,20)==0x008000&&color_at(20,50)==0,441);
+    css_init();const char *hover_css="#hover{position:absolute;left:10px;top:10px;width:40px;height:40px;background:red;}#hover:hover{background:blue;}#hover:active{background:green;}";
+    CHECK(css_add(hover_css,length(hover_css)),442);html_view_render("<body><div id='hover'></div></body>");
+    html_view_pointer(20,20,0);CHECK(color_at(20,20)==0x0000ff,443);html_view_pointer(20,20,1);CHECK(color_at(20,20)==0x008000,444);
+    html_view_pointer(200,200,0);CHECK(color_at(20,20)==0xff0000,445);
+    css_init();html_view_begin("Scroll tests","/Envy/index.html");
+    html_view_render("<body><div id='scroll' style='position:absolute;left:10px;top:10px;width:60px;height:40px;overflow:auto'><div id='red' style='height:40px;background:red'></div><div id='blue' style='height:40px;background:blue'></div></div><div style='position:fixed;left:120px;top:10px;width:20px;height:20px;background:green'></div></body>");
+    CHECK(color_at(20,20)==0xff0000&&html_view_scroll(20,20,0,40)&&color_at(20,20)==0x0000ff&&color_at(20,55)==0xffffff,480);
+    CHECK(!html_view_scroll(20,20,0,4000)&&html_view_scroll(20,20,0,-4000)&&color_at(20,20)==0xff0000,481);
+    CHECK(html_view_scroll(20,20,0,40)&&same(html_view_target(20,20),"blue"),482);
+    html_view_repaint();CHECK(color_at(20,20)==0x0000ff&&color_at(125,15)==0x008000,483);
+    html_view_begin("Horizontal scroll","/Envy/index.html");
+    html_view_render("<body><div style='position:absolute;left:10px;top:10px;width:50px;height:40px;overflow-x:auto;overflow-y:hidden'><div style='display:flex;width:100px;height:40px'><div style='width:50px;height:40px;background:red'></div><div style='width:50px;height:40px;background:blue'></div></div></div></body>");
+    CHECK(color_at(20,20)==0xff0000&&html_view_scroll(20,20,50,0)&&color_at(20,20)==0x0000ff&&color_at(65,20)==0xffffff,484);
+    html_view_begin("Nested scroll","/Envy/index.html");
+    html_view_render("<body><div style='position:absolute;left:10px;top:10px;width:100px;height:60px;overflow:auto'><div style='height:40px;overflow:auto'><div style='height:40px;background:red'></div><div style='height:40px;background:blue'></div></div><div style='height:60px;background:green'></div></div></body>");
+    CHECK(html_view_scroll(20,20,0,40)&&color_at(20,20)==0x0000ff,485);
+    CHECK(html_view_scroll(20,20,0,40)&&color_at(20,20)==0x008000,486);
+    html_view_begin("Page scroll","/Envy/index.html");
+    html_view_render("<body><div style='height:800px;background:red'></div><div style='height:800px;background:blue'></div><div style='position:fixed;left:120px;top:10px;width:20px;height:20px;background:green'></div></body>");
+    CHECK(html_view_scroll(20,20,0,800)&&color_at(20,20)==0x0000ff&&color_at(125,15)==0x008000,487);
+    CHECK(html_view_scroll(20,20,0,-2147483647)&&color_at(20,20)==0xff0000,488);
+    html_view_begin("Hidden overflow","/Envy/index.html");
+    html_view_render("<body style='overflow:hidden'><div style='height:2000px;background:red'></div></body>");
+    CHECK(!html_view_scroll(20,20,0,48),489);
+    css_init();html_view_begin("Backdrop filters","/Envy/index.html");
+    html_view_render("<body><div style='position:absolute;left:80px;top:0;width:80px;height:80px;background:black'></div><div style='position:absolute;left:20px;top:20px;width:120px;height:40px;border-radius:8px;background:rgba(86,85,88,0);backdrop-filter:brightness(.5)blur(4px)'></div></body>");
+    CHECK(color_at(40,40)==0x808080&&color_at(120,40)==0&&color_at(20,20)==0xffffff&&color_at(40,70)==0xffffff,510);
+    CHECK(color_at(79,40)>0&&color_at(79,40)<0x808080&&color_at(80,40)>0&&color_at(80,40)<color_at(79,40),511);
+    html_view_repaint();CHECK(color_at(40,40)==0x808080,512);
+    extern int browser_self_test(cdfs *filesystem);
+    int failure=browser_self_test(fs);if(failure)return failure;
+    const char *scripts[]={"/Envy/Libs/wm.correr.js","/Envy/Apps/Terminal.js"};
+    const char *html="<body><div id='userland'></div><div id='taskbarApps'></div></body>";
+    const char *verification="var __testPassed=terminal&&document.activeElement.tagName==='input';";
+    failure=browser_test_scripts(fs,html,scripts,2,verification);
+    if(failure)return 499+failure;
+    html="<body><table id='sheet'><tbody><tr><td><input id='first' class='cell' value='A'/></td><td><input id='second' class='cell'/></td></tr></tbody></table><input id='outside'/></body>";
+    verification="var cells=document.querySelectorAll('table input');var selected=0;cells.forEach(input=>{input.addEventListener('focus',()=>{selected=selected+1;});});cells[0].focus();var sheet=document.getElementById('sheet');var scoped=sheet.querySelectorAll('input');var __testPassed=selected===1&&cells.length===2&&scoped.length===2&&cells[0]===document.querySelector('#first')&&document.querySelectorAll('.missing').length===0&&document.querySelectorAll('#first, #second').length===2;";
+    failure=browser_test_scripts(fs,html,0,0,verification);if(failure)return 513;
+    const char *wm_assets[]={"/Envy/Styles/server.css","/Envy/Libs/wm.correr.js"};
+    html="<body><div id='userland' style='position:absolute;left:0;top:0;width:800px;height:500px'></div><div id='taskbarApps' style='position:absolute;left:0;top:540px;width:800px;height:40px'></div></body>";
+    failure=browser_test_scripts(fs,html,wm_assets,2,"createWindow('Test','<p>Window body</p>',400,300);var __testPassed=true;");CHECK(!failure,530);
+    CHECK(browser_test_verify("var win=document.querySelector('.window');var windowId=win.id;var __testPassed=win.offsetWidth===400&&win.offsetHeight===300&&document.querySelectorAll('.resize-handle').length===8&&document.querySelectorAll('.window-header-buttons button').length===3;"),531);
+    int32_t wx,wy,ww,wh;CHECK(browser_test_bounds(".window-header",&wx,&wy,&ww,&wh),532);
+    input_event mouse={.type=INPUT_POINTER,.x=wx+20,.y=wy+10,.buttons=1};browser_input(&mouse);
+    mouse.x+=40;mouse.y+=35;mouse.dx=40;mouse.dy=35;browser_input(&mouse);mouse.buttons=0;mouse.dx=mouse.dy=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=win.offsetLeft===60&&win.offsetTop===55;"),533);
+    CHECK(browser_test_bounds(".resize-handle.right",&wx,&wy,&ww,&wh),534);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+1,.y=wy+20,.buttons=1};browser_input(&mouse);mouse.x+=30;mouse.dx=30;browser_input(&mouse);mouse.buttons=0;mouse.dx=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=win.offsetWidth===430&&win.offsetHeight===300;"),535);
+    CHECK(browser_test_verify("minimizeWindow(windowId);var __testPassed=win.classList.contains('minimized');"),536);
+    CHECK(browser_test_bounds(".taskbar-button",&wx,&wy,&ww,&wh),537);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=!win.classList.contains('minimized');"),538);
+    CHECK(browser_test_verify("maximizeWindow(windowId);var __testPassed=win.classList.contains('maximized');"),539);
+    CHECK(browser_test_verify("var __testPassed=win.offsetWidth===800;maximizeWindow(windowId);"),540);
+    CHECK(browser_test_verify("closeWindow(windowId);var __testPassed=win.classList.contains('close')&&document.querySelectorAll('.window').length===1;"),541);
+    browser_test_advance(399);CHECK(browser_test_verify("var __testPassed=document.querySelectorAll('.window').length===1;"),543);
+    browser_test_advance(1);CHECK(browser_test_verify("var __testPassed=document.querySelectorAll('.window').length===0&&document.querySelectorAll('.taskbar-button').length===0;"),544);
+    CHECK(browser_test_verify("createWindow('A','A');createWindow('B','B');createWindow('C','C');createWindow('D','D');createWindow('E','E');createWindow('F','F');var wins=document.querySelectorAll('.window');var __testPassed=wins.length===6&&wins[0].id!==wins[1].id&&document.querySelectorAll('.taskbar-button').length===6;"),545);
+    css_init();html_view_begin("Hover performance","/Envy/index.html");html_view_render("<body><div style='position:absolute;left:0;top:0;width:800px;height:600px;background:black'></div><div style='position:absolute;left:20px;top:20px;width:200px;height:200px;backdrop-filter:blur(10px)'></div></body>");
+    uint32_t hover_paints=html_view_paint_count();for(int32_t i=0;i<100;i++)html_view_pointer(i*5,50,0);CHECK(html_view_paint_count()==hover_paints,542);
+    const char *module_assets[]={"/Envy/Libs/html.js"};
+    html="<body><div id='userland'></div></body>";
+    failure=browser_test_scripts(fs,html,module_assets,1,"var __testPassed=false;import('/Envy/Libs/html.js').then(module=>{var Html=module.default;var parent=new Html('div').attr({id:'wrapped'}).appendTo('#userland');var child=new Html('span').text('Hello').classOn('one','two').style({'background-color':'red'}).attr({title:'test'});parent.appendMany(child,new Html('div'));var found=parent.query('.one');child.classOff('two');var optional=new Html('div').appendTo('#missing');var native=new Html('span').appendTo(parent.elm);var __ok=found===child.elm&&child.elm.classList.contains('one')&&!child.elm.classList.contains('two')&&child.elm.style['background-color']==='red'&&child.elm.title==='test'&&parent.elm instanceof HTMLElement&&native.elm.parentNode===parent.elm;parent.clear();__testPassed=__ok;});");CHECK(!failure,568);
+    CHECK(browser_test_verify("var fetched=0;var caught=false;async function loadApps(){var response=await fetch('./UI/desktopapps.json');var data=await response.json();fetched=data.length;return fetched;}loadApps().then(count=>{__testPassed=count===10;});var __testPassed=false;"),569);
+    CHECK(browser_test_verify("var resumed=0;async function later(){await new Promise(resolve=>setTimeout(resolve,25));resumed=1;}later();var __testPassed=resumed===0;"),570);
+    browser_test_advance(24);CHECK(browser_test_verify("var __testPassed=resumed===0;"),571);
+    browser_test_advance(1);CHECK(browser_test_verify("var __testPassed=resumed===1;"),572);
+    const char *desktop_wm[]={"/Envy/Styles/base.css","/Envy/Libs/wm.correr.js"};
+    html="<body><div id='userland'></div><div id='taskbarApps' style='position:fixed;left:0;top:550px;width:800px;height:50px'></div></body>";
+    failure=browser_test_scripts(fs,html,desktop_wm,2,"var win=createWindow('Desktop test','Content',400,300);var windowId=win.id;var __testPassed=true;");CHECK(!failure,575);
+    CHECK(browser_test_verify("var __testPassed=win.offsetWidth===400&&win.offsetHeight===300;"),576);
+    CHECK(color_at(250,250)==0x1e1e1e,577);
+    CHECK(browser_test_bounds(".resize-handle.left",&wx,&wy,&ww,&wh),578);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+1,.y=wy+80,.buttons=1};browser_input(&mouse);mouse.x+=300;mouse.dx=300;browser_input(&mouse);mouse.x+=20;mouse.dx=20;browser_input(&mouse);mouse.buttons=0;mouse.dx=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=win.offsetWidth===200&&win.offsetLeft===220;"),579);
+    CHECK(browser_test_bounds(".window-minimize-btn",&wx,&wy,&ww,&wh),580);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=win.classList.contains('minimized');"),581);
+    CHECK(browser_test_bounds(".taskbar-button",&wx,&wy,&ww,&wh),582);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=!win.classList.contains('minimized');"),583);
+    CHECK(browser_test_bounds(".window-maximize-btn",&wx,&wy,&ww,&wh),584);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=win.classList.contains('maximized')&&win.offsetWidth===800&&win.offsetHeight===527;"),585);
+    CHECK(browser_test_bounds(".window-close-btn",&wx,&wy,&ww,&wh),586);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);browser_test_advance(400);
+    CHECK(browser_test_verify("var __testPassed=document.querySelectorAll('.window').length===0&&document.querySelectorAll('.taskbar-button').length===0;"),587);
     return 0;
 }

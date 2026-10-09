@@ -1,0 +1,4 @@
+https://github.com/ArtifexSoftware/mujs
+Revision: aab59f2c8136b55e8eef7a016d5a15fe8cf69f3f
+ISC license: COPYING. Original source; API name conflicts renamed by adapter macros.
+Local extensions: jsparse.c and jscompile.c support function default parameter initializers.

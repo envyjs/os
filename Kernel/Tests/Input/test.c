@@ -33,9 +33,40 @@ int input_self_test(void) {
     input_feed(0x21,8);input_feed(0x21,127);input_feed(0x21,127);CHECK(input_next(&e)&&e.x==99&&e.y==0,152);
     input_reset(1,1);for(uint32_t i=0;i<100;i++)input_feed(1,0x1e);
     uint32_t count=0;while(input_next(&e))count++;CHECK(count==63,153);
+    input_reset(100,80);input_mouse_id(3);
+    input_feed(0x21,8);input_feed(0x21,2);input_feed(0x21,0);CHECK(!input_next(&e),157);
+    input_feed(0x21,255);CHECK(input_next(&e)&&e.wheel==-1&&e.dx==2&&e.x==51,158);
+    input_feed(0x21,8);input_feed(0x21,0);input_feed(0x21,0);input_feed(0x21,1);
+    CHECK(input_next(&e)&&e.wheel==1&&e.dx==0,159);
+    input_mouse_id(4);input_feed(0x21,8);input_feed(0x21,0);input_feed(0x21,0);input_feed(0x21,0x1f);
+    CHECK(input_next(&e)&&e.wheel==-1&&e.buttons==8,160);
+    input_reset(100,80);
+    for(uint32_t i=0;i<3;i++){input_feed(0x21,8);input_feed(0x21,2);input_feed(0x21,0);}
+    CHECK(input_next(&e)&&e.dx==6&&e.x==55&&!input_next(&e),306);
     CHECK((input_init(800,600)&3)==3,154); /* QEMU's keyboard and mouse acknowledge setup. */
+    input_feed(0x21,8);input_feed(0x21,0);input_feed(0x21,0);input_feed(0x21,1);
+    CHECK(input_next(&e)&&e.wheel==1&&!input_next(&e),301);
     CHECK(cursor_restores_background(0,0),155);
     const framebuffer *fb=framebuffer_get();
     CHECK(fb&&cursor_restores_background(fb->width-32,fb->height-32),156);
+    framebuffer_paint_reset();framebuffer_rect(60,60,60,60,0x386da4);
+    framebuffer_paint_region(0,0,1,1,0);framebuffer_cursor_move(80,80);
+    volatile uint8_t *front=fb->pixels;uint32_t offset=80*fb->pitch+80*fb->bytes_per_pixel;
+    uint8_t ink[4];for(uint32_t b=0;b<fb->bytes_per_pixel;b++)ink[b]=front[offset+b];
+    framebuffer_paint_reset();framebuffer_cursor_restore();
+    int different=0;for(uint32_t b=0;b<fb->bytes_per_pixel;b++)if(front[offset+b]!=ink[b])different=1;
+    CHECK(different,302);framebuffer_cursor_redraw();
+    framebuffer_begin_frame();framebuffer_rect(60,60,60,60,0xff0000);
+    for(uint32_t b=0;b<fb->bytes_per_pixel;b++)CHECK(front[offset+b]==ink[b],303);
+    framebuffer_end_frame();for(uint32_t b=0;b<fb->bytes_per_pixel;b++)CHECK(front[offset+b]==ink[b],304);
+    framebuffer_cursor_restore();uint32_t reference=60*fb->pitch+60*fb->bytes_per_pixel;
+    for(uint32_t b=0;b<fb->bytes_per_pixel;b++)CHECK(front[offset+b]==front[reference+b],305);
+    framebuffer_begin_scene();framebuffer_rect(0,0,fb->width,fb->height,0x123456);framebuffer_end_frame();
+    framebuffer_begin_scene();framebuffer_rect(0,0,fb->width,fb->height,0x123456);framebuffer_end_frame();
+    CHECK(framebuffer_published_bytes()==0,573);
+    framebuffer_cursor_restore();framebuffer_rect(10,10,10,10,0x0000ff);
+    framebuffer_paint_region(12,12,3,3,255);framebuffer_rect(10,10,10,10,0xff0000);framebuffer_paint_reset();
+    uint32_t clipped=12*fb->pitch+12*fb->bytes_per_pixel,outside=11*fb->pitch+11*fb->bytes_per_pixel;
+    CHECK(fb->pixels[clipped+fb->red_shift/8]==255&&fb->pixels[outside+fb->blue_shift/8]==255,574);
     return 0;
 }

@@ -279,6 +279,7 @@ button:hover {
     display: none !important;
   }
   .window {
+    box-sizing: border-box;
     position: absolute;
     top: 0px !important;
     left: 0px !important;
@@ -646,6 +647,7 @@ audio::-webkit-media-controls-enclosure {
 }
   
   .window {
+    box-sizing: border-box;
     position: absolute;
     display: flex;
     border: 1px solid #444;
@@ -660,7 +662,7 @@ audio::-webkit-media-controls-enclosure {
     box-shadow: 3px 4px 4px black;
 }
 
-window.open {
+.window.open {
   opacity: 1; /* Become visible */
   transform: scale(1); /* Normalize the scale */
 }

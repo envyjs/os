@@ -130,7 +130,7 @@ file_start:
     incbin README
 file_end:
 %ifdef ENVY_TREE
-block 128
+block ISO_BASE_BLOCKS
 envy_body
 %else
 block ISO_BLOCKS

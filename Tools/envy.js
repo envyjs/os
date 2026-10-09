@@ -5,7 +5,7 @@ try {
     var root = fso.GetAbsolutePathName(WScript.Arguments(0));
     var output = fso.GetAbsolutePathName(WScript.Arguments(1));
     var previews = WScript.Arguments.length == 3 ? fso.GetAbsolutePathName(WScript.Arguments(2)) : '';
-    var dirs = [], files = [], next = 128, lines = [], stamps = [];
+    var dirs = [], files = [], next = 512, lines = [], stamps = [];
     var excluded = {kernel:1, tools:1, build:1, platforms:1, makefile:1};
     function quote(s) {
         if (s.indexOf("'") >= 0 || /[^\x20-\x7e]/.test(s)) throw new Error('Unsupported image filename: ' + s);

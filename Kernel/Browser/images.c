@@ -54,13 +54,7 @@ int images_load(const char *source,uint32_t width,uint32_t height,image_surface 
     entry->image=(image_surface){cache_pixels+offset,w,h,decoded.natural_width,decoded.natural_height};*result=entry->image;return 1;
 }
 void images_draw(const image_surface *image,int32_t x,int32_t y,uint32_t width,uint32_t height){
-    const framebuffer *fb=framebuffer_get();if(!fb||!image||!image->pixels||!width||!height||width>8192||height>8192)return;
-    int32_t left=x<0?0:x,top=y<0?0:y,right=x+(int32_t)width,bottom=y+(int32_t)height;
-    if(right>(int32_t)fb->width)right=(int32_t)fb->width;if(bottom>(int32_t)fb->height)bottom=(int32_t)fb->height;
-    for(int32_t py=top;py<bottom;py++){uint32_t sy=(uint32_t)(py-y)*image->height/height;
-        for(int32_t px=left;px<right;px++){uint32_t sx=(uint32_t)(px-x)*image->width/width;
-            const uint8_t *pixel=image->pixels+(sy*image->width+sx)*4;
-            framebuffer_blend(px,py,(uint32_t)pixel[0]<<16|(uint32_t)pixel[1]<<8|pixel[2],pixel[3]);}}
+    if(!image)return;framebuffer_image(image->pixels,image->width,image->height,x,y,width,height);
 }
 void images_background(const css_style *style,int32_t x,int32_t y,uint32_t width,uint32_t height){
     const framebuffer *fb=framebuffer_get();
