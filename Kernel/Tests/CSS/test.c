@@ -81,5 +81,14 @@ int css_self_test(void) {
     CHECK(panel_style.value[CSS_BACKDROP_BLUR]==25&&panel_style.value[CSS_BACKDROP_BRIGHTNESS]==500,112);
     css_compute(&panel,0,"backdrop-filter:blur(10px);backdrop-filter:none",800,600,&panel_style);
     CHECK(panel_style.value[CSS_BACKDROP_BLUR]==0&&panel_style.value[CSS_BACKDROP_BRIGHTNESS]==1000,113);
+    css_init();css_compute(&root,0,"font-size:20px",800,600,&root_style);css_compute(&body,&root_style,0,800,600,&body_style);
+    const int32_t heading_sizes[]={40,30,23,20,16,13};char tag[]="h1";css_element heading={tag,"","",&body};
+    for(int i=0;i<6;i++){tag[1]=(char)('1'+i);css_compute(&heading,&body_style,0,800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==heading_sizes[i]&&text_style.value[CSS_FONT_WEIGHT]==700&&text_style.value[CSS_LINE_HEIGHT]>=heading_sizes[i],602);CHECK(css_resolve(text_style.value[CSS_MARGIN_TOP],800)>0,603);}
+    css_compute(&heading,&body_style,"font-size:2rem;font-weight:400;margin:0",800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==40&&text_style.value[CSS_FONT_WEIGHT]==400&&!text_style.value[CSS_MARGIN_TOP],604);
+    css_compute(&heading,&body_style,"font-size:inherit",800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==20,605);
+    css_compute(&heading,&body_style,"font-size:150%;font-size:-2px",800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==30,606);
+    css_compute(&heading,&body_style,"font-size:larger",800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==24,607);
+    css_compute(&heading,&body_style,"font-size:large",800,600,&text_style);CHECK(text_style.value[CSS_FONT_SIZE]==18,608);
+    css_compute(&root,0,"font-size:2rem",800,600,&root_style);CHECK(root_style.value[CSS_FONT_SIZE]==32,609);
     css_init();return 0;
 }

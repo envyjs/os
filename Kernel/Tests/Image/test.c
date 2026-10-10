@@ -1,6 +1,7 @@
 #include "../../Runtime/Image/image.h"
 #include "../../Browser/images.h"
 #include "../../Browser/html.h"
+static void startup_write(const char *text){(void)text;}
 #include "../../Browser/css.h"
 #include "../../Browser/browser.h"
 #include "../../Drivers/Video/framebuffer.h"
@@ -188,5 +189,29 @@ int image_self_test(cdfs *fs){
     CHECK(browser_test_bounds(".window-close-btn",&wx,&wy,&ww,&wh),586);
     mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);browser_test_advance(400);
     CHECK(browser_test_verify("var __testPassed=document.querySelectorAll('.window').length===0&&document.querySelectorAll('.taskbar-button').length===0;"),587);
+    const char *installer_scripts[]={"/Envy/Styles/base.css","/Envy/Libs/wm.correr.js","/Envy/UI/install.js"};
+    failure=browser_test_scripts(fs,html,installer_scripts,3,"var __testPassed=document.querySelectorAll('[data-installer-page]').length===4&&document.querySelectorAll('[data-installer-content]').length===4;");CHECK(!failure,588);
+    CHECK(browser_test_verify("var intro=document.querySelector('[data-installer-content=\"introduction\"]');var license=document.querySelector('[data-installer-content=\"license\"]');var __testPassed=!intro.hidden&&license.hidden&&document.querySelector('[data-license-text]').textContent.length>100;"),589);
+    CHECK(browser_test_bounds(".installer-nav",&wx,&wy,&ww,&wh)&&ww>100&&ww<200&&wh==370,590);
+    CHECK(browser_test_bounds("[data-installer-next]",&wx,&wy,&ww,&wh),591);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=intro.hidden&&!license.hidden&&document.querySelector('[data-installer-next]').disabled;"),592);
+    CHECK(browser_test_bounds("[data-license-accepted]",&wx,&wy,&ww,&wh)&&ww==22&&wh==22,593);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=document.querySelector('[data-license-accepted]').checked&&!document.querySelector('[data-installer-next]').disabled;"),594);
+    CHECK(browser_test_bounds("[data-installer-next]",&wx,&wy,&ww,&wh),595);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=license.hidden&&!document.querySelector('[data-installer-content=\"options\"]').hidden;"),596);
+    CHECK(browser_test_bounds("[data-installer-next]",&wx,&wy,&ww,&wh),597);
+    mouse=(input_event){.type=INPUT_POINTER,.x=wx+2,.y=wy+2,.buttons=1};browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var __testPassed=!document.querySelector('[data-installer-content=\"install\"]').hidden;"),598);
+    mouse.buttons=1;browser_input(&mouse);mouse.buttons=0;browser_input(&mouse);
+    CHECK(browser_test_verify("var headings=document.querySelectorAll('h2');var progressHeading=headings[headings.length-1];var overlay=progressHeading.parentNode.parentNode;var __testPassed=progressHeading.textContent==='Installing Envy (0%)'&&overlay.offsetWidth===800&&overlay.offsetHeight===600;"),599);
+    CHECK(color_at(0,0)==0x0f0f0f&&color_at(799,599)==0x0f0f0f,600);
+    browser_test_advance(100);
+    CHECK(browser_test_verify("var __testPassed=progressHeading.textContent==='Installing Envy (1%)';"),601);
+    uint32_t startup_paints=html_view_paint_count();CHECK(browser_start(fs,startup_write),610);
+    CHECK(html_view_paint_count()==startup_paints+1,611);
+    CHECK(browser_test_verify("var __testPassed=document.querySelectorAll('[data-installer-page]').length===4&&typeof window.JSZip==='function'&&typeof createWindow==='function';"),612);
     return 0;
 }

@@ -5,7 +5,7 @@ enum { JS_UNDEFINED, JS_NUMBER, JS_STRING, JS_OBJECT, JS_FUNCTION, JS_NATIVE, JS
 typedef struct { int type; int64_t number; const char *text; uint32_t length; } js_value;
 typedef struct js_vm js_vm;
 typedef int (*js_host_call)(js_vm *, int id, const js_value *, uint32_t, js_value *);
-typedef struct { uint32_t object; const char *name; js_value value; int readonly; } js_property;
+typedef struct { uint32_t object; const char *name; js_value value; int readonly; uint32_t next; } js_property;
 typedef struct js_function {
     const char *source; uint32_t length, scope, parameter_count, line;
     const char *defaults[8]; uint32_t default_lengths[8];
@@ -15,8 +15,10 @@ typedef struct js_function {
 } js_function;
 struct js_vm {
     js_property *properties; uint32_t property_count, property_capacity, objects;
+    uint32_t property_buckets[2048];
     _Alignas(js_function) _Alignas(js_property) char strings[1048576]; uint32_t used, arena_end;
     js_host_call host; void *context;
+    int (*host_sync)(js_vm *,int,const js_value *,uint32_t);
     int (*read_property)(js_vm *,uint32_t,const char *,js_value *);
     void (*changed_property)(js_vm *,uint32_t,const char *);
     int (*module_source)(js_vm *,const char *,const char **,uint32_t *);

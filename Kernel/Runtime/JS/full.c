@@ -48,12 +48,12 @@ static int set_property(JSContext *ctx,JSValueConst obj,JSAtom atom,JSValueConst
 static JSValue host_call(JSContext *ctx,JSValueConst function,JSValueConst receiver,int argc,JSValueConst *argv,int flags){
     (void)receiver;(void)flags;state *s=JS_GetContextOpaque(ctx);handle *h=JS_GetOpaque(function,function_class);js_value result={0};
     js_value *args=argc?envy_js_alloc(NULL,NULL,argc*sizeof(*args)):NULL;if(argc&&!args)return JS_ThrowOutOfMemory(ctx);
-    for(int i=0;i<argc;i++)args[i]=pull(s,argv[i]);export_globals(s);int ok;
+    for(int i=0;i<argc;i++)args[i]=pull(s,argv[i]);int sync=h->value.type!=JS_NATIVE||!s->vm->host_sync||s->vm->host_sync(s->vm,(int)h->value.number,args,(uint32_t)argc);if(sync)export_globals(s);int ok;
     if(h->value.type==JS_NATIVE){uint32_t saved=s->vm->native_owner;s->vm->native_owner=h->value.length;
         ok=s->vm->host&&s->vm->host(s->vm,(int)h->value.number,args,(uint32_t)argc,&result);s->vm->native_owner=saved;
     }else ok=js_call_args(s->vm,h->value,args,(uint32_t)argc,&result);
     envy_js_alloc(NULL,args,0);if(!ok||s->vm->error)return JS_ThrowInternalError(ctx,"%s",s->vm->error?s->vm->error:"Browser API call failed");
-    import_globals(s);return push(s,result);
+    if(sync)import_globals(s);return push(s,result);
 }
 static JSClassExoticMethods exotic={.get_own_property=own_property,.get_own_property_names=property_names,.set_property=set_property};
 static JSValue push(state *s,js_value v){

@@ -1,7 +1,7 @@
 // env.js
 // This file sets up the environment by loading different scripts based on the specified type.
 
-const type = 'desktop'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
+const type = 'install'; // Change this to 'desktop', 'go', 'live', 'nogui', 'install', 'server', 'serverwc' or 'recovery' as needed
 const prerelease = 'true';
 const devmodeenabled = 'no'; // Change this to 'yes' or 'no' as needed
 const watermarktype = 'none'; // Change this to 'live' or 'none' as needed
@@ -18,8 +18,6 @@ if (devmodeenabled === 'yes') {
 if (devmodeenabled === 'no') {
     loadScript('./Apps/System/IntegrityCheck.js')
 }
-
-// Function to load and execute a script depending on the type
 
 // Desktop types
 if (type === 'desktop') {

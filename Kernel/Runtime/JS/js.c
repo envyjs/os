@@ -53,18 +53,23 @@ uint32_t js_property_owner(js_value value){
     if(value.type==JS_NATIVE)return 0x60000000u|((uint32_t)value.number&0x1fffffffu);
     return 0;
 }
+static uint32_t property_hash(uint32_t object,const char *name){uint32_t hash=object*2654435761u;for(;*name;name++)hash=(hash^(uint8_t)*name)*16777619u;return hash&2047u;}
+static void property_index(js_vm *vm){for(uint32_t i=0;i<2048;i++)vm->property_buckets[i]=0;for(uint32_t i=0;i<vm->property_count;i++){uint32_t bucket=property_hash(vm->properties[i].object,vm->properties[i].name);vm->properties[i].next=vm->property_buckets[bucket];vm->property_buckets[bucket]=i+1;}}
 js_value js_get(js_vm *vm,uint32_t object,const char *name) {
     js_value dynamic;if(vm->read_property&&vm->read_property(vm,object,name,&dynamic))return dynamic;
-    for(uint32_t i=0;i<vm->property_count;i++)
+    for(uint32_t slot=vm->property_buckets[property_hash(object,name)];slot;slot=vm->properties[slot-1].next){uint32_t i=slot-1;
         if(vm->properties[i].object==object && same(vm->properties[i].name,name)) return vm->properties[i].value;
+    }
     js_value value;if(js_full_get(vm,object,name,&value))return value;
     return undefined();
 }
 int js_set(js_vm *vm,uint32_t object,const char *name,js_value value) {
     if(object){int full=js_full_set(vm,object,name,value);if(full>=0)return full;}
-    for(uint32_t i=0;i<vm->property_count;i++) if(vm->properties[i].object==object && same(vm->properties[i].name,name)) {
+    uint32_t bucket=property_hash(object,name);
+    for(uint32_t slot=vm->property_buckets[bucket];slot;slot=vm->properties[slot-1].next){uint32_t i=slot-1;if(vm->properties[i].object==object && same(vm->properties[i].name,name)) {
         if(vm->properties[i].readonly) {vm->error="Assignment to constant binding";return 0;}
         vm->properties[i].value=value;if(vm->changed_property)vm->changed_property(vm,object,name);return 1;
+    }
     }
     if(vm->property_count==vm->property_capacity) {
         uint32_t capacity=vm->property_capacity?vm->property_capacity*2:16;
@@ -80,16 +85,17 @@ int js_set(js_vm *vm,uint32_t object,const char *name,js_value value) {
         vm->properties=properties;vm->property_capacity=capacity;vm->arena_end=offset;
     }
     js_value key=js_string(vm,name,length(name)); if(vm->error) return 0;
-    vm->properties[vm->property_count++]=(js_property){object,key.text,value,0};if(vm->changed_property)vm->changed_property(vm,object,name);return 1;
+    vm->properties[vm->property_count++]=(js_property){object,key.text,value,0,vm->property_buckets[bucket]};vm->property_buckets[bucket]=vm->property_count;if(vm->changed_property)vm->changed_property(vm,object,name);return 1;
 }
 void js_init(js_vm *vm,js_host_call host,void *context) {
     js_full_reset(vm);
-    vm->read_property=0;vm->changed_property=0;vm->module_source=0;vm->source_name=0;
+    vm->read_property=0;vm->changed_property=0;vm->module_source=0;vm->source_name=0;vm->host_sync=0;
     vm->property_count=vm->objects=vm->used=vm->depth=0; vm->host=host; vm->context=context;
     vm->error=0; vm->error_line=0; vm->native_owner=0;
     vm->function_count=vm->scope=vm->environment_count=0;
     vm->functions=0;vm->arena_end=sizeof(vm->strings);
     vm->properties=0;vm->property_capacity=0;
+    property_index(vm);
 }
 static int alpha(char c) { return (c>='a'&&c<='z')||(c>='A'&&c<='Z')||c=='_'||c=='$'; }
 static int digit(char c) { return c>='0'&&c<='9'; }
@@ -284,7 +290,7 @@ static int invoke(js_vm *vm,js_value function,const js_value *args,uint32_t argc
             if(property.object==scope||(!escaped&&property.object>=first_object&&property.object<=vm->objects))continue;
             vm->properties[kept++]=property;
         }
-        vm->property_count=kept;if(!escaped)vm->objects=first_object-1;vm->environment_count--;
+        vm->property_count=kept;property_index(vm);if(!escaped)vm->objects=first_object-1;vm->environment_count--;
     }
     return ok;
 }

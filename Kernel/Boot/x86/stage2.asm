@@ -12,16 +12,23 @@ start:
     cld
     mov [boot_drive], dl
     ; BIOS cannot transfer a large JavaScript engine directly above 1 MiB.
-    ; Read each CD block into a scratch buffer, then copy it in protected mode.
+    ; Read batches below the BIOS 64 KiB transfer boundary, then copy them.
     in al, 0x92
     or al, 2
     and al, 0xfe
     out 0x92, al
     mov word [payload_remaining], STAGE2_SECTORS-2
 .payload_block:
+    mov ax, [payload_remaining]
+    cmp ax, 31
+    jbe .payload_chunk
+    mov ax, 31
+.payload_chunk:
+    mov [payload_chunk], ax
     mov byte [payload_attempts], 3
 .payload_read:
-    mov word [payload_dap+2], 1
+    mov ax, [payload_chunk]
+    mov [payload_dap+2], ax
     mov si, payload_dap
     mov dl, [boot_drive]
     mov ah, 0x42
@@ -33,6 +40,12 @@ start:
     int 0x13
     dec byte [payload_attempts]
     jnz .payload_read
+    cmp word [payload_chunk], 1
+    je .payload_failed
+    mov word [payload_chunk], 1
+    mov byte [payload_attempts], 3
+    jmp .payload_read
+.payload_failed:
     mov si, payload_error
 .payload_error:
     lodsb
@@ -61,9 +74,12 @@ payload_copy:
     mov ss, ax
     mov esi, 0x10000
     mov edi, [payload_destination]
-    mov ecx, 512
+    movzx ecx, word [payload_chunk]
+    shl ecx, 9
     rep movsd
-    add dword [payload_destination], 2048
+    movzx eax, word [payload_chunk]
+    shl eax, 11
+    add [payload_destination], eax
     jmp 0x18:payload_real
 bits 16
 payload_real:
@@ -81,8 +97,9 @@ payload_next:
     mov es, ax
     mov ss, ax
     mov sp, 0x7c00
-    add dword [payload_dap+8], 1
-    dec word [payload_remaining]
+    movzx eax, word [payload_chunk]
+    add [payload_dap+8], eax
+    sub [payload_remaining], ax
     jnz start.payload_block
     ; Select VGA text mode before leaving BIOS services.
     mov ax, 0x0003
@@ -214,6 +231,7 @@ boot_drive db 0
 video_mode dw 0
 mode_budget dw 0
 payload_remaining dw 0
+payload_chunk dw 0
 payload_attempts db 0
 payload_destination dd 0x100000
 align 4

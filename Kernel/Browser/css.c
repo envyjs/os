@@ -11,6 +11,7 @@ static variable variables[128];static uint32_t variable_count;
 typedef struct {int32_t px,percent,em;int scalar;} expression;
 static expression expressions[4096];static uint32_t expression_count;
 static int32_t font_basis=16;
+static int32_t root_font_basis=16;
 static int (*state_lookup)(const css_element *,const char *);
 void css_state_lookup(int (*lookup)(const css_element *,const char *)){state_lookup=lookup;}
 static int space(char c) {return c==' '||c=='\n'||c=='\r'||c=='\t';}
@@ -115,7 +116,7 @@ static int atom(const char **source,expression *v,uint32_t width,uint32_t height
     int32_t n;if(!decimal(&p,&n))return 0;
     if(*p=='%'){v->percent=n;p++;}
     else if(p[0]=='p'&&p[1]=='x'){v->px=n;p+=2;}
-    else if(p[0]=='r'&&p[1]=='e'&&p[2]=='m'){v->px=n*16;p+=3;}
+    else if(p[0]=='r'&&p[1]=='e'&&p[2]=='m'){v->px=n*root_font_basis;p+=3;}
     else if(p[0]=='e'&&p[1]=='m'){v->em=n;p+=2;}
     else if(p[0]=='v'&&(p[1]=='w'||p[1]=='h')){v->px=(int32_t)((int64_t)n*(p[1]=='w'?width:height)/100);p+=2;}
     else if(name_char(*p))return 0;
@@ -402,6 +403,14 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
         } else if(property==CSS_RADIUS){
             /* Uniform radius; use the first corner for multi-corner declarations. */
             if(dimension(&cursor,&parsed,width,height)&&parsed>=0)set(s,ranks,property,parsed,priority);
+        } else if(property==CSS_FONT_SIZE){
+            const char *const sizes[]={"xx-small","x-small","small","medium","large","x-large","xx-large","xxx-large"};const int32_t pixels[]={9,10,13,16,18,24,32,48};
+            if(keyword(text,sizes,8,&parsed))set(s,ranks,property,pixels[parsed],priority);
+            else if(equal(text,length(text),"inherit",1)||equal(text,length(text),"unset",1))set(s,ranks,property,CSS_PERCENT+100,priority);
+            else if(equal(text,length(text),"initial",1))set(s,ranks,property,16,priority);
+            else if(equal(text,length(text),"larger",1))set(s,ranks,property,CSS_PERCENT+120,priority);
+            else if(equal(text,length(text),"smaller",1))set(s,ranks,property,CSS_PERCENT+83,priority);
+            else if(single_dimension(text,&parsed,width,height)&&parsed>=0)set(s,ranks,property,parsed,priority);
         } else if(property==CSS_LINE_HEIGHT){
             if(equal(text,length(text),"normal",1))set(s,ranks,property,CSS_AUTO,priority);
             else if(decimal(&cursor,&parsed)&&!*cursor&&parsed>=0)set(s,ranks,property,-100000-parsed,priority);
@@ -415,6 +424,9 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
                 else if(!dimension(&cursor,&values[n],width,height))break;n++;}
             while(space(*cursor))cursor++;
             if(n&&!*cursor){set(s,ranks,base,values[0],priority);set(s,ranks,base+1,values[n>1?1:0],priority);set(s,ranks,base+2,values[n>2?2:0],priority);set(s,ranks,base+3,values[n>3?3:n>1?1:0],priority);}
+        } else if(equal(key,key_length,"inset",1)){
+            int32_t values[4];uint32_t n=0;while(n<4){while(space(*cursor))cursor++;if(!*cursor)break;if(!dimension(&cursor,&values[n],width,height))break;n++;}while(space(*cursor))cursor++;
+            if(n&&!*cursor){set(s,ranks,CSS_TOP,values[0],priority);set(s,ranks,CSS_RIGHT,values[n>1?1:0],priority);set(s,ranks,CSS_BOTTOM,values[n>2?2:0],priority);set(s,ranks,CSS_LEFT,values[n>3?3:n>1?1:0],priority);}
         } else if(equal(key,key_length,"gap",1)){
             int32_t x,y;if(dimension(&cursor,&x,width,height)){while(space(*cursor))cursor++;y=x;if(*cursor&&!dimension(&cursor,&y,width,height))goto next_declaration;while(space(*cursor))cursor++;
                 if(!*cursor&&x>=0&&y>=0){set(s,ranks,CSS_ROW_GAP,x,priority);set(s,ranks,CSS_COLUMN_GAP,y,priority);}}
@@ -423,8 +435,16 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
         } else if(equal(key,key_length,"flex",1)){
             if(equal(text,length(text),"none",1)){set(s,ranks,CSS_GROW,0,priority);set(s,ranks,CSS_SHRINK,0,priority);set(s,ranks,CSS_BASIS,CSS_AUTO,priority);}
             else if(decimal(&cursor,&parsed)&&!*cursor&&parsed>=0){set(s,ranks,CSS_GROW,parsed,priority);set(s,ranks,CSS_SHRINK,1000,priority);set(s,ranks,CSS_BASIS,0,priority);}
-        } else if(equal(key,key_length,"grid-template-columns",1)&&used>13&&equal(text,7,"repeat(",1)){
-            cursor=text+7;if(number(&cursor,&parsed)&&parsed>0&&parsed<=32){while(space(*cursor))cursor++;if(*cursor++==','){while(space(*cursor))cursor++;if(equal(cursor,length(cursor),"1fr)",1))set(s,ranks,CSS_GRID_COLUMNS,parsed,priority);}}
+        } else if(equal(key,key_length,"grid-template-columns",1)){
+            int32_t widths[32]={0},fractions[32]={0};uint32_t tracks=0;int valid=1;
+            if(used>13&&equal(text,7,"repeat(",1)){cursor=text+7;if(number(&cursor,&parsed)&&parsed>0&&parsed<=32){while(space(*cursor))cursor++;if(*cursor++==','){while(space(*cursor))cursor++;if(equal(cursor,length(cursor),"1fr)",1)){tracks=(uint32_t)parsed;for(uint32_t i=0;i<tracks;i++)fractions[i]=1000;}}}}
+            else while(*cursor&&tracks<32){while(space(*cursor))cursor++;if(!*cursor)break;int minmax=equal(cursor,7,"minmax(",1);if(minmax){cursor+=7;int32_t minimum;if(!dimension(&cursor,&minimum,width,height)){valid=0;break;}while(space(*cursor))cursor++;if(*cursor++!=','){valid=0;break;}while(space(*cursor))cursor++;}
+                const char *start=cursor;int32_t fraction;if(decimal(&cursor,&fraction)&&cursor[0]=='f'&&cursor[1]=='r'){fractions[tracks]=fraction;cursor+=2;}else{cursor=start;if(!dimension(&cursor,&widths[tracks],width,height)){valid=0;break;}}
+                if(minmax){while(space(*cursor))cursor++;if(*cursor++!=')'){valid=0;break;}}tracks++;while(space(*cursor))cursor++;}
+            if(valid&&tracks&&priority>=ranks[CSS_GRID_TRACKS]){set(s,ranks,CSS_GRID_COLUMNS,(int32_t)tracks,priority);set(s,ranks,CSS_GRID_TRACKS,1,priority);for(uint32_t i=0;i<tracks;i++){s->grid_width[i]=widths[i];s->grid_fraction[i]=fractions[i];}}
+        } else if(equal(key,key_length,"border-left",1)){
+            if(equal(text,length(text),"none",1))set(s,ranks,CSS_BORDER_LEFT,0,priority);
+            else if(dimension(&cursor,&parsed,width,height)){set(s,ranks,CSS_BORDER_LEFT,parsed,priority);while(space(*cursor))cursor++;if(equal(cursor,5,"solid",1)){cursor+=5;while(space(*cursor))cursor++;}if(color(cursor,&parsed))set_color(s,ranks,CSS_BORDER_COLOR,parsed,parsed_alpha,priority);}
         } else if((equal(key,key_length,"transform",1)||equal(key,key_length,"-webkit-transform",1))&&used>=10&&equal(text,10,"translate(",1)) {
             cursor=text+10;int32_t x,y;
             if(dimension(&cursor,&x,width,height)){while(space(*cursor))cursor++;if(*cursor==',')cursor++;
@@ -443,7 +463,7 @@ next_declaration:
         if(p<end)p++;
     }
 }
-void css_init(void){rule_count=variable_count=expression_count=0;font_basis=16;}
+void css_init(void){rule_count=variable_count=expression_count=0;font_basis=root_font_basis=16;}
 static void face_rule(const char *p,uint32_t size,const char *path) {
     const char *end=p+size;char family[64]={0},sources[256]={0};
     while((p=skip(p,end))<end){const char *key=p;while(p<end&&*p!=':'&&*p!=';')p++;if(p==end)break;if(*p==';'){p++;continue;}
@@ -505,6 +525,7 @@ static int add_rules(const char *source,uint32_t size,const char *path,const int
 }
 int css_add_file(const char *source,uint32_t size,const char *path){const int32_t bounds[]={0,2147483647,0,2147483647};return add_rules(source,size,path,bounds,0);}
 void css_compute(const css_element *e,const css_style *parent,const char *inline_style,uint32_t width,uint32_t height,css_style *s) {
+    if(e->tag&&equal(e->tag,length(e->tag),"html",1))root_font_basis=16;
     uint32_t ranks[CSS_PROPERTIES]={0};for(uint32_t i=0;i<CSS_PROPERTIES;i++)s->value[i]=0;
     const char *family=parent?parent->font_family:"sans-serif";uint32_t family_index=0;
     do{s->font_family[family_index]=family[family_index];}while(family[family_index++]);
@@ -524,6 +545,10 @@ void css_compute(const css_element *e,const css_style *parent,const char *inline
     s->value[CSS_MAX_WIDTH]=s->value[CSS_MAX_HEIGHT]=s->value[CSS_BASIS]=s->value[CSS_SELF]=CSS_AUTO;
     s->value[CSS_ITEMS]=CSS_STRETCH;s->value[CSS_SHRINK]=1000;s->value[CSS_GRID_COLUMNS]=1;
     font_basis=parent?parent->value[CSS_FONT_SIZE]:16;
+    if(e->tag&&e->tag[0]=='h'&&e->tag[1]>='1'&&e->tag[1]<='6'&&!e->tag[2]){
+        uint32_t level=(uint32_t)(e->tag[1]-'1');const int32_t sizes[]={200,150,117,100,83,67};const char *const margins[]={".67em",".83em","1em","1.33em","1.67em","2.33em"};
+        s->value[CSS_FONT_SIZE]=CSS_PERCENT+sizes[level];s->value[CSS_FONT_WEIGHT]=700;const char *margin=margins[level];int32_t value;if(dimension(&margin,&value,width,height))s->value[CSS_MARGIN_TOP]=s->value[CSS_MARGIN_BOTTOM]=value;
+    }
     for(uint32_t i=0;i<rule_count;i++) {
         if((int32_t)width<rules[i].min_width||(int32_t)width>rules[i].max_width||(int32_t)height<rules[i].min_height||(int32_t)height>rules[i].max_height)continue;
         int specificity=matches(rules[i].selector,rules[i].selector_length,e,0);
@@ -536,6 +561,7 @@ void css_compute(const css_element *e,const css_style *parent,const char *inline
     s->hidden=s->hidden||!s->value[CSS_DISPLAY];
     s->value[CSS_FONT_SIZE]=css_resolve(s->value[CSS_FONT_SIZE],font_basis);
     if(s->value[CSS_FONT_SIZE]<1)s->value[CSS_FONT_SIZE]=1;if(s->value[CSS_FONT_SIZE]>256)s->value[CSS_FONT_SIZE]=256;
+    if(e->tag&&equal(e->tag,length(e->tag),"html",1))root_font_basis=s->value[CSS_FONT_SIZE];
     font_basis=s->value[CSS_FONT_SIZE];
     for(uint32_t i=0;i<CSS_PROPERTIES;i++){int32_t v=s->value[i];if(v>=EXPRESSION_BASE&&v<EXPRESSION_BASE+(int32_t)expression_count&&expressions[v-EXPRESSION_BASE].em){expression resolved=expressions[v-EXPRESSION_BASE];resolved.px+=resolved.em*font_basis;resolved.em=0;expression_value(resolved,&s->value[i]);}}
     s->line_height_spec=ranks[CSS_LINE_HEIGHT]?s->value[CSS_LINE_HEIGHT]:parent?parent->line_height_spec:CSS_AUTO;

@@ -85,7 +85,7 @@ void font_draw(int font,int32_t x,int32_t top,uint32_t cp,uint32_t size,uint32_t
     if(f){int32_t baseline=top+(int32_t)f->ascent*(int32_t)size/f->units;
         for(uint32_t i=0;i<glyph_count;i++){const glyph_bitmap *g=&glyphs[i];if(g->font!=f||g->glyph!=glyph||g->size!=size)continue;
             for(int32_t row=0;row<g->height;row++)for(int32_t col=0;col<g->width;col++){uint8_t alpha=glyph_pixels[g->offset+row*g->width+col];if(alpha)framebuffer_blend(x+g->left+col,baseline+g->top+row,color,alpha);}return;}
-        for(uint32_t i=0;i<sizeof(glyph_scratch);i++)glyph_scratch[i]=0;
+        uint8_t *scratch=glyph_scratch;uint32_t words=sizeof(glyph_scratch)/4;__asm__ volatile("cld; rep stosl":"+D"(scratch),"+c"(words):"a"(0):"memory");
         bitmap_pen p={{x,baseline,color},256,128,-256,-384,1};rasterizations++;
         if(ttf_render(f,glyph,size,bitmap_pixel,&p)){
             if(p.fits){int32_t width=p.right>p.left?p.right-p.left:0,height=p.bottom>p.top?p.bottom-p.top:0;uint32_t bytes=(uint32_t)(width*height);

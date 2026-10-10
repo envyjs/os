@@ -34,10 +34,11 @@ typedef struct {int type,font;int32_t x,y,z,left,top,right,bottom;uint32_t width
 static paint_command commands[32768];static uint32_t order[32768],command_count;
 static css_style paint_backgrounds[512];static char paint_sources[512][256];
 static uint32_t background_count,source_count;static int collecting;static int32_t paint_z;
+static int scene_order_ready,partial_scene;static int32_t dirty_left,dirty_top,dirty_right,dirty_bottom;
 static int32_t paint_left,paint_top,paint_right=2147483647,paint_bottom=2147483647;static uint8_t paint_opacity=255;
 static paint_command *command(int type){if(command_count==32768)return 0;paint_command *c=&commands[command_count++];*c=(paint_command){.type=type,.z=paint_z,.left=paint_left,.top=paint_top,.right=paint_right,.bottom=paint_bottom,.opacity=paint_opacity};return c;}
 static void paint_box(const css_style *s,int32_t x,int32_t y,uint32_t width,uint32_t height){
-    if(!width||!height||background_count==512||(!s->background_image[0]&&!s->gradient_count&&(!s->value[CSS_BACKGROUND_ALPHA]||s->value[CSS_BACKGROUND]<0)&&!s->value[CSS_BORDER]&&!s->value[CSS_BACKDROP_BLUR]&&s->value[CSS_BACKDROP_BRIGHTNESS]==1000))return;paint_command *c=command(PAINT_BOX);if(!c)return;
+    if(!width||!height||background_count==512||(!s->background_image[0]&&!s->gradient_count&&(!s->value[CSS_BACKGROUND_ALPHA]||s->value[CSS_BACKGROUND]<0)&&!s->value[CSS_BORDER]&&!s->value[CSS_BORDER_LEFT]&&!s->value[CSS_BACKDROP_BLUR]&&s->value[CSS_BACKDROP_BRIGHTNESS]==1000))return;paint_command *c=command(PAINT_BOX);if(!c)return;
     paint_backgrounds[background_count]=*s;c->background=&paint_backgrounds[background_count++];c->x=x;c->y=y;c->width=width;c->height=height;
 }
 static int rounded_inside(int32_t x,int32_t y,int32_t w,int32_t h,int32_t r){
@@ -70,6 +71,7 @@ static void render_box(const paint_command *c){
             framebuffer_blend(x,y,rgb,(uint8_t)(s->gradient_alpha[stop]+(s->gradient_alpha[next]-s->gradient_alpha[stop])*t/255));}
     }
     if(s->background_image[0]&&w>border*2&&h>border*2)images_background(s,c->x+border,c->y+border,(uint32_t)(w-border*2),(uint32_t)(h-border*2));
+    if(s->value[CSS_BORDER_LEFT]>border)for(int32_t y=top;y<bottom;y++)for(int32_t x=left;x<right&&x<c->x+s->value[CSS_BORDER_LEFT];x++)if(rounded_inside(x-c->x,y-c->y,w,h,radius))framebuffer_blend(x,y,(uint32_t)s->value[CSS_BORDER_COLOR],(uint8_t)s->value[CSS_BORDER_ALPHA]);
 }
 static void paint_rect(int32_t x,int32_t y,uint32_t width,uint32_t height,uint32_t color){
     if(!collecting){framebuffer_rect(x,y,width,height,color);return;}paint_command *c=command(PAINT_RECT);if(c){c->x=x;c->y=y;c->width=width;c->height=height;c->color=color;}}
@@ -91,11 +93,17 @@ static void sift_order(uint32_t root,uint32_t count){
     while(root<count/2){uint32_t child=root*2+1;if(child+1<count&&after(order[child+1],order[child]))child++;
         if(!after(order[child],order[root]))return;uint32_t old=order[root];order[root]=order[child];order[child]=old;root=child;}}
 static void paint_scene(void){
+    if(!scene_order_ready){
     for(uint32_t i=0;i<command_count;i++)order[i]=i;
     for(uint32_t i=command_count/2;i;i--)sift_order(i-1,command_count);
     for(uint32_t i=command_count;i>1;i--){uint32_t old=order[0];order[0]=order[i-1];order[i-1]=old;sift_order(0,i-1);}
+    scene_order_ready=1;}
     for(uint32_t i=0;i<command_count;i++){paint_command *c=&commands[order[i]];
-        framebuffer_paint_region(c->left,c->top,(uint32_t)(c->right-c->left),(uint32_t)(c->bottom-c->top),c->opacity);
+        int32_t left=c->left,top=c->top,right=c->right,bottom=c->bottom;
+        if(partial_scene){if(left<dirty_left)left=dirty_left;if(top<dirty_top)top=dirty_top;if(right>dirty_right)right=dirty_right;if(bottom>dirty_bottom)bottom=dirty_bottom;if(left>=right||top>=bottom)continue;
+            int32_t extent_x=c->type==PAINT_GLYPH?c->height*2:c->width,extent_y=c->type==PAINT_GLYPH?c->height*2:c->height;
+            if(c->x+extent_x<=left||c->y+extent_y<=top||c->x>=right||c->y>=bottom)continue;}
+        framebuffer_paint_region(left,top,(uint32_t)(right-left),(uint32_t)(bottom-top),c->opacity);
         if(c->type==PAINT_RECT)framebuffer_rect(c->x,c->y,c->width,c->height,c->color);
         else if(c->type==PAINT_BACKGROUND)images_background(c->background,c->x,c->y,c->width,c->height);
         else if(c->type==PAINT_GLYPH)font_draw(c->font,c->x,c->y,c->codepoint,c->height,c->color);
@@ -119,6 +127,10 @@ static const char *(*text_lookup)(void *,const char *);static void *text_context
 void html_view_text_lookup(const char *(*lookup)(void *,const char *),void *context){text_lookup=lookup;text_context=context;}
 static void (*style_lookup)(void *,uint32_t,const char *,char *,uint32_t);static void *style_context;
 static const char *(*markup_lookup)(void *,const char *);static void *markup_context;
+static uint32_t (*object_lookup)(void *,const char *);static void *object_context;
+static const char *(*property_lookup)(void *,uint32_t,const char *);static void *property_context;
+void html_view_property_lookup(const char *(*lookup)(void *,uint32_t,const char *),void *context){property_lookup=lookup;property_context=context;}
+void html_view_object_lookup(uint32_t (*lookup)(void *,const char *),void *context){object_lookup=lookup;object_context=context;}
 void html_view_style_lookup(void (*lookup)(void *,uint32_t,const char *,char *,uint32_t),void *context){style_lookup=lookup;style_context=context;}
 void html_view_markup_lookup(const char *(*lookup)(void *,const char *),void *context){markup_lookup=lookup;markup_context=context;}
 static void append_live_style(uint32_t node,const char *id,char *css,uint32_t capacity){
@@ -237,7 +249,7 @@ static void attribute(const char *begin,const char *end,const char *wanted,char 
         uint32_t n=(uint32_t)(begin-key), wanted_n=0; while(wanted[wanted_n]) wanted_n++;
         int match=n==wanted_n; for(uint32_t i=0;i<n&&match;i++) if(lower(key[i])!=wanted[i]) match=0;
         while(begin<end&&space(*begin)) begin++;
-        if(begin==end||*begin!='=') continue;
+        if(begin==end||*begin!='='){if(match){if(capacity>1){value[0]='1';value[1]=0;}return;}continue;}
         begin++; while(begin<end&&space(*begin)) begin++;
         char quote=0; if(begin<end&&(*begin=='\''||*begin=='"')) quote=*begin++;
         uint32_t used=0;
@@ -294,8 +306,8 @@ int html_find_element(const char *html,const char *id,char *tag,uint32_t capacit
 typedef struct {
     css_element element;css_style css;
     char tag[16],id[128],classes[256],inline_css[512],source[256],handler[256];
-    const char *text;int first,last,next,parent;uint32_t serial,object;
-    int32_t x,y,w,h,padding[4],margin[4],scroll_x,scroll_y;uint32_t image_width,image_height;
+    const char *text,*attributes;uint32_t attribute_length;int first,last,next,parent;uint32_t serial,object;
+    int32_t x,y,w,h,padding[4],margin[4],scroll_x,scroll_y;uint32_t image_width,image_height;int input_kind,input_checked,background_slot;
 } layout_node;
 static layout_node layout_nodes[1024];static uint32_t layout_count;
 static char layout_text[131072];static uint32_t layout_text_used;
@@ -319,15 +331,23 @@ int html_view_geometry(uint32_t node,const char *id,int32_t *x,int32_t *y,int32_
         for(int j=(int)i;j>=0;j=layout_nodes[j].parent)if(layout_nodes[j].css.hidden)return 0;
         *x=n->x;*y=n->y;*w=n->w;*h=n->h;return 1;}return 0;}
 int html_view_pointer(int32_t x,int32_t y,uint8_t buttons){
+    uint32_t previous_path[32],previous_count=hover_count;for(uint32_t j=0;j<previous_count;j++)previous_path[j]=hover_path[j];int active_changed=(hover_buttons^buttons)&1;
     uint32_t path[32],count=0;int i=pointer_box(x,y);while(i>=0&&count<32){path[count++]=boxes[i].serial;uint32_t parent=boxes[i].parent;i=-1;for(uint32_t j=0;j<box_count;j++)if(boxes[j].serial==parent){i=(int)j;break;}}
     int changed=hover_count!=count||((hover_buttons^buttons)&1);for(uint32_t j=0;j<count;j++){if(hover_path[j]!=path[j])changed=1;hover_path[j]=path[j];}hover_count=count;hover_buttons=buttons;
-    if(changed){/* Moving between boxes only needs paint when the cascade changes. */
+    if(changed){int paint_changed=0;dirty_left=(int32_t)viewport_width;dirty_top=(int32_t)viewport_height;dirty_right=dirty_bottom=0;
         for(uint32_t j=1;j<layout_count;j++){layout_node *n=&layout_nodes[j];if(same(n->tag,"#text"))continue;css_style computed;
+            int affected=0;for(int ancestor=(int)j;ancestor>=0&&!affected;ancestor=layout_nodes[ancestor].parent){uint32_t serial=layout_nodes[ancestor].serial;int before=0,after=0;for(uint32_t k=0;k<previous_count;k++)if(previous_path[k]==serial)before=1;for(uint32_t k=0;k<count;k++)if(path[k]==serial)after=1;if(before!=after||(active_changed&&after))affected=1;}if(!affected)continue;
             css_compute(&n->element,&layout_nodes[n->parent].css,n->inline_css,viewport_width,viewport_height,&computed);
             int different=computed.hidden!=n->css.hidden||!same(computed.font_family,n->css.font_family)||!same(computed.background_image,n->css.background_image);
             for(uint32_t k=0;k<CSS_PROPERTIES;k++)if(computed.value[k]!=n->css.value[k])different=1;
-            if(different){html_view_repaint();return 1;}
+            if(different){int simple=!computed.hidden&&!n->css.hidden&&same(computed.font_family,n->css.font_family)&&same(computed.background_image,n->css.background_image)&&computed.gradient_count==n->css.gradient_count&&n->background_slot>=0;
+                for(uint32_t k=0;k<CSS_PROPERTIES;k++)if(computed.value[k]!=n->css.value[k]&&k!=CSS_BACKGROUND&&k!=CSS_BACKGROUND_ALPHA&&k!=CSS_BORDER_COLOR&&k!=CSS_BORDER_ALPHA)simple=0;
+                if(!simple){html_view_repaint();return 1;}
+                n->css=computed;paint_backgrounds[n->background_slot]=computed;paint_changed=1;if(n->x<dirty_left)dirty_left=n->x;if(n->y<dirty_top)dirty_top=n->y;if(n->x+n->w>dirty_right)dirty_right=n->x+n->w;if(n->y+n->h>dirty_bottom)dirty_bottom=n->y+n->h;
+            }
         }
+        if(paint_changed){partial_scene=1;for(uint32_t k=0;k<background_count;k++)if(paint_backgrounds[k].value[CSS_BACKDROP_BLUR])partial_scene=0;
+            if(partial_scene)framebuffer_begin_frame();else framebuffer_begin_scene();paints++;paint_scene();framebuffer_end_frame();partial_scene=0;return 1;}
     }return 0;
 }
 static int32_t max_i(int32_t a,int32_t b){return a>b?a:b;}
@@ -351,7 +371,7 @@ int html_view_scroll(int32_t x,int32_t y,int32_t dx,int32_t dy){
 }
 static int add_node(int parent,const char *tag){
     if(layout_count==1024)return -1;int index=(int)layout_count++;layout_node *n=&layout_nodes[index];
-    *n=(layout_node){.first=-1,.last=-1,.next=-1,.parent=parent,.serial=++serial_next};
+    *n=(layout_node){.first=-1,.last=-1,.next=-1,.parent=parent,.serial=++serial_next,.background_slot=-1};
     uint32_t i=0;while(tag[i]&&i<15){n->tag[i]=tag[i];i++;}n->tag[i]=0;
     n->element=(css_element){n->tag,n->id,n->classes,parent>=0?&layout_nodes[parent].element:0};
     if(parent>=0){layout_node *p=&layout_nodes[parent];if(p->last>=0)layout_nodes[p->last].next=index;else p->first=index;p->last=index;}
@@ -386,16 +406,19 @@ static void parse_fragment(const char *html,int root,uint32_t recursion){
         if(same(tag,"script")||same(tag,"style")||same(tag,"head")){const char *close=find(html,same(tag,"script")?"</script>":same(tag,"style")?"</style>":"</head>");if(!close)break;html=find(close,">")+1;continue;}
         if(!tag[0]||tag[0]=='!'||same(tag,"meta")||same(tag,"link"))continue;
         int index=add_node(stack[depth],tag);if(index<0)break;layout_node *n=&layout_nodes[index];
+        n->attributes=begin;n->attribute_length=(uint32_t)(end-begin);
         attribute(begin,end,"id",n->id,sizeof(n->id));attribute(begin,end,"class",n->classes,sizeof(n->classes));attribute(begin,end,"style",n->inline_css,sizeof(n->inline_css));
         attribute(begin,end,"onclick",n->handler,sizeof(n->handler));
         char identity[16];attribute(begin,end,"data-envy-node",identity,sizeof(identity));for(const char *p=identity;*p>='0'&&*p<='9';p++)n->object=n->object*10+(uint32_t)(*p-'0');
+        if(!n->object&&object_lookup)n->object=object_lookup(object_context,begin);
         append_live_style(n->object,n->id,n->inline_css,sizeof(n->inline_css));
         css_compute(&n->element,&layout_nodes[stack[depth]].css,n->inline_css,viewport_width,viewport_height,&n->css);
+        char hidden[4];attribute(begin,end,"hidden",hidden,sizeof(hidden));if(hidden[0]){const char *live=n->object&&property_lookup?property_lookup(property_context,n->object,"hidden"):0;if(!live||*live)n->css.hidden=1;}
         if(same(tag,"pre")&&!n->css.value[CSS_WHITE_SPACE])n->css.value[CSS_WHITE_SPACE]=2;
         if(same(tag,"img")){char size_text[32];attribute(begin,end,"src",n->source,sizeof(n->source));
             attribute(begin,end,"width",size_text,sizeof(size_text));n->image_width=image_dimension(size_text);attribute(begin,end,"height",size_text,sizeof(size_text));n->image_height=image_dimension(size_text);}
-        if(same(tag,"input")){char value[256];attribute(begin,end,"value",value,sizeof(value));const char *last=value;while(*last)last++;n->text=store_text(value,last);}
-        const char *replacement=!n->object&&text_lookup&&n->id[0]?text_lookup(text_context,n->id):0;
+        if(same(tag,"input")){char value[256];attribute(begin,end,"value",value,sizeof(value));const char *last=value;while(*last)last++;n->text=store_text(value,last);attribute(begin,end,"type",value,sizeof(value));n->input_kind=same(value,"checkbox")?1:same(value,"radio")?2:0;attribute(begin,end,"checked",value,sizeof(value));n->input_checked=!!value[0];if(n->object&&property_lookup){const char *checked=property_lookup(property_context,n->object,"checked");n->input_checked=checked&&*checked;}}
+        const char *replacement=n->object&&property_lookup?property_lookup(property_context,n->object,"textContent"):!n->object&&text_lookup&&n->id[0]?text_lookup(text_context,n->id):0;
         const char *replacement_markup=!n->object&&!replacement&&markup_lookup&&n->id[0]?markup_lookup(markup_context,n->id):0;
         if(replacement){int text=add_node(index,"#text");if(text>=0){layout_nodes[text].text=replacement;inherit_text(&layout_nodes[text],&n->css);}}
         else if(replacement_markup)parse_fragment(replacement_markup,index,recursion+1);
@@ -463,7 +486,7 @@ static int32_t text_height(const layout_node *n,int32_t width){
 static void measure_layout(int index,int32_t width,int32_t height,int shrink,int32_t force_w,int32_t force_h,uint32_t depth){
     if(depth>32)return;layout_node *n=&layout_nodes[index];int32_t *v=n->css.value;n->x=n->y=n->w=n->h=0;if(n->css.hidden)return;
     if(same(n->tag,"#text")){n->w=min_i(max_i(1,width),text_width(n));n->h=text_height(n,width);return;}
-    int32_t border=max_i(0,v[CSS_BORDER]);for(int i=0;i<4;i++){n->padding[i]=max_i(0,css_resolve(v[CSS_PADDING_TOP+i],width))+border;n->margin[i]=v[CSS_MARGIN_TOP+i]==CSS_AUTO?0:css_resolve(v[CSS_MARGIN_TOP+i],width);}
+    int32_t border=max_i(0,v[CSS_BORDER]);for(int i=0;i<4;i++){n->padding[i]=max_i(0,css_resolve(v[CSS_PADDING_TOP+i],width))+(i==3?max_i(border,v[CSS_BORDER_LEFT]):border);n->margin[i]=v[CSS_MARGIN_TOP+i]==CSS_AUTO?0:css_resolve(v[CSS_MARGIN_TOP+i],width);}
     int32_t extra_w=n->padding[1]+n->padding[3],extra_h=n->padding[0]+n->padding[2];
     int32_t natural=intrinsic_width(index,width,0),w;
     if(force_w>=0)w=force_w;else if(v[CSS_WIDTH]!=CSS_AUTO)w=css_resolve(v[CSS_WIDTH],width)+(v[CSS_BOX_SIZING]?0:extra_w);
@@ -481,11 +504,14 @@ static void measure_layout(int index,int32_t width,int32_t height,int shrink,int
     int32_t gap_x=max_i(0,css_resolve(v[CSS_COLUMN_GAP],content_w)),gap_y=max_i(0,css_resolve(v[CSS_ROW_GAP],content_w));
     int32_t used=0,line_cross=0,cross=0;uint32_t count=0;int32_t grow=0,shrink_weight=0;
     int32_t content_h=fixed_h>=0?max_i(0,fixed_h-extra_h):height;
+    int32_t tracks[32],track_used=0,fractions=0;uint32_t track_index=0;
+    if(grid){for(int i=0;i<v[CSS_GRID_COLUMNS];i++){tracks[i]=v[CSS_GRID_TRACKS]?max_i(0,css_resolve(n->css.grid_width[i],content_w)):0;track_used+=tracks[i];fractions+=v[CSS_GRID_TRACKS]?n->css.grid_fraction[i]:1000;}
+        int32_t remaining=max_i(0,content_w-track_used-(v[CSS_GRID_COLUMNS]-1)*gap_x);for(int i=0;i<v[CSS_GRID_COLUMNS];i++)if(fractions)tracks[i]+=(int32_t)((int64_t)remaining*(v[CSS_GRID_TRACKS]?n->css.grid_fraction[i]:1000)/fractions);}
     for(int child=n->first;child>=0;child=layout_nodes[child].next){layout_node *c=&layout_nodes[child];int32_t *cv=c->css.value;
         if(cv[CSS_POSITION]==1||cv[CSS_POSITION]==2||c->css.hidden)continue;
-        int32_t forced=-1;if(grid)forced=max_i(0,(content_w-(v[CSS_GRID_COLUMNS]-1)*gap_x)/v[CSS_GRID_COLUMNS]);
+        int32_t forced=-1;if(grid)forced=tracks[track_index++%(uint32_t)v[CSS_GRID_COLUMNS]];
         else if(flex&&!column&&cv[CSS_BASIS]!=CSS_AUTO)forced=css_resolve(cv[CSS_BASIS],content_w)+(!cv[CSS_BOX_SIZING]?max_i(0,cv[CSS_BORDER])*2+max_i(0,css_resolve(cv[CSS_PADDING_LEFT],content_w))+max_i(0,css_resolve(cv[CSS_PADDING_RIGHT],content_w)):0);
-        measure_layout(child,content_w,content_h,flex&&!column,forced,-1,depth+1);
+        measure_layout(child,content_w,content_h,flex&&!column,forced,grid&&fixed_h>=0&&cv[CSS_HEIGHT]==CSS_AUTO?content_h:-1,depth+1);
         if(flex&&column&&cv[CSS_BASIS]!=CSS_AUTO)c->h=max_i(0,css_resolve(cv[CSS_BASIS],content_h));
         int32_t main=column?c->h+c->margin[0]+c->margin[2]:c->w+c->margin[1]+c->margin[3];
         used+=main;grow+=cv[CSS_GROW];shrink_weight+=cv[CSS_SHRINK]*max_i(0,main)/1000;count++;}
@@ -499,7 +525,7 @@ static void measure_layout(int index,int32_t width,int32_t height,int shrink,int
     int32_t offset=0;count=0;uint32_t grid_col=0;
     for(int child=n->first;child>=0;child=layout_nodes[child].next){layout_node *c=&layout_nodes[child];int32_t *cv=c->css.value;
         if(cv[CSS_POSITION]==1||cv[CSS_POSITION]==2||c->css.hidden)continue;
-        if(grid){if(grid_col==(uint32_t)v[CSS_GRID_COLUMNS]){cross+=line_cross+gap_y;line_cross=0;grid_col=0;}c->x=(int32_t)grid_col*(c->w+gap_x)+c->margin[3];c->y=cross+c->margin[0];line_cross=max_i(line_cross,c->h+c->margin[0]+c->margin[2]);grid_col++;}
+        if(grid){if(grid_col==(uint32_t)v[CSS_GRID_COLUMNS]){cross+=line_cross+gap_y;line_cross=0;grid_col=0;offset=0;}c->x=offset+c->margin[3];c->y=cross+c->margin[0];offset+=tracks[grid_col]+gap_x;line_cross=max_i(line_cross,c->h+c->margin[0]+c->margin[2]);grid_col++;}
         else if(flex){int32_t main=column?c->h+c->margin[0]+c->margin[2]:c->w+c->margin[1]+c->margin[3],item_cross=column?c->w+c->margin[1]+c->margin[3]:c->h+c->margin[0]+c->margin[2];
             int32_t gap=column?gap_y:gap_x;if(v[CSS_FLEX_WRAP]&&count&&offset+gap+main>main_space){cross+=line_cross+(column?gap_x:gap_y);offset=0;line_cross=0;count=0;}
             if(count)offset+=gap;if(column){c->x=cross+c->margin[3];c->y=offset+c->margin[0];}else{c->x=offset+c->margin[3];c->y=cross+c->margin[0];}offset+=main;line_cross=max_i(line_cross,item_cross);count++;}
@@ -562,14 +588,14 @@ static int layout_scroll(layout_node *n,int index){
 }
 static uint32_t query_nodes[1024];
 static uint32_t query_materialize(int index,void *context,
-    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *)){
+    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *,const char *,uint32_t)){
     if(query_nodes[index])return query_nodes[index];layout_node *n=&layout_nodes[index];
     if(n->object)return query_nodes[index]=n->object;
     uint32_t parent=n->parent>=0?query_materialize(n->parent,context,materialize):0;
-    query_nodes[index]=materialize(context,(uint32_t)index,parent,n->tag,n->id,n->classes,n->text?n->text:"");return query_nodes[index];
+    query_nodes[index]=materialize(context,(uint32_t)index,parent,n->tag,n->id,n->classes,n->text?n->text:"",n->attributes,n->attribute_length);return query_nodes[index];
 }
 void html_query_selector(const char *html,const char *selector,const css_element *root,void *context,
-    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *),
+    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *,const char *,uint32_t),
     void (*selected)(void *,uint32_t)){
     /* Queries must not replace the layout used for hover and hit testing. */
     extern void *envy_js_alloc(void *,void *,int);extern void *memcpy(void *,const void *,unsigned int);
@@ -577,7 +603,9 @@ void html_query_selector(const char *html,const char *selector,const css_element
     uint32_t node_bytes=saved_count*sizeof(layout_node),backup_bytes=node_bytes+saved_text;
     char *backup=backup_bytes?envy_js_alloc(0,0,(int)backup_bytes):0;if(backup_bytes&&!backup)return;
     if(backup){memcpy(backup,layout_nodes,node_bytes);memcpy(backup+node_bytes,layout_text,saved_text);}
-    uint32_t saved_serial=serial_next;serial_next=0;parse_layout(html,&body_style,root);
+    uint32_t saved_serial=serial_next;serial_next=0;
+    const char *(*saved_markup)(void *,const char *)=markup_lookup;const char *(*saved_lookup)(void *,const char *)=text_lookup;
+    markup_lookup=0;text_lookup=0;parse_layout(html,&body_style,root);markup_lookup=saved_markup;text_lookup=saved_lookup;
     for(uint32_t i=0;i<layout_count;i++)query_nodes[i]=0;
     for(uint32_t i=1;i<layout_count;i++)if(!same(layout_nodes[i].tag,"#text")&&css_selector_matches(&layout_nodes[i].element,selector))
         selected(context,query_materialize((int)i,context,materialize));
@@ -592,6 +620,7 @@ static void place_layout(int index,int32_t parent_x,int32_t parent_y,int contain
         int32_t bw=v[CSS_POSITION]==2?(int32_t)viewport_width:cb->w,bh=v[CSS_POSITION]==2?(int32_t)viewport_height:cb->h;
         measure_layout(index,bw,bh,1,-1,-1,depth+1);
         if(v[CSS_WIDTH]==CSS_AUTO&&v[CSS_LEFT]!=CSS_AUTO&&v[CSS_RIGHT]!=CSS_AUTO)measure_layout(index,bw,bh,0,max_i(0,bw-css_resolve(v[CSS_LEFT],bw)-css_resolve(v[CSS_RIGHT],bw)),-1,depth+1);
+        if(v[CSS_HEIGHT]==CSS_AUTO&&v[CSS_TOP]!=CSS_AUTO&&v[CSS_BOTTOM]!=CSS_AUTO)measure_layout(index,bw,bh,0,n->w,max_i(0,bh-css_resolve(v[CSS_TOP],bh)-css_resolve(v[CSS_BOTTOM],bh)),depth+1);
         x=v[CSS_LEFT]!=CSS_AUTO?bx+css_resolve(v[CSS_LEFT],bw):v[CSS_RIGHT]!=CSS_AUTO?bx+bw-n->w-css_resolve(v[CSS_RIGHT],bw):parent_x;
         y=v[CSS_TOP]!=CSS_AUTO?by+css_resolve(v[CSS_TOP],bh):v[CSS_BOTTOM]!=CSS_AUTO?by+bh-n->h-css_resolve(v[CSS_BOTTOM],bh):parent_y;
         x+=n->margin[3];y+=n->margin[0];
@@ -604,7 +633,8 @@ static void place_layout(int index,int32_t parent_x,int32_t parent_y,int contain
     int scroll=layout_scroll(n,index);
     if(!v[CSS_VISIBILITY]){
         if(same(n->tag,"#text")){paint_opacity=(uint8_t)(((uint32_t)inherited_opacity*v[CSS_COLOR_ALPHA]+127)/255);draw_layout_text(n,x,y,layout_nodes[n->parent].w-layout_nodes[n->parent].padding[1]-layout_nodes[n->parent].padding[3]);}
-        else{paint_box(&n->css,x,y,(uint32_t)n->w,(uint32_t)n->h);
+        else{uint32_t before=background_count;paint_box(&n->css,x,y,(uint32_t)n->w,(uint32_t)n->h);n->background_slot=background_count>before?(int)before:-1;
+            if(n->input_kind){css_style control=n->css;control.value[CSS_BACKGROUND]=0xffffff;control.value[CSS_BACKGROUND_ALPHA]=255;control.value[CSS_BORDER]=1;control.value[CSS_BORDER_COLOR]=0x666666;control.value[CSS_RADIUS]=n->input_kind==2?n->w/2:2;paint_box(&control,x,y,n->w,n->h);if(n->input_checked)paint_rect(x+4,y+4,max_i(0,n->w-8),max_i(0,n->h-8),0x267bdb);}
             if(box_count<2048&&n->w>0&&n->h>0){uint32_t box=box_count++;boxes[box].x=max_i(x,paint_left);boxes[box].y=max_i(y,paint_top);boxes[box].w=min_i(x+n->w,paint_right)-boxes[box].x;boxes[box].h=min_i(y+n->h,paint_bottom)-boxes[box].y;
                 boxes[box].z=z;boxes[box].serial=n->serial;boxes[box].object=n->object;boxes[box].parent=n->parent>=0?layout_nodes[n->parent].serial:0;boxes[box].scroll=scroll;uint32_t i=0;do{boxes[box].id[i]=n->id[i];}while(n->id[i++]);}
             if(same(n->tag,"img"))paint_image(n->source,x+n->padding[3],y+n->padding[0],(uint32_t)max_i(0,n->w-n->padding[1]-n->padding[3]),(uint32_t)max_i(0,n->h-n->padding[0]-n->padding[2]));
@@ -638,7 +668,7 @@ void html_view_repaint(void) {
     if(!framebuffer_get())return;framebuffer_begin_scene();cursor_y=0;hit_count=0;
     box_count=serial_next=0;css_state_lookup(state_matches);
     paint_left=paint_top=0;paint_right=(int32_t)viewport_width;paint_bottom=(int32_t)viewport_height;paint_opacity=255;
-    collecting=1;command_count=background_count=source_count=0;
+    collecting=1;scene_order_ready=partial_scene=0;command_count=background_count=source_count=0;
     css_element root={"html","","",0},body={"body","","",&root};style root_style;
     computed(&root_style,0,&root,0);computed(&body_style,&root_style,&body,0);
     page_allow_x=root_style.computed.value[CSS_OVERFLOW_X]!=1&&body_style.computed.value[CSS_OVERFLOW_X]!=1;
@@ -652,6 +682,8 @@ void html_view_repaint(void) {
     for(uint32_t i=0;i<view_count;i++) {
         const view_node *node=&views[i];css_element element={node->tag,node->id,node->classes,&body};style s;
         if(node->parent_id&&*node->parent_id)continue;
+        const char *live=node->node&&property_lookup?property_lookup(property_context,node->node,"__markup"):0;
+        if(live){if(*live)render_markup(live,&body_style,&body);continue;}
         char inline_css[1024];uint32_t used=0;if(node->inline_style)while(node->inline_style[used]&&used<1023){inline_css[used]=node->inline_style[used];used++;}inline_css[used]=0;
         append_live_style(node->node,node->id,inline_css,sizeof(inline_css));
         int32_t saved=cursor_y;computed(&s,&body_style,&element,inline_css);if(s.positioned)cursor_y=s.y;

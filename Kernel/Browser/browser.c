@@ -119,8 +119,13 @@ static void trace(const char *text) {
 enum { CREATE=1, APPEND, INSERT, LOG, CONSOLE_ERROR, FETCH, GET_BY_ID,
        DATE, SET_INTERVAL, CLEAR_TIMER, SET_TIMEOUT, QUERY_SELECTOR, MEDIA_PLAY, MEDIA_PAUSE, PREVENT_DEFAULT, TEST_NOOP, DATE_NOW, FOCUS, QUERY_ALL,
        THEN_BASE=1000, CATCH_BASE=2000, APPEND_BASE=3000, INSERT_BASE=4000, DATE_BASE=6000, ADD_EVENT_BASE=8000, REMOVE_EVENT_BASE=9000,
-       RESPONSE_TEXT_BASE=10000, RESPONSE_JSON_BASE=11000, CLASS_ADD_BASE=12000, CLASS_REMOVE, CLASS_TOGGLE, CLASS_CONTAINS, NODE_REMOVE, STYLE_SET_PROPERTY, SET_ATTRIBUTE, REMOVE_ATTRIBUTE };
+       RESPONSE_TEXT_BASE=10000, RESPONSE_JSON_BASE=11000, CLASS_ADD_BASE=12000, CLASS_REMOVE, CLASS_TOGGLE, CLASS_CONTAINS, NODE_REMOVE, STYLE_SET_PROPERTY, SET_ATTRIBUTE, REMOVE_ATTRIBUTE, APPEND_MANY };
 static uint8_t rtc_read(uint8_t reg) {out8(0x70,reg);return in8(0x71);}
+static int host_sync(js_vm *vm,int id,const js_value *args,uint32_t argc){
+    if(id>=THEN_BASE&&id<APPEND_BASE)return 1;
+    if(id==APPEND||id==INSERT||id==APPEND_BASE||id==INSERT_BASE||id==APPEND_MANY){for(uint32_t i=0;i<argc;i++)if(args[i].type==JS_OBJECT){js_value tag=js_get(vm,args[i].number,"tagName");if(tag.type==JS_STRING&&tag.length==6&&tag.text[0]=='s'&&tag.text[1]=='c'&&tag.text[2]=='r'&&tag.text[3]=='i'&&tag.text[4]=='p'&&tag.text[5]=='t')return 1;}}
+    return 0;
+}
 static int clock_snapshot(uint8_t *values) {
     const uint8_t registers[]={4,2,7,8,6};
     for(uint32_t attempt=0;attempt<8;attempt++) {
@@ -216,6 +221,7 @@ static js_value element(js_vm *vm,const char *tag) {
     if(equal(tag,"input")||equal(tag,"textarea"))js_set(vm,node.number,"value",js_string(vm,"",0));
     js_value append=js_native_bound(APPEND_BASE,(uint32_t)node.number),insert=js_native_bound(INSERT_BASE,(uint32_t)node.number);
     js_set(vm,node.number,"appendChild",append);
+    js_set(vm,node.number,"append",js_native_bound(APPEND_MANY,(uint32_t)node.number));
     js_set(vm,node.number,"insertBefore",insert);
     js_value listen=js_native_bound(ADD_EVENT_BASE,(uint32_t)node.number),remove=js_native_bound(REMOVE_EVENT_BASE,(uint32_t)node.number);
     js_set(vm,node.number,"addEventListener",listen);js_set(vm,node.number,"removeEventListener",remove);
@@ -277,6 +283,7 @@ static uint32_t live_node(browser *b,uint32_t node,const char *id){
     for(uint32_t i=0;i<b->vm.property_count;i++){js_property *p=&b->vm.properties[i];if(equal(p->name,"id")&&p->value.type==JS_STRING&&equal(p->value.text,id)&&connected(b,p->object))return p->object;}return 0;
 }
 typedef struct {browser *b;uint32_t root,scope,count;js_value array;} query_context;
+static int equal_prefix(const char *,const char *);
 static int query_contains(browser *b,uint32_t scope,uint32_t node){
     if(!scope||scope==b->document)return connected(b,node);
     for(uint32_t depth=0;node&&depth<=b->vm.objects;depth++){
@@ -289,7 +296,10 @@ static void query_selected(void *context,uint32_t node){
     for(uint32_t i=0;i<vm->property_count;i++)if(vm->properties[i].object==(uint32_t)q->array.number&&vm->properties[i].value.type==JS_OBJECT&&vm->properties[i].value.number==node)return;
     js_value key=js_number_string(vm,q->count++);js_set(vm,q->array.number,key.text,(js_value){JS_OBJECT,node,0,0});
 }
-static uint32_t query_materialize(void *context,uint32_t index,uint32_t parent,const char *tag,const char *id,const char *classes,const char *value){
+static void dataset_key(const char *name,char key[64]){uint32_t used=0;int upper=0;for(;*name&&used<63;name++){if(*name=='-'){upper=1;continue;}key[used++]=upper&&*name>='a'&&*name<='z'?*name-'a'+'A':*name;upper=0;}key[used]=0;}
+static uint32_t markup_object(void *context,const char *attributes){browser *b=context;for(uint32_t i=0;i<b->vm.property_count;i++){js_property *p=&b->vm.properties[i];if(equal(p->name,"__markupAddress")&&p->value.number==(int64_t)(uintptr_t)attributes&&connected(b,p->object))return p->object;}return 0;}
+static const char *node_property(void *,uint32_t,const char *);
+static uint32_t query_materialize(void *context,uint32_t index,uint32_t parent,const char *tag,const char *id,const char *classes,const char *value,const char *attributes,uint32_t attribute_length){
     query_context *q=context;js_vm *vm=&q->b->vm;if(!index)return q->root;if(vm->error)return 0;
     char key[32]="__query";js_value index_text=js_number_string(vm,index);if(vm->error)return 0;
     for(uint32_t i=0;i<=index_text.length;i++)key[7+i]=index_text.text[i];
@@ -297,6 +307,10 @@ static uint32_t query_materialize(void *context,uint32_t index,uint32_t parent,c
     uint32_t known=*id?live_node(q->b,0,id):0;js_value node=known?(js_value){JS_OBJECT,known,0,0}:element(vm,tag);
     if(!known)js_set(vm,node.number,"__created",(js_value){JS_BOOLEAN,0,0,0});
     if(!known){if(*id)js_set(vm,node.number,"id",js_string(vm,id,count(id)));
+        js_set(vm,node.number,"__markupAddress",(js_value){JS_NUMBER,(int64_t)(uintptr_t)attributes,0,0});
+        const char *p=attributes,*end=attributes+attribute_length;while(p<end){while(p<end&&(*p==' '||*p=='\n'||*p=='\r'||*p=='\t'||*p=='/'))p++;char name[64];uint32_t used=0;while(p<end&&*p!='='&&*p!=' '&&*p!='\n'&&*p!='\r'&&*p!='\t'){if(used<63)name[used++]=*p;p++;}name[used]=0;while(p<end&&(*p==' '||*p=='\n'||*p=='\r'||*p=='\t'))p++;
+            js_value v={JS_BOOLEAN,1,0,0};if(p<end&&*p=='='){p++;while(p<end&&(*p==' '||*p=='\t'))p++;char quote=(*p=='\''||*p=='"')?*p++:0;const char *start=p;while(p<end&&(quote?*p!=quote:*p!=' '&&*p!='\n'&&*p!='\r'&&*p!='\t'))p++;v=js_string(vm,start,(uint32_t)(p-start));if(quote&&p<end)p++;}
+            if(!used)continue;if(equal_prefix(name,"data-")){char key[64];dataset_key(name+5,key);js_value data=js_get(vm,node.number,"dataset");js_set(vm,data.number,key,v);}else if(equal(name,"style")){js_value style=js_get(vm,node.number,"style");js_set(vm,style.number,"cssText",v);}else js_set(vm,node.number,equal(name,"class")?"className":name,v);}
         if(*classes)js_set(vm,node.number,"className",js_string(vm,classes,count(classes)));
         if(equal(tag,"input"))js_set(vm,node.number,"value",js_string(vm,value,count(value)));
         js_set(vm,node.number,"parentNode",(js_value){JS_OBJECT,parent,0,0});link_child(vm,parent,node);}
@@ -331,7 +345,7 @@ static js_value query_all(browser *b,uint32_t scope,const char *selector){
         if(quote&&*p==quote)p++;if(*p!=']'||p[1])return (js_value){0};
         js_value source=query_all(b,scope,base),size=js_get(&b->vm,source.number,"length"),result=js_object(&b->vm);uint32_t selected=0;
         for(int64_t i=0;i<size.number;i++){js_value key=js_number_string(&b->vm,i),node=js_get(&b->vm,source.number,key.text),value;
-            if(name[0]=='d'&&name[1]=='a'&&name[2]=='t'&&name[3]=='a'&&name[4]=='-'){js_value data=js_get(&b->vm,node.number,"dataset");value=js_get(&b->vm,data.number,name+5);}
+            if(name[0]=='d'&&name[1]=='a'&&name[2]=='t'&&name[3]=='a'&&name[4]=='-'){char key[64];dataset_key(name+5,key);js_value data=js_get(&b->vm,node.number,"dataset");value=js_get(&b->vm,data.number,key);}
             else value=js_get(&b->vm,node.number,equal(name,"class")?"className":name);
             if(value.type!=JS_UNDEFINED&&(!equality||(value.type==JS_STRING&&equal(value.text,expected)))){key=js_number_string(&b->vm,selected++);js_set(&b->vm,result.number,key.text,node);}}
         js_set(&b->vm,result.number,"length",(js_value){JS_NUMBER,selected,0,0});return result;
@@ -354,6 +368,13 @@ static void dom_write(browser *b,const char *text,int escaped){
     }
 }
 static void dom_contents(browser *,uint32_t,uint32_t);
+static void dom_raw(browser *b,const char *html){
+    while(*html&&b->dom_used+64<sizeof(b->dom_markup)){char c=*html++;b->dom_markup[b->dom_used++]=c;if(c!='<'||*html=='/'||*html=='!')continue;
+        while(*html&&*html!='>'&&*html!=' '&&*html!='\n'&&*html!='\r'&&*html!='\t'&&b->dom_used+64<sizeof(b->dom_markup))b->dom_markup[b->dom_used++]=*html++;
+        uint32_t node=markup_object(b,html);if(node){dom_write(b," data-envy-node=\"",0);js_value number=js_number_string(&b->vm,node);dom_write(b,number.text,0);dom_write(b,"\"",0);}
+        char quote=0;while(*html&&b->dom_used+8<sizeof(b->dom_markup)){c=*html++;b->dom_markup[b->dom_used++]=c;if(quote){if(c==quote)quote=0;}else if(c=='\''||c=='"')quote=c;else if(c=='>')break;}
+    }
+}
 static void dom_element(browser *b,uint32_t node,uint32_t depth){
     if(depth>32)return;js_vm *vm=&b->vm;js_value tag=js_get(vm,node,"tagName");if(tag.type!=JS_STRING)return;
     if(equal(tag.text,"script")||equal(tag.text,"style")||equal(tag.text,"link"))return;
@@ -366,12 +387,16 @@ static void dom_element(browser *b,uint32_t node,uint32_t depth){
 static void dom_contents(browser *b,uint32_t node,uint32_t depth){
     js_vm *vm=&b->vm;js_value html=js_get(vm,node,"innerHTML"),text=js_get(vm,node,"innerText");
     if(text.type!=JS_STRING)text=js_get(vm,node,"textContent");
-    if(text.type==JS_STRING)dom_write(b,text.text,1);else if(html.type==JS_STRING)dom_write(b,html.text,0);
+    if(text.type==JS_STRING)dom_write(b,text.text,1);else if(html.type==JS_STRING)dom_raw(b,html.text);
     uint32_t properties=vm->property_count;
     for(uint32_t i=0;i<properties;i++){js_property p=vm->properties[i];if(p.object!=node||p.value.type!=JS_OBJECT||!equal_prefix(p.name,"__child"))continue;
         uint32_t child=(uint32_t)p.value.number;js_value parent=js_get(vm,child,"parentNode");
         if(parent.type==JS_OBJECT&&parent.number==node&&js_get(vm,child,"__created").number)dom_element(b,child,depth);
     }
+}
+static const char *node_property(void *context,uint32_t node,const char *name){
+    browser *b=context;if(equal(name,"__markup")){if(!connected(b,node))return "";uint32_t paint=html_view_paint_count();if(b->dom_paint!=paint){b->dom_paint=paint;b->dom_used=0;}uint32_t start=b->dom_used;dom_element(b,node,0);if(b->dom_used+1>=sizeof(b->dom_markup))return "";b->dom_markup[b->dom_used++]=0;return b->dom_markup+start;}
+    js_value v=js_get(&b->vm,node,name);if(v.type==JS_STRING)return v.text;if(v.type==JS_BOOLEAN)return v.number?"1":"";return 0;
 }
 static const char *live_markup(void *context,const char *id){
     browser *b=context;uint32_t paint=html_view_paint_count();if(b->dom_paint!=paint){b->dom_paint=paint;b->dom_used=0;b->dom_dirty=0;}
@@ -387,7 +412,7 @@ static void property_changed(js_vm *vm,uint32_t owner,const char *name){
             js_value parent=js_get(vm,(uint32_t)p.value.number,"parentNode");
             if(parent.type==JS_OBJECT&&(uint32_t)parent.number==owner)js_set(vm,(uint32_t)p.value.number,"parentNode",(js_value){JS_NULL,0,0,0});}
     }
-    if(equal(name,"parentNode")||equal(name,"className")||equal(name,"id")||equal(name,"innerHTML")||equal(name,"textContent")||equal(name,"innerText")||equal(name,"value")||equal(name,"src")||js_get(vm,owner,"__element").type==JS_OBJECT)b->dom_dirty=1;
+    if(equal(name,"hidden")||equal(name,"disabled")||equal(name,"checked")||equal(name,"parentNode")||equal(name,"className")||equal(name,"id")||equal(name,"innerHTML")||equal(name,"textContent")||equal(name,"innerText")||equal(name,"value")||equal(name,"src")||js_get(vm,owner,"__element").type==JS_OBJECT)b->dom_dirty=1;
 }
 static int property_read(js_vm *vm,uint32_t owner,const char *name,js_value *out){
     if(!equal(name,"offsetLeft")&&!equal(name,"offsetTop")&&!equal(name,"offsetWidth")&&!equal(name,"offsetHeight"))return 0;
@@ -407,7 +432,7 @@ static void live_style(void *context,uint32_t node,const char *id,char *out,uint
         const char *v=p->value.text;uint32_t size=p->value.length;
         if(p->value.type==JS_NUMBER){uint32_t n=p->value.number<0?0u-(uint32_t)p->value.number:(uint32_t)p->value.number,pos=15;value[pos]=0;do{value[--pos]=(char)('0'+n%10);n/=10;}while(n);if(p->value.number<0)value[--pos]='-';v=value+pos;size=15-pos;}
         if(used+name_used+size+3>=capacity)continue;for(uint32_t j=0;j<name_used;j++)out[used++]=name[j];out[used++]=':';for(uint32_t j=0;j<size;j++)out[used++]=v[j];out[used++]=';';}
-    out[used]=0;
+    if(js_get(&b->vm,node,"hidden").number&&used+24<capacity){const char *hidden="display:none!important;";while(*hidden)out[used++]=*hidden++;}out[used]=0;
 }
 static void diagnostic(browser *b,const char *path,const char *error,uint32_t line) {
     recording_error=1;
@@ -452,11 +477,12 @@ int64_t envy_js_now_ms(void){
 }
 static int api(js_vm *vm,int id,const js_value *args,uint32_t argc,js_value *result) {
     browser *b=vm->context;uint32_t owner=vm->native_owner;
+    if(id==APPEND_MANY){for(uint32_t i=0;i<argc;i++){js_value child=args[i];if(child.type!=JS_OBJECT){js_value text=child.type==JS_STRING?child:js_number_string(vm,child.number);child=element(vm,"span");js_set(vm,child.number,"textContent",text);}vm->native_owner=owner;if(!api(vm,APPEND_BASE,&child,1,result))return 0;}return 1;}
     if(id==STYLE_SET_PROPERTY){if(argc<2||args[0].type!=JS_STRING||args[1].type!=JS_STRING)return 0;return js_set(vm,owner,args[0].text,args[1]);}
     if(id==SET_ATTRIBUTE||id==REMOVE_ATTRIBUTE){
         if(!argc||args[0].type!=JS_STRING||(id==SET_ATTRIBUTE&&argc<2))return 0;const char *name=args[0].text;
         js_value value=id==SET_ATTRIBUTE?args[1]:(js_value){0};
-        if(equal_prefix(name,"data-")){js_value dataset=js_get(vm,owner,"dataset");return js_set(vm,dataset.number,name+5,value);}
+        if(equal_prefix(name,"data-")){char key[64];dataset_key(name+5,key);js_value dataset=js_get(vm,owner,"dataset");return js_set(vm,dataset.number,key,value);}
         return js_set(vm,owner,equal(name,"class")?"className":name,value);
     }
     if(id==DATE_NOW){
@@ -676,11 +702,11 @@ static void initialize(cdfs *fs,void (*write)(const char *)) {
     font_init(fs);
     images_init(fs);
     html_view_text_lookup(live_text,b);
-    html_view_style_lookup(live_style,b);html_view_markup_lookup(live_markup,b);
+    html_view_style_lookup(live_style,b);html_view_markup_lookup(live_markup,b);html_view_object_lookup(markup_object,b);html_view_property_lookup(node_property,b);
     error_used=0;errors[0]=0;recording_error=console_open=0;
     control_keys=extended_key=end_down=pause_bytes=0;
     js_init(&b->vm,api,b);
-    b->dom_dirty=0;b->dom_used=0;b->dom_paint=0;b->vm.read_property=property_read;b->vm.changed_property=property_changed;b->vm.module_source=local_module;
+    b->dom_dirty=0;b->dom_used=0;b->dom_paint=0;b->vm.read_property=property_read;b->vm.changed_property=property_changed;b->vm.module_source=local_module;b->vm.host_sync=host_sync;
     js_value document=js_object(&b->vm), body=element(&b->vm,"body"), head=element(&b->vm,"head"), console=js_object(&b->vm);
     js_value window=js_object(&b->vm);b->document=(uint32_t)document.number;b->window=(uint32_t)window.number;
     b->event=b->focused=0;
@@ -717,9 +743,8 @@ int browser_start(cdfs *fs,void (*write)(const char *)) {
     const char *title=find(html,"<title>"), *end=title?find(title+7,"</title>"):0;
     const char *page_title="Envy";
     if(end) { js_value text=js_string(&b->vm,title+7,(uint32_t)(end-title-7)); page_title=text.text; }
-    html_view_begin(page_title,"/Envy/index.html"); html_view_render(html);
+    html_view_batch_begin();html_view_begin(page_title,"/Envy/index.html"); html_view_render(html);
     const char *script=html;
-    html_view_batch_begin();
     while((script=find(script,"<script"))) {
         const char *open=find(script,">"); if(!open) { write("Malformed script tag\n");html_view_batch_end();return 0; }
         const char *close=find(open+1,"</script>"); if(!close) { write("Missing script closing tag\n");html_view_batch_end();return 0; }
@@ -782,6 +807,7 @@ static int dispatch_event(browser *b,const char *type,const input_event *input){
     uint32_t rendered=input->type==INPUT_POINTER?html_view_target_node(input->x,input->y):0;
     if(rendered)target=rendered;
     else if(*target_id){js_value found=get_by_id(b,target_id);if(found.type==JS_OBJECT)target=(uint32_t)found.number;}
+    if(input->type==INPUT_POINTER&&js_get(vm,target,"disabled").number)return 0;
     js_set(vm,b->event,"target",(js_value){JS_OBJECT,(int32_t)target,0,0});js_set(vm,b->event,"defaultPrevented",(js_value){JS_BOOLEAN,0,0,0});
     js_set(vm,b->event,"clientX",(js_value){JS_NUMBER,input->x,0,0});js_set(vm,b->event,"clientY",(js_value){JS_NUMBER,input->y,0,0});
     js_set(vm,b->event,"buttons",(js_value){JS_NUMBER,input->buttons,0,0});js_set(vm,b->event,"keyCode",(js_value){JS_NUMBER,input->key,0,0});
@@ -822,7 +848,13 @@ void browser_input(const input_event *event) {
             html_view_scroll(event->x,event->y,event->modifiers&INPUT_SHIFT?event->wheel*48:0,event->modifiers&INPUT_SHIFT?0:event->wheel*48);
         if(!console_open){if(event->dx||event->dy)dispatch_event(&page,"mousemove",event);
             if((event->buttons&1)&&!(pointer_buttons&1))dispatch_event(&page,"mousedown",event);
-            if(!(event->buttons&1)&&(pointer_buttons&1)){dispatch_event(&page,"mouseup",event);dispatch_event(&page,"click",event);html_view_repaint();}}
+            if(!(event->buttons&1)&&(pointer_buttons&1)){dispatch_event(&page,"mouseup",event);
+                uint32_t target=html_view_target_node(event->x,event->y);js_value type=js_get(&page.vm,target,"type");
+                if(target&&!js_get(&page.vm,target,"disabled").number&&type.type==JS_STRING&&(equal(type.text,"checkbox")||equal(type.text,"radio"))){
+                    int checked=equal(type.text,"radio")||!js_get(&page.vm,target,"checked").number;
+                    if(equal(type.text,"radio")){js_value name=js_get(&page.vm,target,"name");for(uint32_t i=0;i<page.vm.property_count;i++){js_property p=page.vm.properties[i];if(p.object!=target&&equal(p.name,"type")&&p.value.type==JS_STRING&&equal(p.value.text,"radio")){js_value other=js_get(&page.vm,p.object,"name");if(name.type==JS_STRING&&other.type==JS_STRING&&equal(name.text,other.text))js_set(&page.vm,p.object,"checked",(js_value){JS_BOOLEAN,0,0,0});}}}
+                    js_set(&page.vm,target,"checked",(js_value){JS_BOOLEAN,checked,0,0});dispatch_event(&page,"input",event);dispatch_event(&page,"change",event);}
+                dispatch_event(&page,"click",event);html_view_repaint();}}
         if((event->buttons&1)&&!(pointer_buttons&1)&&!console_open) {
             char handler[256];if(html_view_hit_test(event->x,event->y,handler,sizeof(handler))) {
                 if(!js_eval(&page.vm,handler,count(handler)))diagnostic(&page,"(click handler)",page.vm.error,page.vm.error_line);

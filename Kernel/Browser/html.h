@@ -5,7 +5,7 @@ struct css_element;
 int html_find_element(const char *html, const char *id, char *tag, uint32_t capacity);
 int html_has_tag(const char *html,const char *tag);
 void html_query_selector(const char *html,const char *selector,const struct css_element *root,void *context,
-    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *),
+    uint32_t (*materialize)(void *,uint32_t,uint32_t,const char *,const char *,const char *,const char *,const char *,uint32_t),
     void (*selected)(void *,uint32_t));
 void html_view_begin(const char *title, const char *url);
 void html_view_render(const char *html);
@@ -21,6 +21,8 @@ void html_view_node(uint32_t node, const char *tag, const char *id, const char *
 void html_view_text_lookup(const char *(*lookup)(void *, const char *), void *context);
 void html_view_style_lookup(void (*lookup)(void *,uint32_t,const char *,char *,uint32_t),void *context);
 void html_view_markup_lookup(const char *(*lookup)(void *,const char *),void *context);
+void html_view_object_lookup(uint32_t (*lookup)(void *,const char *),void *context);
+void html_view_property_lookup(const char *(*lookup)(void *,uint32_t,const char *),void *context);
 void html_view_parent(uint32_t node,const char *parent_id);
 int html_view_pointer(int32_t x,int32_t y,uint8_t buttons);
 int html_view_scroll(int32_t x,int32_t y,int32_t dx,int32_t dy);

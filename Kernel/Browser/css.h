@@ -11,14 +11,14 @@ enum { CSS_COLOR, CSS_BACKGROUND, CSS_FONT_SIZE, CSS_LINE_HEIGHT, CSS_ALIGN,
     CSS_FLEX_DIRECTION, CSS_FLEX_WRAP, CSS_JUSTIFY, CSS_ITEMS, CSS_SELF, CSS_GROW, CSS_SHRINK, CSS_BASIS,
     CSS_ROW_GAP, CSS_COLUMN_GAP, CSS_RADIUS, CSS_OPACITY, CSS_VISIBILITY, CSS_OVERFLOW_X, CSS_OVERFLOW_Y,
     CSS_WHITE_SPACE, CSS_FONT_WEIGHT, CSS_COLOR_ALPHA, CSS_BACKGROUND_ALPHA, CSS_BORDER_ALPHA,
-    CSS_GRADIENT, CSS_GRID_COLUMNS, CSS_BACKDROP_BLUR, CSS_BACKDROP_BRIGHTNESS, CSS_PROPERTIES };
+    CSS_GRADIENT, CSS_GRID_COLUMNS, CSS_BACKDROP_BLUR, CSS_BACKDROP_BRIGHTNESS, CSS_BORDER_LEFT, CSS_GRID_TRACKS, CSS_PROPERTIES };
 #define CSS_AUTO (-2147483647)
 #define CSS_PERCENT 1000000
 enum { CSS_BG_AUTO, CSS_BG_COVER, CSS_BG_CONTAIN, CSS_BG_EXPLICIT };
 enum { CSS_NONE, CSS_BLOCK, CSS_FLEX, CSS_INLINE, CSS_INLINE_BLOCK, CSS_GRID };
 enum { CSS_START, CSS_CENTER, CSS_END, CSS_BETWEEN, CSS_AROUND, CSS_EVENLY, CSS_STRETCH };
 typedef struct { int32_t value[CSS_PROPERTIES]; int hidden; char font_family[256],background_image[256];
-    int32_t background_width,background_height,line_height_spec;
+    int32_t background_width,background_height,line_height_spec,grid_width[32],grid_fraction[32];
     int32_t gradient_angle,gradient_count,gradient_color[8],gradient_alpha[8],gradient_position[8]; } css_style;
 typedef struct css_element {
     const char *tag, *id, *classes; const struct css_element *parent;
