@@ -156,3 +156,10 @@ function htmlToRtf(html) {
   // Create a window dynamically
   createWindow(windowTitle, customHTML, 600, 400);
 })();
+
+(function() {
+  if (window.openedFile && typeof window.openedFile.content === 'string') {
+    const editor = document.querySelector('.editor');
+    if (editor) editor.textContent = window.openedFile.content;
+  }
+})();

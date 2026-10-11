@@ -22,10 +22,16 @@ typedef struct {
     int64_t clock_ms;uint32_t clock_remainder;uint16_t clock_counter;
     event_listener *listeners;uint32_t listener_capacity;
     struct {js_value callback;int64_t interval,due;int active,repeat;} timers[32];
+    struct {char mime[96],app[192];} default_apps[32];uint32_t default_app_count;
     uint32_t seconds,pit_cycles;uint16_t last_pit;uint8_t last_second;
 } browser;
 static int dispatch_event(browser *b,const char *type,const input_event *input);
 static browser page;
+static uint32_t browser_pit_reload=65536u;
+void browser_set_pit_reload(uint16_t reload){browser_pit_reload=reload?reload:65536u;}
+static uint32_t browser_pit_delta(uint16_t previous,uint16_t current){
+    return previous>=current?(uint32_t)(previous-current):(uint32_t)previous+browser_pit_reload-current;
+}
 static char errors[4096];
 static uint32_t error_used;
 static int recording_error, console_open;
@@ -33,6 +39,8 @@ static int console_dirty;
 static uint8_t control_keys, extended_key, end_down, pause_bytes;
 static uint8_t pointer_buttons;
 static int32_t pointer_screen_x,pointer_screen_y;
+static uint32_t move_style_node;static int32_t move_style_x,move_style_y,move_style_w,move_style_h;
+static int move_style_seen,move_style_invalid;
 /* Save the bottom 96 rows, including pitch padding, before drawing the panel. */
 static uint8_t panel_saved[16384u*96u];
 static void remember(char c) {
@@ -119,7 +127,38 @@ static void trace(const char *text) {
 enum { CREATE=1, APPEND, INSERT, LOG, CONSOLE_ERROR, FETCH, GET_BY_ID,
        DATE, SET_INTERVAL, CLEAR_TIMER, SET_TIMEOUT, QUERY_SELECTOR, MEDIA_PLAY, MEDIA_PAUSE, PREVENT_DEFAULT, TEST_NOOP, DATE_NOW, FOCUS, QUERY_ALL,
        THEN_BASE=1000, CATCH_BASE=2000, APPEND_BASE=3000, INSERT_BASE=4000, DATE_BASE=6000, ADD_EVENT_BASE=8000, REMOVE_EVENT_BASE=9000,
-       RESPONSE_TEXT_BASE=10000, RESPONSE_JSON_BASE=11000, CLASS_ADD_BASE=12000, CLASS_REMOVE, CLASS_TOGGLE, CLASS_CONTAINS, NODE_REMOVE, STYLE_SET_PROPERTY, SET_ATTRIBUTE, REMOVE_ATTRIBUTE, APPEND_MANY };
+       RESPONSE_TEXT_BASE=10000, RESPONSE_JSON_BASE=11000, CLASS_ADD_BASE=12000, CLASS_REMOVE, CLASS_TOGGLE, CLASS_CONTAINS, NODE_REMOVE, STYLE_SET_PROPERTY, SET_ATTRIBUTE, REMOVE_ATTRIBUTE, GET_ATTRIBUTE, APPEND_MANY,
+       FS_LIST=13000, FS_READ_TEXT, DISPLAY_RESOLUTIONS, DISPLAY_SET_RESOLUTION, DISPLAY_CURRENT_RESOLUTION,
+       DEFAULT_APP_GET, DEFAULT_APP_SET };
+static uint32_t count(const char *s);
+static uint8_t filesystem_read_buffer[65536];
+typedef struct { js_vm *vm; js_value entries; uint32_t length; const char *directory; } fs_list_state;
+static int filesystem_list_item(void *context,const char *name,const cdfs_node *node) {
+    fs_list_state *state=context; js_vm *vm=state->vm;
+    js_value item=js_object(vm); if(vm->error)return 0;
+    js_set(vm,item.number,"name",js_string(vm,name,count(name)));
+    char full_path[512];uint32_t used=0;
+    if(state->directory&&*state->directory){for(const char *p=state->directory;*p;p++)full_path[used++]=*p;full_path[used++]='/';}
+    for(const char *p=name;*p&&used<sizeof(full_path)-1;p++)full_path[used++]=*p;full_path[used]=0;
+    js_set(vm,item.number,"path",js_string(vm,full_path,used));
+    js_set(vm,item.number,"directory",(js_value){JS_BOOLEAN,(node->flags&2)!=0,0,0});
+    js_set(vm,item.number,"size",(js_value){JS_NUMBER,node->size,0,0});
+    char key[11];uint32_t value=state->length,n=0;do{key[n++]=(char)('0'+value%10);value/=10;}while(value);
+    char forward[11];for(uint32_t i=0;i<n;i++)forward[i]=key[n-i-1];forward[n]=0;
+    js_set(vm,state->entries.number,forward,item);state->length++;
+    js_set(vm,state->entries.number,"length",(js_value){JS_NUMBER,state->length,0,0});
+    return !vm->error;
+}
+static int filesystem_path(const char *source,char *path) {
+    uint32_t used=0;while(*source=='/')source++;
+    while(*source){const char *start=source;uint32_t length=0;
+        while(*source&&*source!='/'){if(*source=='\\'||*source==':')return 0;if(++length>255)return 0;source++;}
+        if((length==1&&start[0]=='.')||(length==2&&start[0]=='.'&&start[1]=='.'))return 0;
+        if(used&&length)path[used++]='/';for(uint32_t i=0;i<length;i++){if(used>=255)return 0;path[used++]=start[i];}
+        while(*source=='/')source++;
+    }
+    path[used]=0;return 1;
+}
 static uint8_t rtc_read(uint8_t reg) {out8(0x70,reg);return in8(0x71);}
 static int host_sync(js_vm *vm,int id,const js_value *args,uint32_t argc){
     if(id>=THEN_BASE&&id<APPEND_BASE)return 1;
@@ -157,7 +196,7 @@ static int64_t clock_epoch(void){
     return -1;
 }
 static void clock_tick(browser *b,uint16_t counter){
-    uint32_t scaled=(uint16_t)(b->clock_counter-counter)*1000u+b->clock_remainder;
+    uint32_t scaled=browser_pit_delta(b->clock_counter,counter)*1000u+b->clock_remainder;
     b->clock_counter=counter;b->clock_ms+=scaled/1193182u;b->clock_remainder=scaled%1193182u;
 }
 static uint32_t count(const char *s) { uint32_t n=0; while(s[n]) ++n; return n; }
@@ -216,6 +255,7 @@ static js_value element(js_vm *vm,const char *tag) {
     js_set(vm,list.number,"contains",js_native_bound(CLASS_CONTAINS,(uint32_t)node.number));
     js_set(vm,node.number,"remove",js_native_bound(NODE_REMOVE,(uint32_t)node.number));
     js_set(vm,node.number,"dataset",js_object(vm));js_set(vm,node.number,"focus",js_native_bound(FOCUS,(uint32_t)node.number));
+    js_set(vm,node.number,"getAttribute",js_native_bound(GET_ATTRIBUTE,(uint32_t)node.number));
     js_set(vm,node.number,"querySelector",js_native_bound(QUERY_SELECTOR,(uint32_t)node.number));
     js_set(vm,node.number,"querySelectorAll",js_native_bound(QUERY_ALL,(uint32_t)node.number));
     if(equal(tag,"input")||equal(tag,"textarea"))js_set(vm,node.number,"value",js_string(vm,"",0));
@@ -406,6 +446,15 @@ static const char *live_markup(void *context,const char *id){
 }
 static void property_changed(js_vm *vm,uint32_t owner,const char *name){
     if(!owner||owner>=0x40000000u)return;browser *b=vm->context;
+    js_value styled_element=js_get(vm,owner,"__element");
+    if(styled_element.type==JS_OBJECT){
+        if(equal(name,"left")||equal(name,"top")){
+            uint32_t node=(uint32_t)styled_element.number;
+            if(!move_style_seen){js_value id=js_get(vm,node,"id");move_style_node=node;
+                (void)html_view_geometry(node,id.type==JS_STRING?id.text:"",&move_style_x,&move_style_y,&move_style_w,&move_style_h);move_style_seen=1;}
+            else if(move_style_node!=node)move_style_invalid=1;
+        }else if(move_style_seen)move_style_invalid=1;
+    }else if(move_style_seen)move_style_invalid=1;
     if(equal(name,"innerHTML")||equal(name,"textContent")||equal(name,"innerText")){
         for(uint32_t i=0;i<vm->property_count;i++){js_property p=vm->properties[i];
             if(p.object!=owner||p.value.type!=JS_OBJECT||!equal_prefix(p.name,"__child"))continue;
@@ -421,7 +470,10 @@ static int property_read(js_vm *vm,uint32_t owner,const char *name,js_value *out
         if(html_view_geometry((uint32_t)parent.number,parent_id.type==JS_STRING?parent_id.text:"",&px,&py,&pw,&ph)){x-=px;y-=py;}}
     *out=(js_value){JS_NUMBER,equal(name,"offsetLeft")?x:equal(name,"offsetTop")?y:equal(name,"offsetWidth")?w:h,0,0};return 1;
 }
-static void flush_dom(browser *b){if(b->dom_dirty){b->dom_dirty=0;b->dom_used=0;html_view_repaint();}}
+static void flush_dom(browser *b){if(b->dom_dirty){b->dom_dirty=0;b->dom_used=0;
+        if(move_style_seen&&!move_style_invalid)html_view_move_repaint(move_style_node,move_style_x,move_style_y,move_style_w,move_style_h);
+        else html_view_repaint();}
+    move_style_node=0;move_style_seen=move_style_invalid=0;}
 static void live_style(void *context,uint32_t node,const char *id,char *out,uint32_t capacity){
     browser *b=context;if(!capacity)return;out[0]=0;node=live_node(b,node,id);if(!node)return;
     js_value style=js_get(&b->vm,node,"style");if(style.type!=JS_OBJECT)return;uint32_t used=0;
@@ -475,8 +527,62 @@ int64_t envy_js_now_ms(void){
     out8(0x43,0);uint16_t counter=in8(0x40);counter|=(uint16_t)in8(0x40)<<8;clock_tick(b,counter);
     if(epoch>b->clock_ms){b->clock_ms=epoch;b->clock_remainder=0;}return b->clock_ms;
 }
+static int focus_element(browser *b,uint32_t owner){
+    if(!connected(b,owner))return 0;if(b->focused==owner)return 1;input_event input={.type=INPUT_KEY};
+    if(b->focused)dispatch_event(b,"blur",&input);b->focused=owner;
+    if(!js_set(&b->vm,b->document,"activeElement",(js_value){JS_OBJECT,(int32_t)owner,0,0}))return 0;
+    dispatch_event(b,"focus",&input);return !b->vm.error;
+}
+static void blur_element(browser *b){
+    if(!b->focused)return;input_event input={.type=INPUT_KEY};dispatch_event(b,"blur",&input);b->focused=0;
+    js_set(&b->vm,b->document,"activeElement",(js_value){JS_OBJECT,(int32_t)b->body,0,0});
+}
 static int api(js_vm *vm,int id,const js_value *args,uint32_t argc,js_value *result) {
     browser *b=vm->context;uint32_t owner=vm->native_owner;
+    if(id==DISPLAY_RESOLUTIONS){
+        uint32_t length=framebuffer_resolution_count();js_value entries=js_object(vm);if(vm->error)return 0;
+        js_set(vm,entries.number,"length",(js_value){JS_NUMBER,(int32_t)length,0,0});
+        for(uint32_t i=0;i<length;i++){uint32_t width=0,height=0;if(!framebuffer_resolution_get(i,&width,&height))continue;
+            js_value mode=js_object(vm);if(vm->error)return 0;js_set(vm,mode.number,"width",(js_value){JS_NUMBER,(int32_t)width,0,0});
+            js_set(vm,mode.number,"height",(js_value){JS_NUMBER,(int32_t)height,0,0});char key[12];uint32_t n=0,value=i;do{key[n++]=(char)('0'+value%10);value/=10;}while(value);for(uint32_t j=0;j<n/2;j++){char c=key[j];key[j]=key[n-j-1];key[n-j-1]=c;}key[n]=0;
+            js_set(vm,entries.number,key,mode);
+        }
+        *result=entries;return !vm->error;
+    }
+    if(id==DISPLAY_CURRENT_RESOLUTION){const framebuffer *fb=framebuffer_get();js_value current=js_object(vm);if(!fb||vm->error)return 0;
+        js_set(vm,current.number,"width",(js_value){JS_NUMBER,(int32_t)fb->width,0,0});js_set(vm,current.number,"height",(js_value){JS_NUMBER,(int32_t)fb->height,0,0});*result=current;return !vm->error;}
+    if(id==DISPLAY_SET_RESOLUTION){
+        if(argc!=2||args[0].type!=JS_NUMBER||args[1].type!=JS_NUMBER||args[0].number<=0||args[1].number<=0){*result=(js_value){JS_BOOLEAN,0,0,0};return 1;}
+        int applied=framebuffer_set_resolution((uint32_t)args[0].number,(uint32_t)args[1].number);const framebuffer *fb=framebuffer_get();
+        if(applied&&fb)html_view_resize(fb->width,fb->height);*result=(js_value){JS_BOOLEAN,applied,0,0};return 1;
+    }
+    if(id==DEFAULT_APP_GET){
+        if(argc!=1||args[0].type!=JS_STRING)return 0;for(uint32_t i=0;i<b->default_app_count;i++)if(equal(b->default_apps[i].mime,args[0].text)){*result=js_string(vm,b->default_apps[i].app,count(b->default_apps[i].app));return !vm->error;}
+        *result=(js_value){JS_NULL,0,0,0};return 1;
+    }
+    if(id==DEFAULT_APP_SET){
+        if(argc!=2||args[0].type!=JS_STRING||args[1].type!=JS_STRING||args[0].length>=sizeof(b->default_apps[0].mime)||args[1].length>=sizeof(b->default_apps[0].app)){*result=(js_value){JS_BOOLEAN,0,0,0};return 1;}
+        uint32_t slot=0;for(;slot<b->default_app_count;slot++)if(equal(b->default_apps[slot].mime,args[0].text))break;
+        if(slot==b->default_app_count){if(slot>=32){*result=(js_value){JS_BOOLEAN,0,0,0};return 1;}b->default_app_count++;}
+        for(uint32_t i=0;i<args[0].length;i++)b->default_apps[slot].mime[i]=args[0].text[i];b->default_apps[slot].mime[args[0].length]=0;
+        for(uint32_t i=0;i<args[1].length;i++)b->default_apps[slot].app[i]=args[1].text[i];b->default_apps[slot].app[args[1].length]=0;
+        *result=(js_value){JS_BOOLEAN,1,0,0};return 1;
+    }
+    if(id==FS_LIST||id==FS_READ_TEXT){
+        if(argc!=1||args[0].type!=JS_STRING)return 0;
+        char path[256];cdfs_node node;
+        if(!filesystem_path(args[0].text,path)||cdfs_lookup(b->fs,path,&node)){*result=(js_value){JS_NULL,0,0,0};return 1;}
+        if(id==FS_LIST){
+            if(!(node.flags&2)){*result=(js_value){JS_NULL,0,0,0};return 1;}
+            fs_list_state state={vm,js_object(vm),0,path};if(vm->error)return 0;
+            js_set(vm,state.entries.number,"length",(js_value){JS_NUMBER,0,0,0});
+            if(cdfs_list(b->fs,&node,filesystem_list_item,&state)){*result=(js_value){JS_NULL,0,0,0};return 1;}
+            *result=state.entries;return !vm->error;
+        }
+        if(node.flags&2||node.size>sizeof(filesystem_read_buffer)){*result=(js_value){JS_NULL,0,0,0};return 1;}
+        uint32_t got=0;if(cdfs_read(b->fs,&node,0,filesystem_read_buffer,node.size,&got)||got!=node.size){*result=(js_value){JS_NULL,0,0,0};return 1;}
+        *result=js_string(vm,(const char *)filesystem_read_buffer,got);return !vm->error;
+    }
     if(id==APPEND_MANY){for(uint32_t i=0;i<argc;i++){js_value child=args[i];if(child.type!=JS_OBJECT){js_value text=child.type==JS_STRING?child:js_number_string(vm,child.number);child=element(vm,"span");js_set(vm,child.number,"textContent",text);}vm->native_owner=owner;if(!api(vm,APPEND_BASE,&child,1,result))return 0;}return 1;}
     if(id==STYLE_SET_PROPERTY){if(argc<2||args[0].type!=JS_STRING||args[1].type!=JS_STRING)return 0;return js_set(vm,owner,args[0].text,args[1]);}
     if(id==SET_ATTRIBUTE||id==REMOVE_ATTRIBUTE){
@@ -485,17 +591,22 @@ static int api(js_vm *vm,int id,const js_value *args,uint32_t argc,js_value *res
         if(equal_prefix(name,"data-")){char key[64];dataset_key(name+5,key);js_value dataset=js_get(vm,owner,"dataset");return js_set(vm,dataset.number,key,value);}
         return js_set(vm,owner,equal(name,"class")?"className":name,value);
     }
+    if(id==GET_ATTRIBUTE){
+        if(argc!=1||args[0].type!=JS_STRING){*result=(js_value){JS_NULL,0,0,0};return 1;}
+        const char *name=args[0].text;js_value value;
+        if(equal_prefix(name,"data-")){char key[64];dataset_key(name+5,key);js_value dataset=js_get(vm,owner,"dataset");value=js_get(vm,dataset.number,key);}
+        else value=js_get(vm,owner,equal(name,"class")?"className":name);
+        if(value.type==JS_UNDEFINED)value=(js_value){JS_NULL,0,0,0};
+        else if(value.type==JS_BOOLEAN)value=js_string(vm,value.number?"true":"",value.number?4:0);
+        *result=value;return !vm->error;
+    }
     if(id==DATE_NOW){
         int64_t epoch=clock_epoch();if(epoch<0){vm->error="Cannot read PC real-time clock";return 0;}
         out8(0x43,0);uint16_t counter=in8(0x40);counter|=(uint16_t)in8(0x40)<<8;clock_tick(b,counter);
         if(epoch>b->clock_ms){b->clock_ms=epoch;b->clock_remainder=0;}
         *result=(js_value){JS_NUMBER,b->clock_ms,0,0};return 1;
     }
-    if(id==FOCUS){if(!connected(b,owner)){vm->error="Cannot focus a detached element";return 0;}
-        if(b->focused==owner)return 1;input_event input={.type=INPUT_KEY};
-        if(b->focused)dispatch_event(b,"blur",&input);b->focused=owner;
-        if(!js_set(vm,b->document,"activeElement",(js_value){JS_OBJECT,owner,0,0}))return 0;
-        dispatch_event(b,"focus",&input);return !vm->error;}
+    if(id==FOCUS){if(!connected(b,owner)){vm->error="Cannot focus a detached element";return 0;}return focus_element(b,owner);}
 #ifdef BOOT_IMAGE_TESTS
     if(id==TEST_NOOP)return 1;
 #endif
@@ -703,6 +814,7 @@ static void initialize(cdfs *fs,void (*write)(const char *)) {
     images_init(fs);
     html_view_text_lookup(live_text,b);
     html_view_style_lookup(live_style,b);html_view_markup_lookup(live_markup,b);html_view_object_lookup(markup_object,b);html_view_property_lookup(node_property,b);
+    b->default_app_count=0;
     error_used=0;errors[0]=0;recording_error=console_open=0;
     control_keys=extended_key=end_down=pause_bytes=0;
     js_init(&b->vm,api,b);
@@ -717,6 +829,20 @@ static void initialize(cdfs *fs,void (*write)(const char *)) {
     b->body=(uint32_t)body.number; b->head=(uint32_t)head.number;
     js_set(&b->vm,0,"document",document); js_set(&b->vm,0,"console",console);
     js_set(&b->vm,0,"fetch",js_native(FETCH));
+    js_value filesystem=js_object(&b->vm),kernel=js_object(&b->vm),display=js_object(&b->vm),settings=js_object(&b->vm);
+    js_set(&b->vm,filesystem.number,"list",js_native(FS_LIST));
+    js_set(&b->vm,filesystem.number,"readText",js_native(FS_READ_TEXT));
+    js_set(&b->vm,filesystem.number,"name",js_string(&b->vm,"CDFS",4));
+    js_set(&b->vm,filesystem.number,"readOnly",(js_value){JS_BOOLEAN,1,0,0});
+    js_set(&b->vm,kernel.number,"filesystem",filesystem);
+    js_set(&b->vm,display.number,"availableResolutions",js_native(DISPLAY_RESOLUTIONS));
+    js_set(&b->vm,display.number,"setResolution",js_native(DISPLAY_SET_RESOLUTION));
+    js_set(&b->vm,display.number,"currentResolution",js_native(DISPLAY_CURRENT_RESOLUTION));
+    js_set(&b->vm,settings.number,"getDefaultApp",js_native(DEFAULT_APP_GET));
+    js_set(&b->vm,settings.number,"setDefaultApp",js_native(DEFAULT_APP_SET));
+    js_set(&b->vm,kernel.number,"display",display);js_set(&b->vm,kernel.number,"settings",settings);
+    js_set(&b->vm,window.number,"filesystem",filesystem);js_set(&b->vm,window.number,"kernel",kernel);
+    js_set(&b->vm,0,"filesystem",filesystem);js_set(&b->vm,0,"kernel",kernel);
     js_set(&b->vm,0,"Date",js_native(DATE));
     js_set(&b->vm,js_property_owner(js_native(DATE)),"now",js_native(DATE_NOW));
     js_set(&b->vm,0,"setInterval",js_native(SET_INTERVAL));js_set(&b->vm,0,"setTimeout",js_native(SET_TIMEOUT));
@@ -755,7 +881,7 @@ int browser_start(cdfs *fs,void (*write)(const char *)) {
     }
     if(b->script_failures) b->write("Browser increment: WebUI compatibility incomplete.\n");
     else {b->write("Document scripts completed.\n");html_view_status("Local page loaded");}
-    html_view_repaint();html_view_batch_end();return b->script_failures==0;
+    flush_dom(b);html_view_repaint();html_view_batch_end();return b->script_failures==0;
 }
 #ifdef BOOT_IMAGE_TESTS
 static uint32_t visual_signature(browser *b){
@@ -790,7 +916,7 @@ static void run_timers(browser *b){
 void browser_poll(void) {
     browser *b=&page;out8(0x43,0);uint16_t counter=in8(0x40);counter|=(uint16_t)in8(0x40)<<8;
     clock_tick(b,counter);
-    b->pit_cycles+=(uint16_t)(b->last_pit-counter);b->last_pit=counter;
+    b->pit_cycles+=browser_pit_delta(b->last_pit,counter);b->last_pit=counter;
     if(b->pit_cycles<11932)return;b->pit_cycles=0;
     uint8_t second=rtc_read(0);
     uint8_t old=b->last_second;b->last_second=second;
@@ -798,11 +924,38 @@ void browser_poll(void) {
     b->seconds+=(second+60u-old)%60u;
     run_timers(b);
 }
+static const char *input_key_name(const input_event *input,char text[2]){
+    text[0]=input->character;text[1]=0;
+    if(input->key==0x1c)return "Enter";if(input->key==0x0e)return "Backspace";if(input->key==0x0f)return "Tab";
+    if(input->key==0x01)return "Escape";if(input->key==0x14b)return "ArrowLeft";if(input->key==0x14d)return "ArrowRight";
+    if(input->key==0x148)return "ArrowUp";if(input->key==0x150)return "ArrowDown";if(input->key==0x147)return "Home";
+    if(input->key==0x14f)return "End";if(input->key==0x149)return "PageUp";if(input->key==0x151)return "PageDown";
+    if(input->key==0x153)return "Delete";if(input->key==0x152)return "Insert";
+    return input->character?text:"Unidentified";
+}
+static void input_edit(browser *b,const input_event *input){
+    if(!input->pressed||!b->focused||!input->character||(input->modifiers&(INPUT_CONTROL|INPUT_ALT)))return;
+    js_vm *vm=&b->vm;js_value tag=js_get(vm,b->focused,"tagName"),value=js_get(vm,b->focused,"value");
+    if(tag.type!=JS_STRING||(!equal(tag.text,"input")&&!equal(tag.text,"textarea"))||js_get(vm,b->focused,"disabled").number||js_get(vm,b->focused,"readOnly").number)return;
+    char text[4096];uint32_t len=value.type==JS_STRING?value.length:0;if(len>=sizeof(text)-1)return;
+    for(uint32_t i=0;i<len;i++)text[i]=value.text[i];
+    if(input->character=='\b'){
+        if(!len)return;len--;while(len&&(text[len]&0xc0)==0x80)len--;
+    }else if(input->character>=32&&input->character!=127){text[len++]=(char)input->character;}
+    else return;
+    js_value updated=js_string(vm,text,len);if(vm->error){vm->error=0;return;}
+    if(js_set(vm,b->focused,"value",updated)){dispatch_event(b,"input",input);}
+}
 static int dispatch_event(browser *b,const char *type,const input_event *input){
     uint32_t interested=0;for(uint32_t i=0;i<b->listener_capacity;i++)if(b->listeners[i].active&&equal(b->listeners[i].type.text,type))interested++;
     if(!interested)return 0;js_vm *vm=&b->vm;vm->error=0;
     if(!b->event){js_value event=js_object(vm);if(vm->error){diagnostic(b,"(event)",vm->error,0);vm->error=0;return 0;}b->event=(uint32_t)event.number;js_set(vm,b->event,"preventDefault",js_native(PREVENT_DEFAULT));}
     js_value event={JS_OBJECT,(int32_t)b->event,0,0};js_set(vm,b->event,"type",(js_value){JS_STRING,0,type,count(type)});
+    if(input->type==INPUT_KEY){char text[2];const char *key=input_key_name(input,text);js_set(vm,b->event,"key",js_string(vm,key,count(key)));
+        js_set(vm,b->event,"repeat",(js_value){JS_BOOLEAN,input->repeat,0,0});js_set(vm,b->event,"shiftKey",(js_value){JS_BOOLEAN,!!(input->modifiers&INPUT_SHIFT),0,0});
+        js_set(vm,b->event,"ctrlKey",(js_value){JS_BOOLEAN,!!(input->modifiers&INPUT_CONTROL),0,0});js_set(vm,b->event,"altKey",(js_value){JS_BOOLEAN,!!(input->modifiers&INPUT_ALT),0,0});
+        js_set(vm,b->event,"metaKey",(js_value){JS_BOOLEAN,!!(input->modifiers&INPUT_SUPER),0,0});
+        js_set(vm,b->event,"charCode",(js_value){JS_NUMBER,input->character,0,0});js_set(vm,b->event,"which",(js_value){JS_NUMBER,input->character?input->character:input->key,0,0});}
     uint32_t target=input->type==INPUT_KEY&&b->focused?b->focused:b->body;const char *target_id=input->type==INPUT_POINTER?html_view_target(input->x,input->y):"";
     uint32_t rendered=input->type==INPUT_POINTER?html_view_target_node(input->x,input->y):0;
     if(rendered)target=rendered;
@@ -831,6 +984,8 @@ void browser_input(const input_event *event) {
         browser_key(event->modifiers&INPUT_CONTROL?0x1d:0x9d);
         if(event->key&0x100)browser_key(0xe0);browser_key(event->scancode);
         if(!console_open){int prevented=dispatch_event(&page,event->pressed?"keydown":"keyup",event);
+            if(event->pressed&&event->character>=32&&!(event->modifiers&(INPUT_CONTROL|INPUT_ALT)))prevented|=dispatch_event(&page,"keypress",event);
+            if(!prevented)input_edit(&page,event);
             if(event->pressed&&!prevented&&!(event->modifiers&(INPUT_CONTROL|INPUT_ALT))){
                 int32_t dx=0,dy=0;const framebuffer *fb=framebuffer_get();int32_t step=fb?(int32_t)fb->height-48:480;
                 if(event->key==0x150)dy=48;else if(event->key==0x148)dy=-48;
@@ -847,14 +1002,18 @@ void browser_input(const input_event *event) {
         if(event->wheel&&!console_open&&!dispatch_event(&page,"wheel",event))
             html_view_scroll(event->x,event->y,event->modifiers&INPUT_SHIFT?event->wheel*48:0,event->modifiers&INPUT_SHIFT?0:event->wheel*48);
         if(!console_open){if(event->dx||event->dy)dispatch_event(&page,"mousemove",event);
-            if((event->buttons&1)&&!(pointer_buttons&1))dispatch_event(&page,"mousedown",event);
+            if((event->buttons&1)&&!(pointer_buttons&1)){uint32_t target=html_view_target_node(event->x,event->y);js_value tag=js_get(&page.vm,target,"tagName");
+                if(tag.type==JS_STRING&&(equal(tag.text,"input")||equal(tag.text,"textarea")||equal(tag.text,"select")))focus_element(&page,target);else blur_element(&page);
+                dispatch_event(&page,"mousedown",event);}
             if(!(event->buttons&1)&&(pointer_buttons&1)){dispatch_event(&page,"mouseup",event);
-                uint32_t target=html_view_target_node(event->x,event->y);js_value type=js_get(&page.vm,target,"type");
+                uint32_t select_owner=0;char select_value[256];int select_changed=html_view_select_event(event->x,event->y,&select_owner,select_value,sizeof(select_value));
+                if(select_changed&&select_owner){js_set(&page.vm,select_owner,"value",js_string(&page.vm,select_value,count(select_value)));dispatch_event(&page,"input",event);dispatch_event(&page,"change",event);}
+                uint32_t target=select_changed&&select_owner?select_owner:html_view_target_node(event->x,event->y);js_value type=js_get(&page.vm,target,"type");
                 if(target&&!js_get(&page.vm,target,"disabled").number&&type.type==JS_STRING&&(equal(type.text,"checkbox")||equal(type.text,"radio"))){
                     int checked=equal(type.text,"radio")||!js_get(&page.vm,target,"checked").number;
                     if(equal(type.text,"radio")){js_value name=js_get(&page.vm,target,"name");for(uint32_t i=0;i<page.vm.property_count;i++){js_property p=page.vm.properties[i];if(p.object!=target&&equal(p.name,"type")&&p.value.type==JS_STRING&&equal(p.value.text,"radio")){js_value other=js_get(&page.vm,p.object,"name");if(name.type==JS_STRING&&other.type==JS_STRING&&equal(name.text,other.text))js_set(&page.vm,p.object,"checked",(js_value){JS_BOOLEAN,0,0,0});}}}
                     js_set(&page.vm,target,"checked",(js_value){JS_BOOLEAN,checked,0,0});dispatch_event(&page,"input",event);dispatch_event(&page,"change",event);}
-                dispatch_event(&page,"click",event);html_view_repaint();}}
+                dispatch_event(&page,"click",event);if(select_changed)html_view_select_close();html_view_repaint();}}
         if((event->buttons&1)&&!(pointer_buttons&1)&&!console_open) {
             char handler[256];if(html_view_hit_test(event->x,event->y,handler,sizeof(handler))) {
                 if(!js_eval(&page.vm,handler,count(handler)))diagnostic(&page,"(click handler)",page.vm.error,page.vm.error_line);
@@ -934,6 +1093,14 @@ int browser_self_test(cdfs *fs){
     CHECK_BROWSER(js_eval(vm,test,count(test))&&js_get(vm,0,"currentTime").number>1700000000000ll&&js_get(vm,0,"timeText").length==13&&js_get(vm,0,"constructorWorks").type==JS_OBJECT,503);
     test="var field=document.createElement('input');document.body.appendChild(field);field.focus();field.dataset.role='editor';var focused=document.activeElement===field;";
     CHECK_BROWSER(js_eval(vm,test,count(test))&&js_get(vm,0,"focused").number&&equal(js_get(vm,js_get(vm,js_get(vm,0,"field").number,"dataset").number,"role").text,"editor"),504);
+    test="var enterKey='';field.addEventListener('keydown',e=>{if(e.key==='Enter')enterKey=e.key;});";
+    CHECK_BROWSER(js_eval(vm,test,count(test)),505);
+    input_event typed={.type=INPUT_KEY,.key=0x2d,.scancode=0x2d,.character='x',.pressed=1};browser_input(&typed);
+    typed.scancode=0xad;typed.character=0;typed.pressed=0;browser_input(&typed);
+    typed=(input_event){.type=INPUT_KEY,.key=0x1c,.scancode=0x1c,.character='\n',.pressed=1};browser_input(&typed);
+    CHECK_BROWSER(js_get(vm,js_get(vm,0,"field").number,"value").type==JS_STRING&&equal(js_get(vm,js_get(vm,0,"field").number,"value").text,"x")&&equal(js_get(vm,0,"enterKey").text,"Enter"),506);
+    typed=(input_event){.type=INPUT_KEY,.key=0x0e,.scancode=0x0e,.character='\b',.pressed=1};browser_input(&typed);
+    CHECK_BROWSER(js_get(vm,js_get(vm,0,"field").number,"value").length==0,507);
     /* Exercise console navigation through the same keyboard and wheel input. */
     for(uint32_t i=0;i<20;i++)for(const char *p="A diagnostic line\n";*p;p++)remember(*p);
     console_toggle();CHECK_BROWSER(console_open&&console_first>0,550);

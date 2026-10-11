@@ -14,11 +14,38 @@
   <audio style="object-fit: contain; border: none;" id="audioPlayer" controls >
         Your browser does not support the audio element.
     </audio>
+  <video style="display:none; max-width:100%; max-height:320px;" id="videoPlayer" controls></video>
+  <img id="openedImage" style="display:none; max-width:100%; max-height:320px;" />
   <br><br>
   <label for="audioFile" class="uploadlabel">Upload</label>
     </center>
     </div>`;
   createWindow(windowTitle, customHTML, 600, 580);
+})();
+
+(function() {
+  if (!window.openedFile) return;
+  const opened = window.openedFile;
+    const source = './' + opened.path.replace(/^\/+/, '');
+    const image = document.getElementById('openedImage');
+    const audio = document.getElementById('audioPlayer');
+    const video = document.getElementById('videoPlayer');
+    if (opened.mimeType.indexOf('image/') === 0 && image) {
+        image.src = source;
+        image.style.display = 'block';
+        audio.style.display = 'none';
+        video.style.display = 'none';
+    } else if (opened.mimeType.indexOf('audio/') === 0) {
+        audio.src = source;
+        audio.play();
+        video.style.display = 'none';
+    } else if (opened.mimeType.indexOf('video/') === 0 && video) {
+        video.src = source;
+        video.style.display = 'block';
+        audio.style.display = 'none';
+    }
+    const title = document.getElementById('title');
+    if (title) title.textContent = opened.name;
 })();
 
 const audioFileInput = document.getElementById('audioFile');

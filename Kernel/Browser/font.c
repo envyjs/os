@@ -6,7 +6,7 @@ static face faces[24];static uint32_t face_count,used;
 static uint8_t memory[1536u*1024u];static cdfs *filesystem;
 typedef struct {const ttf_font *font;uint32_t glyph,size,offset;int32_t left,top,width,height;} glyph_bitmap;
 static glyph_bitmap glyphs[256];static uint32_t glyph_count,glyph_used,rasterizations;
-static uint8_t glyph_pixels[512u*1024u],glyph_scratch[512u*512u];
+static uint8_t glyph_pixels[320u*1024u],glyph_scratch[512u*512u];
 uint32_t font_rasterization_count(void){return rasterizations;}
 static int space(char c){return c==' '||c=='\t'||c=='\n'||c=='\r';}
 static char lower(char c){return c>='A'&&c<='Z'?(char)(c+32):c;}

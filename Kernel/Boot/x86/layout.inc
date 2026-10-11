@@ -1,4 +1,4 @@
-; Shared with Tools/iso.asm. CD LBAs use 2048-byte blocks.
+; Shared with Tools/iso.asm. Image locations use 2048-byte ISO blocks.
 %define ISO_BASE_BLOCKS 512
 %define ISO_BLOCKS ISO_BASE_BLOCKS
 %define BOOT_LBA 24

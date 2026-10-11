@@ -10,8 +10,10 @@ LLD ?= ld.lld
 TESTS ?= 0
 FONT_TESTS ?= 0
 IMAGE_TESTS ?= 0
+STORAGE_TESTS ?= 0
 CFLAGS := --target=i686-none-elf -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -mno-sse -mno-mmx -msoft-float -std=c11 -Wall -Wextra -Werror -Oz -ffunction-sections -fdata-sections
-OBJECTS := $(OUT)/payload.o $(OUT)/boot.o $(OUT)/cdfs.o $(OUT)/atapi.o $(OUT)/memory.o $(OUT)/js.o $(OUT)/json.o $(OUT)/js_full.o $(OUT)/quickjs.o $(OUT)/qjs_cutils.o $(OUT)/qjs_dtoa.o $(OUT)/qjs_regexp.o $(OUT)/qjs_unicode.o $(OUT)/js_support.o $(OUT)/js_jump.o $(OUT)/browser.o $(OUT)/framebuffer.o $(OUT)/html.o $(OUT)/css.o $(OUT)/ps2.o $(OUT)/ttf.o $(OUT)/font.o $(OUT)/image.o $(OUT)/image_support.o $(OUT)/images.o
+OBJECTS := $(OUT)/payload.o $(OUT)/bootlogo.o $(OUT)/splash_irq.o $(OUT)/boot.o $(OUT)/cdfs.o $(OUT)/atapi.o $(OUT)/memory.o $(OUT)/js.o $(OUT)/json.o $(OUT)/js_full.o $(OUT)/quickjs.o $(OUT)/qjs_cutils.o $(OUT)/qjs_dtoa.o $(OUT)/qjs_regexp.o $(OUT)/qjs_unicode.o $(OUT)/js_support.o $(OUT)/js_jump.o $(OUT)/browser.o $(OUT)/framebuffer.o $(OUT)/html.o $(OUT)/css.o $(OUT)/ps2.o $(OUT)/ttf.o $(OUT)/font.o $(OUT)/image.o $(OUT)/image_support.o $(OUT)/images.o $(OUT)/usb.o $(OUT)/uhci.o $(OUT)/ohci.o $(OUT)/ehci.o $(OUT)/xhci.o $(OUT)/usb_hid.o $(OUT)/usb_device.o $(OUT)/usb_msc.o
+OBJECTS += $(OUT)/sata.o $(OUT)/fat32.o
 ENVY_TREE := $(OUT)/envy.inc
 IMAGE_PREVIEWS := $(OUT)/Previews
 ifeq ($(TESTS),1)
@@ -31,6 +33,11 @@ OBJECTS += $(OUT)/image_test.o
 endif
 
 .PHONY: all FORCE previews
+ifeq ($(STORAGE_TESTS),1)
+ENVY_TREE :=
+CFLAGS += -DBOOT_STORAGE_TESTS
+OBJECTS += $(OUT)/storage_test.o
+endif
 all: $(OUT)/boot.iso
 
 $(OUT):
@@ -42,10 +49,49 @@ $(OUT)/stage1.bin: stage1.asm layout.inc | $(OUT)
 $(OUT)/cdfs.o: ../../FS/CDFS/cdfs.c ../../FS/CDFS/cdfs.h | $(OUT)
 	$(CLANG) $(CFLAGS) -c $< -o $@
 
-$(OUT)/boot.o: boot.c ../../FS/CDFS/cdfs.h ../../Drivers/Storage/atapi.h ../../Arch/x86/io.h ../../Browser/browser.h ../../Drivers/Video/framebuffer.h | $(OUT)
+$(OUT)/sata.o: ../../Drivers/Storage/sata.c ../../Drivers/Storage/sata.h ../../Arch/x86/io.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/usb.o: ../../Drivers/USB/usb.c ../../Drivers/USB/usb.h ../../Drivers/USB/hc.h ../../Drivers/USB/device.h ../../Drivers/USB/hid.h ../../Drivers/USB/msc.h ../../Drivers/Input/ps2.h ../../Arch/x86/io.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/uhci.o: ../../Drivers/USB/uhci.c ../../Drivers/USB/usb.h ../../Drivers/USB/hc.h ../../Arch/x86/io.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/ohci.o: ../../Drivers/USB/ohci.c ../../Drivers/USB/usb.h ../../Drivers/USB/hc.h ../../Arch/x86/io.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/ehci.o: ../../Drivers/USB/ehci.c ../../Drivers/USB/usb.h ../../Drivers/USB/hc.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/xhci.o: ../../Drivers/USB/xhci.c ../../Drivers/USB/usb.h ../../Drivers/USB/hc.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/usb_hid.o: ../../Drivers/USB/hid.c ../../Drivers/USB/hid.h ../../Drivers/Input/ps2.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/usb_device.o: ../../Drivers/USB/device.c ../../Drivers/USB/device.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/usb_msc.o: ../../Drivers/USB/msc.c ../../Drivers/USB/msc.h ../../Drivers/USB/device.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/fat32.o: ../../FS/FAT32/fat32.c ../../FS/FAT32/fat32.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/storage_test.o: ../../Tests/Storage/test.c ../../Drivers/Storage/sata.h ../../FS/FAT32/fat32.h | $(OUT)
+	$(CLANG) $(CFLAGS) -c $< -o $@
+
+$(OUT)/boot.o: boot.c ../../FS/CDFS/cdfs.h ../../Drivers/Storage/atapi.h ../../Drivers/Storage/sata.h ../../FS/FAT32/fat32.h ../../Drivers/USB/usb.h ../../Drivers/USB/msc.h ../../Arch/x86/io.h ../../Browser/browser.h ../../Drivers/Video/framebuffer.h | $(OUT)
 	$(CLANG) $(CFLAGS) -c $< -o $@
 
 $(OUT)/payload.o: payload.asm | $(OUT)
+	$(NASM) -f elf32 $< -o $@
+
+$(OUT)/bootlogo.o: bootlogo.asm ../../Assets/bootlogo.png | $(OUT)
+	$(NASM) -f elf32 $< -o $@
+
+$(OUT)/splash_irq.o: splash_irq.asm | $(OUT)
 	$(NASM) -f elf32 $< -o $@
 
 $(OUT)/atapi.o: ../../Drivers/Storage/atapi.c ../../Drivers/Storage/atapi.h ../../Arch/x86/io.h | $(OUT)

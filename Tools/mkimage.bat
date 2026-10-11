@@ -25,7 +25,7 @@ if "%~4"=="" if not "%~z3"=="1048576" (
     echo ERROR: Incorrect output image size.
     exit /b 1
 )
-echo Created %~3 ^(ISO 9660 / El Torito, %~z3 bytes^)
+echo Created %~3 ^(ISO 9660 / El Torito / raw USB MBR, %~z3 bytes^)
 exit /b 0
 
 :usage

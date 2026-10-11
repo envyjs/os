@@ -64,6 +64,19 @@ int input_self_test(void) {
     framebuffer_begin_scene();framebuffer_rect(0,0,fb->width,fb->height,0x123456);framebuffer_end_frame();
     framebuffer_begin_scene();framebuffer_rect(0,0,fb->width,fb->height,0x123456);framebuffer_end_frame();
     CHECK(framebuffer_published_bytes()==0,573);
+    if(fb->width>120&&fb->height>120){uint32_t inside=100*fb->pitch+100*fb->bytes_per_pixel,outside=99*fb->pitch+100*fb->bytes_per_pixel;uint8_t before_inside[4],before_outside[4];
+        for(uint32_t b=0;b<fb->bytes_per_pixel;b++){before_inside[b]=front[inside+b];before_outside[b]=front[outside+b];}
+        framebuffer_damage_region(100,100,4,4);framebuffer_begin_frame();framebuffer_rect(100,100,4,4,0xaabbcc);framebuffer_end_frame();
+        int changed=0;for(uint32_t b=0;b<fb->bytes_per_pixel;b++){if(front[inside+b]!=before_inside[b])changed=1;CHECK(front[outside+b]==before_outside[b],575);}CHECK(changed,576);
+        CHECK(framebuffer_published_bytes()==(16u+18u*26u)*fb->bytes_per_pixel,577);
+    }
+    if(fb->width>140&&fb->height>120){uint32_t gap=110*fb->pitch+101*fb->bytes_per_pixel;uint8_t before_gap[4];
+        for(uint32_t b=0;b<fb->bytes_per_pixel;b++)before_gap[b]=front[gap+b];
+        framebuffer_damage_regions(100,100,4,4,120,100,4,4);framebuffer_begin_frame();
+        framebuffer_rect(100,100,4,4,0x22bb44);framebuffer_rect(120,100,4,4,0xbb4422);framebuffer_end_frame();
+        for(uint32_t b=0;b<fb->bytes_per_pixel;b++)CHECK(front[gap+b]==before_gap[b],578);
+        CHECK(framebuffer_published_bytes()==(32u+18u*26u)*fb->bytes_per_pixel,579);
+    }
     framebuffer_cursor_restore();framebuffer_rect(10,10,10,10,0x0000ff);
     framebuffer_paint_region(12,12,3,3,255);framebuffer_rect(10,10,10,10,0xff0000);framebuffer_paint_reset();
     uint32_t clipped=12*fb->pitch+12*fb->bytes_per_pixel,outside=11*fb->pitch+11*fb->bytes_per_pixel;

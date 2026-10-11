@@ -1,8 +1,11 @@
 loadScript('./Libs/bg.js')
 loadScript('./Registry/Local/Envy/StartupApps.js');
 
-var content = document.createElement("div");
-content.innerHTML = `
+if (typeof closeLockScreen === 'function') closeLockScreen();
+if (typeof closeDesktopShell === 'function') closeDesktopShell();
+
+var desktopShellRoot = document.createElement("div");
+desktopShellRoot.innerHTML = `
 
 <audio src="./Assets/audio/boot.mp3"></audio>
 <div id="desktop" style="cursor: url('./Assets/cursor/cursor.cur'),auto !important;">
@@ -34,7 +37,7 @@ content.innerHTML = `
     </div>
 </div>
 `;
-document.getElementById("userland").appendChild(content);
+document.getElementById("userland").appendChild(desktopShellRoot);
 
 let hasClicked = false;
     document.addEventListener("click", (e) => {
@@ -54,20 +57,7 @@ function semshow() {
     }
 }
 
-function timeUpdate() {
-    // 24-hour time example
-    let x = new Date();
-    let hours = x.getHours().toString().padStart(2, "0"); // 18
-    let minutes = x.getMinutes().toString().padStart(2, "0"); // 37
-    let timeString = `${hours}:${minutes}`; // 18:37
-    let element = document.getElementById("clock"); // assuming <... id="clock" ...>
-    element.innerText = timeString;
-}
-timeUpdate();
-setInterval(timeUpdate, 1000); // 1000ms -> 1 second delay
-
-function formatDate() {
-    const date = new Date(); // Get current date
+function formatDate(date) {
     const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -78,9 +68,17 @@ function formatDate() {
     return `${dayName}, ${dayNumber} ${monthName}`;
 }
 
-function setDate() {
-    const dateDisplayDiv = document.getElementById("dateDisplay"); // Get the div element
-    dateDisplayDiv.textContent = formatDate(); // Set the formatted date
+function updateDesktopClock() {
+    const date = new Date();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const timeText = `${hours}:${minutes}`;
+    const clock = document.getElementById("clock");
+    const dateDisplay = document.getElementById("dateDisplay");
+    const dateText = formatDate(date);
+
+    if (clock && clock.innerText !== timeText) clock.innerText = timeText;
+    if (dateDisplay && dateDisplay.textContent !== dateText) dateDisplay.textContent = dateText;
 }
 
 let dappsData = []; // Store JSON data globally
@@ -108,5 +106,21 @@ function displayDesktopApps(dapps) {
     });
 }
 
-setDate();
-setInterval(setDate, 1000); // 1000ms -> 1 second delay
+updateDesktopClock();
+var desktopClockTimer = setInterval(updateDesktopClock, 1000);
+
+var desktopLockShortcut = function(event) {
+    if (!event.repeat && event.ctrlKey && event.metaKey && (event.key === 'q' || event.key === 'Q')) {
+        event.preventDefault();
+        loadScript('./UI/lock.desktop.js');
+    }
+};
+document.addEventListener('keydown', desktopLockShortcut);
+
+function closeDesktopShell() {
+    if (desktopClockTimer) clearInterval(desktopClockTimer);
+    if (desktopLockShortcut) document.removeEventListener('keydown', desktopLockShortcut);
+    desktopClockTimer = 0;
+    desktopLockShortcut = 0;
+    if (desktopShellRoot && desktopShellRoot.parentNode) desktopShellRoot.remove();
+}

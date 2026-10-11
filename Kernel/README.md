@@ -53,6 +53,14 @@ Scripts share a 2 MiB source arena with no per-script size or count cap;
 loading reports an error when available source memory is exhausted. The
 browser exposes local CDFS `fetch` GET/HEAD requests, response `text()`/`json()`,
 and synchronous `then`/`catch` chaining, including returned response promises.
+The JavaScript `filesystem` object exposes the mounted boot CDFS to GUI apps:
+`filesystem.list(path)` returns entries with `name`, `path`, `directory`, and
+`size`; `filesystem.readText(path)` reads a text file; `filesystem.name` and
+`filesystem.readOnly` describe the mount. Paths are relative to the ISO root
+(a leading slash is optional). Invalid, missing, or unsupported paths return
+`null`; `readText` is limited to 64 KiB per call. The API is synchronous and
+read-only, matching the current CDFS driver.
+Filer uses this interface to browse directories and shows the active path.
 JSON supports arrays, objects, escaped Unicode strings, booleans, null and integer
 numbers. Fractional JSON numbers report an error because the VM stores integers.
 Arrays support `forEach`. Document/window/element listeners support mouse and key
@@ -107,17 +115,25 @@ disc reads, app-menu construction paints once, and a repeat desktop repaint
 performs no additional glyph rasterizations.
 
 CSS now measures boxes before painting: independent margins/padding, content-box
-and border-box sizing, min/max dimensions, relative/absolute/fixed positioning,
+and border-box sizing, automatic and min/max dimensions, relative/absolute/fixed positioning,
 mixed-unit `calc()` arithmetic, decimal lengths, em/rem and viewport units.
 Flex rows/columns support gaps, wrapping, growth/shrinkage and alignment; grid
 supports the project's `repeat(N, 1fr)` columns. Width/height media queries apply
 at the viewport size. Root variables expand inside values with nested fallbacks.
-Hover/active states, simple `:not()`, inherited line height, whitespace modes,
+`!important` declarations take precedence over normal declarations, including
+when choosing `:root` custom property values.
+Buttons have built-in padding, a visible border, rounded dark fill, and hover/pressed
+colors; page CSS and inline styles can override these defaults. Hover/active states,
+simple `:not()`, inherited line height, whitespace modes,
 uniform rounded corners, RGBA/hex alpha, opacity, axis-aligned linear gradients
 with up to eight stops, and overflow clipping are rendered. Live DOM style
 properties and children appended to ID containers participate in layout.
 `backdrop-filter` and its WebKit alias support brightness and a separable blur,
-including fully transparent panels and rounded corners; blur is capped at 32px.
+including fully transparent panels and rounded corners. Blur samples a half-size
+backdrop buffer to reduce filtering work. Hover redraws expand to include affected
+blur panels, preserving blur output without repainting unrelated screen areas.
+`framebuffer_blur_pixels()` and `html_view_full_repaint_count()` expose cumulative
+work counters for profiling; blur remains capped at 32px.
 Wheel
 input scrolls the innermost `overflow: auto`/`scroll` container under the pointer,
 then its ancestors at the limits. Shift-wheel scrolls horizontally; arrows,

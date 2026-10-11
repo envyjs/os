@@ -2,7 +2,7 @@
 #include "font.h"
 #include "images.h"
 typedef struct { const char *selector,*body;uint32_t selector_length,body_length;char path[256];int32_t min_width,max_width,min_height,max_height; } rule;
-typedef struct { char name[64],value[256]; } variable;
+typedef struct { char name[64],value[256];uint32_t priority; } variable;
 static rule rules[1024];static uint32_t rule_count;
 static variable variables[128];static uint32_t variable_count;
 /* Intern mixed lengths rather than resolving percentages against the viewport.
@@ -13,6 +13,7 @@ static expression expressions[4096];static uint32_t expression_count;
 static int32_t font_basis=16;
 static int32_t root_font_basis=16;
 static int (*state_lookup)(const css_element *,const char *);
+static int add_rules(const char *source,uint32_t size,const char *path,const int32_t bounds[4],uint32_t depth);
 void css_state_lookup(int (*lookup)(const css_element *,const char *)){state_lookup=lookup;}
 static int space(char c) {return c==' '||c=='\n'||c=='\r'||c=='\t';}
 static char lower(char c) {return c>='A'&&c<='Z'?(char)(c+32):c;}
@@ -344,8 +345,9 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
         uint32_t key_length=(uint32_t)(key_end-key);
         if(collect&&key_length>2&&key[0]=='-'&&key[1]=='-'&&key_length<64) {
             uint32_t index=0;for(;index<variable_count;index++)if(equal(key,key_length,variables[index].name,0))break;
-            if(index<128){if(index==variable_count)variable_count++;for(uint32_t i=0;i<key_length;i++)variables[index].name[i]=key[i];variables[index].name[key_length]=0;
-                for(uint32_t i=0;i<=used;i++)variables[index].value[i]=text[i];}
+            if(index<128){if(index==variable_count){variables[index].priority=0;variable_count++;}
+                if(priority>=variables[index].priority){for(uint32_t i=0;i<key_length;i++)variables[index].name[i]=key[i];variables[index].name[key_length]=0;
+                    for(uint32_t i=0;i<=used;i++)variables[index].value[i]=text[i];variables[index].priority=priority;}}
         }
         if(!s){if(p<end)p++;continue;}
         if(!expand_variables(text,0)){if(p<end)p++;continue;}used=length(text);
@@ -415,6 +417,8 @@ static void declarations(css_style *s,uint32_t *ranks,const char *p,uint32_t siz
             if(equal(text,length(text),"normal",1))set(s,ranks,property,CSS_AUTO,priority);
             else if(decimal(&cursor,&parsed)&&!*cursor&&parsed>=0)set(s,ranks,property,-100000-parsed,priority);
             else if(single_dimension(text,&parsed,width,height))set(s,ranks,property,parsed,priority);
+        } else if((property==CSS_WIDTH||property==CSS_HEIGHT)&&equal(text,length(text),"auto",1)) {
+            set(s,ranks,property,CSS_AUTO,priority);
         } else if(property>=0) {
             if(single_dimension(text,&parsed,width,height))set(s,ranks,property,parsed,priority);
         } else if(equal(key,key_length,"margin",1)||equal(key,key_length,"padding",1)) {
@@ -463,7 +467,16 @@ next_declaration:
         if(p<end)p++;
     }
 }
-void css_init(void){rule_count=variable_count=expression_count=0;font_basis=root_font_basis=16;}
+void css_init(void){
+    static const char controls[]=
+        "button { display:inline-block; padding:6px 12px; border:1px solid #667085; "
+        "border-radius:4px; background-color:#343b46; color:#f2f4f8; text-align:center; }"
+        "button:hover { background-color:#465365; border-color:#9aa9bc; }"
+        "button:active { background-color:#242a33; border-color:#667085; }";
+    const int32_t bounds[]={0,2147483647,0,2147483647};
+    rule_count=variable_count=expression_count=0;font_basis=root_font_basis=16;
+    (void)add_rules(controls,sizeof(controls)-1,"(browser defaults)",bounds,0);
+}
 static void face_rule(const char *p,uint32_t size,const char *path) {
     const char *end=p+size;char family[64]={0},sources[256]={0};
     while((p=skip(p,end))<end){const char *key=p;while(p<end&&*p!=':'&&*p!=';')p++;if(p==end)break;if(*p==';'){p++;continue;}
@@ -511,13 +524,14 @@ static int add_rules(const char *source,uint32_t size,const char *path,const int
                 if(media_bounds(selector+6,selector_end,nested)&&!add_rules(body,body_length,path,nested,depth+1))return 0;}
             continue; /* Other at-rules never leak into ordinary rules. */
         }
-        if(equal(selector,(uint32_t)(selector_end-selector),":root",1))declarations(0,0,body,body_length,0,0,0,1,path);
+        if(equal(selector,(uint32_t)(selector_end-selector),":root",1))declarations(0,0,body,body_length,rule_count+1,0,0,1,path);
         const char *part=selector;
         for(const char *q=selector;q<=selector_end;q++)if(q==selector_end||*q==',') {
             const char *last=q;while(part<last&&space(*part))part++;while(last>part&&space(last[-1]))last--;
             if(part<last){if(rule_count==1024)return 0;rule *r=&rules[rule_count++];
                 *r=(rule){.selector=part,.body=body,.selector_length=(uint32_t)(last-part),.body_length=body_length,
-                    .min_width=bounds[0],.max_width=bounds[1],.min_height=bounds[2],.max_height=bounds[3]};copy_text(r->path,path);}
+                    .min_width=bounds[0],.max_width=bounds[1],.min_height=bounds[2],.max_height=bounds[3]};
+                copy_text(r->path,path);}
             part=q+1;
         }
     }

@@ -18,4 +18,8 @@ int cdfs_mount(cdfs *fs, cdfs_read_block read, void *context);
 int cdfs_lookup(cdfs *fs, const char *path, cdfs_node *node);
 int cdfs_read(cdfs *fs, const cdfs_node *node, uint32_t offset,
               void *buffer, uint32_t count, uint32_t *bytes_read);
+/* Visits immediate children in on-disc order. Names omit ISO ;version suffixes.
+   Return nonzero to continue, zero to stop successfully. */
+typedef int (*cdfs_visit)(void *context, const char *name, const cdfs_node *node);
+int cdfs_list(cdfs *fs, const cdfs_node *directory, cdfs_visit visit, void *context);
 #endif

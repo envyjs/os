@@ -114,3 +114,30 @@ int cdfs_read(cdfs *fs, const cdfs_node *node, uint32_t offset,
     }
     return CDFS_OK;
 }
+int cdfs_list(cdfs *fs, const cdfs_node *dir, cdfs_visit visit, void *context) {
+    if (!fs || !fs->blocks || !dir || !visit || !extent(fs, dir)) return CDFS_INVALID;
+    if (!(dir->flags & 2)) return CDFS_NOT_FILE;
+    for (uint32_t offset = 0; offset < dir->size;) {
+        uint32_t remain = dir->size - offset;
+        uint32_t limit = remain < CDFS_BLOCK_SIZE ? remain : CDFS_BLOCK_SIZE;
+        if (fs->read(fs->context, dir->lba + offset / CDFS_BLOCK_SIZE, fs->scratch)) return CDFS_IO;
+        for (uint32_t pos = 0; pos < limit;) {
+            const uint8_t *p = fs->scratch + pos;
+            if (!p[0]) break;
+            cdfs_node child;
+            int status = record(fs, p, limit - pos, &child);
+            if (status) return status;
+            if (!(p[32] == 1 && p[33] <= 1)) {
+                char name[256]; uint32_t size = p[32];
+                for (uint32_t i = 0; i < size; ++i) name[i] = (char)p[33 + i];
+                for (uint32_t i = 0; i < size; ++i) if (name[i] == ';') { size = i; break; }
+                name[size] = 0;
+                if (!visit(context, name, &child)) return CDFS_OK;
+            }
+            pos += p[0];
+        }
+        if (remain <= CDFS_BLOCK_SIZE) break;
+        offset += CDFS_BLOCK_SIZE;
+    }
+    return CDFS_OK;
+}

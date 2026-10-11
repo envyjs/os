@@ -11,6 +11,18 @@ start:
     mov sp, 0x7c00
     cld
     mov [boot_drive], dl
+    ; Keep each BIOS transfer below 64 KiB for both optical and USB disks.
+    mov word [sector_scale], 1
+    cmp dl, 0xe0
+    jae .drive_ready
+    cmp dl, 0x80
+    jb .drive_ready
+    mov word [sector_scale], 4
+.drive_ready:
+    mov eax, STAGE2_LBA+2
+    movzx ecx, word [sector_scale]
+    imul eax, ecx
+    mov [payload_dap+8], eax
     ; BIOS cannot transfer a large JavaScript engine directly above 1 MiB.
     ; Read batches below the BIOS 64 KiB transfer boundary, then copy them.
     in al, 0x92
@@ -28,6 +40,7 @@ start:
     mov byte [payload_attempts], 3
 .payload_read:
     mov ax, [payload_chunk]
+    mul word [sector_scale]
     mov [payload_dap+2], ax
     mov si, payload_dap
     mov dl, [boot_drive]
@@ -98,6 +111,8 @@ payload_next:
     mov ss, ax
     mov sp, 0x7c00
     movzx eax, word [payload_chunk]
+    movzx ecx, word [sector_scale]
+    imul eax, ecx
     add [payload_dap+8], eax
     sub [payload_remaining], ax
     jnz start.payload_block
@@ -124,6 +139,7 @@ payload_next:
     mov ds, ax
     mov es, ax
     mov dword [0x5400], 0
+    mov word [0x54f0], 0
     mov dword [0x5000], 'VBE2'
     mov di, 0x5000
     mov ax, 0x4f00
@@ -155,15 +171,60 @@ payload_next:
     and ax, 0x0091
     cmp ax, 0x0091
     jne .next_mode
-    cmp word [0x5212], 800
-    jne .next_mode
-    cmp word [0x5214], 600
-    jne .next_mode
     cmp byte [0x521b], 6
     jne .next_mode
     cmp byte [0x5219], 32
-    je .set_mode
+    je .record_mode
     cmp byte [0x5219], 24
+    jne .next_mode
+.record_mode:
+    ; Keep the BIOS-reported linear framebuffer modes for the kernel display API.
+    ; Records are width/height pairs at 0x5500; cap the list below the BIOS font.
+    push ax
+    push bx
+    push cx
+    push dx
+    push si
+    push di
+    mov ax, [0x54f0]
+    xor bx, bx
+.mode_duplicate:
+    cmp bx, ax
+    jae .mode_append
+    mov di, bx
+    shl di, 2
+    add di, 0x5500
+    mov dx, [di]
+    cmp dx, [0x5212]
+    jne .mode_next_duplicate
+    mov dx, [di+2]
+    cmp dx, [0x5214]
+    je .mode_recorded
+.mode_next_duplicate:
+    inc bx
+    jmp .mode_duplicate
+.mode_append:
+    cmp ax, 128
+    jae .mode_recorded
+    mov di, ax
+    shl di, 2
+    add di, 0x5500
+    mov dx, [0x5212]
+    mov [di], dx
+    mov dx, [0x5214]
+    mov [di+2], dx
+    inc ax
+    mov [0x54f0], ax
+.mode_recorded:
+    pop di
+    pop si
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    cmp word [0x5212], 800
+    jne .next_mode
+    cmp word [0x5214], 600
     jne .next_mode
 .set_mode:
     mov bx, [video_mode]
@@ -228,6 +289,7 @@ protected_start:
     jmp .halt
 
 boot_drive db 0
+sector_scale dw 1
 video_mode dw 0
 mode_budget dw 0
 payload_remaining dw 0
@@ -240,7 +302,7 @@ payload_dap:
     dw 1
     dw 0, 0x1000
     dq STAGE2_LBA+2
-payload_error db 'CD payload read failed', 0
+payload_error db 'Boot payload read failed', 0
 times 0x1000-($-$$) db 0
 embedded_payload:
 incbin PAYLOAD

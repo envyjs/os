@@ -37,6 +37,10 @@ bits 32
     times (%1)*2048-($-$$) db 0
 %endmacro
 
+; The ISO system area doubles as an MBR boot sector for raw-written USB media.
+; Optical boot still uses the identical stage1 image from the El Torito catalog.
+block 0
+    incbin STAGE1
 block 16
 pvd:
     db 1, 'CD001', 1, 0

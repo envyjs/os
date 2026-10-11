@@ -65,6 +65,10 @@ function createWindow(titleText, contentHTML, width = 400, height = 300) {
     body.innerHTML = contentHTML || 'Default Content';
     windowDiv.appendChild(body);
 
+    // Set the visible state before attaching the window so the browser only
+    // has to lay it out and paint it once.
+    windowDiv.classList.add('open');
+
     // Create resizing handles
     const resizeHandles = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'right', 'bottom', 'left'];
     resizeHandles.forEach(handle => {
@@ -85,26 +89,18 @@ function createWindow(titleText, contentHTML, width = 400, height = 300) {
     // Add to taskbar
     addTaskbarButton(windowId, titleText);
 
-    // Ensure window is visible upon launch and animate opening
-    windowDiv.classList.add('open');
-
     // Make the window draggable
     makeWindowDraggable(windowDiv, header);
     return windowDiv;
 }
 
-// Close Window with animation
+// Remove the window in one DOM update. The VM browser repaints the full page
+// after DOM changes, so a staged close animation makes closing noticeably lag.
 function closeWindow(windowId) {
     const windowDiv = document.getElementById(windowId);
     if (windowDiv) {
-        windowDiv.classList.remove('open'); // Trigger closing animation
-        windowDiv.classList.add('close'); // Apply close class for fade and shrink
-
-        // Wait for the animation to complete, then remove the window
-        setTimeout(() => {
-            windowDiv.remove();
-            removeTaskbarButton(windowId);
-        }, 400); // 400ms corresponds to the duration of the animation
+        windowDiv.remove();
+        removeTaskbarButton(windowId);
     }
 }
 
@@ -163,19 +159,31 @@ function makeWindowDraggable(window, header) {
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
+    let lastLeft = 0;
+    let lastTop = 0;
 
     header.addEventListener('mousedown', (e) => {
         isDragging = true;
-        offsetX = e.clientX - window.offsetLeft;
-        offsetY = e.clientY - window.offsetTop;
+        lastLeft = window.offsetLeft;
+        lastTop = window.offsetTop;
+        offsetX = e.clientX - lastLeft;
+        offsetY = e.clientY - lastTop;
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
     });
 
     function onMouseMove(e) {
         if (isDragging) {
-            window.style.left = `${e.clientX - offsetX}px`;
-            window.style.top = `${e.clientY - offsetY}px`;
+            const nextLeft = e.clientX - offsetX;
+            const nextTop = e.clientY - offsetY;
+            if (nextLeft !== lastLeft) {
+                window.style.left = `${nextLeft}px`;
+                lastLeft = nextLeft;
+            }
+            if (nextTop !== lastTop) {
+                window.style.top = `${nextTop}px`;
+                lastTop = nextTop;
+            }
         }
     }
 

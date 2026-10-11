@@ -5,10 +5,15 @@
 #include "../Runtime/Font/ttf.h"
 #include "../Drivers/Video/framebuffer.h"
 static int32_t cursor_y;
-static uint32_t batch_depth,paints;static int paint_pending;
+static uint32_t batch_depth,paints,full_repaints;static int paint_pending;
+static int move_repaint_pending;static uint32_t move_repaint_node;static int32_t move_old_x,move_old_y,move_old_w,move_old_h;
 void html_view_batch_begin(void){batch_depth++;}
 void html_view_batch_end(void){if(!batch_depth)return;if(!--batch_depth&&paint_pending){paint_pending=0;html_view_repaint();}}
 uint32_t html_view_paint_count(void){return paints;}
+uint32_t html_view_full_repaint_count(void){return full_repaints;}
+void html_view_move_repaint(uint32_t node,int32_t x,int32_t y,int32_t width,int32_t height){
+    move_repaint_pending=1;move_repaint_node=node;move_old_x=x;move_old_y=y;move_old_w=width;move_old_h=height;html_view_repaint();
+}
 static uint32_t viewport_width, viewport_height;
 static struct {char id[128];uint32_t serial;int32_t x,y,max_x,max_y;} scrolls[2048];
 static uint32_t scroll_count;
@@ -31,15 +36,16 @@ enum { PAINT_RECT, PAINT_BACKGROUND, PAINT_GLYPH, PAINT_IMAGE, PAINT_BOX };
 typedef struct {int type,font;int32_t x,y,z,left,top,right,bottom;uint32_t width,height,color,codepoint;uint8_t opacity;const css_style *background;const char *source;} paint_command;
 /* Record a scene before painting it. Stable z-order keeps later wallpaper behind
    earlier overlays, including glyph coverage at the edges of the watermark. */
-static paint_command commands[32768];static uint32_t order[32768],command_count;
-static css_style paint_backgrounds[512];static char paint_sources[512][256];
+enum { MAX_PAINT_COMMANDS=28672 };
+static paint_command commands[MAX_PAINT_COMMANDS];static uint32_t order[MAX_PAINT_COMMANDS],command_count;
+static css_style paint_backgrounds[512];static int32_t background_x[512],background_y[512];static uint32_t background_width[512],background_height[512];static char paint_sources[512][256];
 static uint32_t background_count,source_count;static int collecting;static int32_t paint_z;
-static int scene_order_ready,partial_scene;static int32_t dirty_left,dirty_top,dirty_right,dirty_bottom;
+static int scene_order_ready,partial_scene;static uint32_t sorted_order_count,dirty_count;static int32_t region_left[2],region_top[2],region_right[2],region_bottom[2];static int32_t dirty_left,dirty_top,dirty_right,dirty_bottom;
 static int32_t paint_left,paint_top,paint_right=2147483647,paint_bottom=2147483647;static uint8_t paint_opacity=255;
-static paint_command *command(int type){if(command_count==32768)return 0;paint_command *c=&commands[command_count++];*c=(paint_command){.type=type,.z=paint_z,.left=paint_left,.top=paint_top,.right=paint_right,.bottom=paint_bottom,.opacity=paint_opacity};return c;}
+static paint_command *command(int type){if(command_count==MAX_PAINT_COMMANDS)return 0;paint_command *c=&commands[command_count++];*c=(paint_command){.type=type,.z=paint_z,.left=paint_left,.top=paint_top,.right=paint_right,.bottom=paint_bottom,.opacity=paint_opacity};return c;}
 static void paint_box(const css_style *s,int32_t x,int32_t y,uint32_t width,uint32_t height){
     if(!width||!height||background_count==512||(!s->background_image[0]&&!s->gradient_count&&(!s->value[CSS_BACKGROUND_ALPHA]||s->value[CSS_BACKGROUND]<0)&&!s->value[CSS_BORDER]&&!s->value[CSS_BORDER_LEFT]&&!s->value[CSS_BACKDROP_BLUR]&&s->value[CSS_BACKDROP_BRIGHTNESS]==1000))return;paint_command *c=command(PAINT_BOX);if(!c)return;
-    paint_backgrounds[background_count]=*s;c->background=&paint_backgrounds[background_count++];c->x=x;c->y=y;c->width=width;c->height=height;
+    paint_backgrounds[background_count]=*s;background_x[background_count]=x;background_y[background_count]=y;background_width[background_count]=width;background_height[background_count]=height;c->background=&paint_backgrounds[background_count++];c->x=x;c->y=y;c->width=width;c->height=height;
 }
 static int rounded_inside(int32_t x,int32_t y,int32_t w,int32_t h,int32_t r){
     if(x<0||y<0||x>=w||y>=h)return 0;if(r<=0)return 1;
@@ -78,7 +84,7 @@ static void paint_rect(int32_t x,int32_t y,uint32_t width,uint32_t height,uint32
 static void paint_background(const css_style *s,int32_t x,int32_t y,uint32_t width,uint32_t height){
     if(!s->background_image[0]||!width||!height)return;
     if(!collecting){images_background(s,x,y,width,height);return;}if(background_count==512)return;paint_command *c=command(PAINT_BACKGROUND);
-    if(c){paint_backgrounds[background_count]=*s;c->background=&paint_backgrounds[background_count++];c->x=x;c->y=y;c->width=width;c->height=height;}}
+    if(c){paint_backgrounds[background_count]=*s;background_x[background_count]=x;background_y[background_count]=y;background_width[background_count]=width;background_height[background_count]=height;c->background=&paint_backgrounds[background_count++];c->x=x;c->y=y;c->width=width;c->height=height;}}
 static void paint_glyph(int font,int32_t x,int32_t y,uint32_t cp,uint32_t size,uint32_t color){
     if(!collecting){font_draw(font,x,y,cp,size,color);return;}paint_command *c=command(PAINT_GLYPH);
     if(c){c->font=font;c->x=x;c->y=y;c->codepoint=cp;c->height=size;c->color=color;}}
@@ -93,14 +99,21 @@ static void sift_order(uint32_t root,uint32_t count){
     while(root<count/2){uint32_t child=root*2+1;if(child+1<count&&after(order[child+1],order[child]))child++;
         if(!after(order[child],order[root]))return;uint32_t old=order[root];order[root]=order[child];order[child]=old;root=child;}}
 static void paint_scene(void){
+    /* A drag changes coordinates, but usually leaves painter order untouched.
+       Reuse the previous permutation when it is still sorted instead of
+       rebuilding the heap for every mouse event. */
+    if(scene_order_ready&&sorted_order_count==command_count){
+        for(uint32_t i=1;i<command_count;i++)if(after(order[i-1],order[i])){scene_order_ready=0;break;}
+    }else scene_order_ready=0;
     if(!scene_order_ready){
     for(uint32_t i=0;i<command_count;i++)order[i]=i;
     for(uint32_t i=command_count/2;i;i--)sift_order(i-1,command_count);
     for(uint32_t i=command_count;i>1;i--){uint32_t old=order[0];order[0]=order[i-1];order[i-1]=old;sift_order(0,i-1);}
-    scene_order_ready=1;}
-    for(uint32_t i=0;i<command_count;i++){paint_command *c=&commands[order[i]];
+    scene_order_ready=1;sorted_order_count=command_count;}
+    uint32_t regions=partial_scene?dirty_count:1;
+    for(uint32_t region=0;region<regions;region++)for(uint32_t i=0;i<command_count;i++){paint_command *c=&commands[order[i]];
         int32_t left=c->left,top=c->top,right=c->right,bottom=c->bottom;
-        if(partial_scene){if(left<dirty_left)left=dirty_left;if(top<dirty_top)top=dirty_top;if(right>dirty_right)right=dirty_right;if(bottom>dirty_bottom)bottom=dirty_bottom;if(left>=right||top>=bottom)continue;
+        if(partial_scene){if(left<region_left[region])left=region_left[region];if(top<region_top[region])top=region_top[region];if(right>region_right[region])right=region_right[region];if(bottom>region_bottom[region])bottom=region_bottom[region];if(left>=right||top>=bottom)continue;
             int32_t extent_x=c->type==PAINT_GLYPH?c->height*2:c->width,extent_y=c->type==PAINT_GLYPH?c->height*2:c->height;
             if(c->x+extent_x<=left||c->y+extent_y<=top||c->x>=right||c->y>=bottom)continue;}
         framebuffer_paint_region(left,top,(uint32_t)(right-left),(uint32_t)(bottom-top),c->opacity);
@@ -109,10 +122,11 @@ static void paint_scene(void){
         else if(c->type==PAINT_GLYPH)font_draw(c->font,c->x,c->y,c->codepoint,c->height,c->color);
         else if(c->type==PAINT_BOX)render_box(c);
         else{image_surface image;if(images_load(c->source,c->width,c->height,&image))images_draw(&image,c->x,c->y,c->width,c->height);}
+        if((i&31u)==31u&&framebuffer_boot_splash_active())framebuffer_boot_splash_update();
     }
     framebuffer_paint_reset();
 }
-typedef struct {uint32_t node;const char *tag,*id,*classes,*text,*markup,*inline_style,*image_source,*parent_id;uint32_t image_width,image_height;} view_node;
+typedef struct {uint32_t node;const char *tag,*id,*classes,*text,*markup,*inline_style,*image_source,*parent_id;uint32_t image_width,image_height;int32_t x,y,width,height;} view_node;
 static view_node views[128];static uint32_t view_count;
 static const char *document_html;
 static style body_style;
@@ -231,7 +245,10 @@ void html_view_begin(const char *title,const char *url) {
     const framebuffer *fb=framebuffer_get(); if(!fb) return;
     view_count=0;document_html=0;scroll_count=0;page_x=page_y=page_max_x=page_max_y=0;
     viewport_width=fb->width; viewport_height=fb->height; cursor_y=8;
-    framebuffer_rect(0,0,fb->width,fb->height,0xffffff);
+    if(!framebuffer_boot_splash_active())framebuffer_rect(0,0,fb->width,fb->height,0x000000);
+}
+void html_view_resize(uint32_t width,uint32_t height){
+    if(!width||!height)return;viewport_width=width;viewport_height=height;page_x=page_y=page_max_x=page_max_y=0;html_view_repaint();
 }
 void html_view_status(const char *text) {
     (void)text; /* Runtime diagnostics stay on the debug console, outside the page. */
@@ -311,8 +328,8 @@ typedef struct {
 } layout_node;
 static layout_node layout_nodes[1024];static uint32_t layout_count;
 static char layout_text[131072];static uint32_t layout_text_used;
-static struct {int32_t x,y,w,h,z;uint32_t serial,parent,object;int scroll;char id[128];} boxes[2048];
-static uint32_t box_count,serial_next,hover_path[32],hover_count;static uint8_t hover_buttons;
+static struct {int32_t x,y,w,h,z;uint32_t serial,parent,object,select_serial;int scroll,select_control,select_option,option_node;char id[128];} boxes[2048];
+static uint32_t box_count,serial_next,hover_path[32],hover_count,select_open_object,select_open_serial;static uint8_t hover_buttons;
 static int state_matches(const css_element *element,const char *state){
     if(state[0]=='a'&&!(hover_buttons&1))return 0;
     for(uint32_t i=0;i<layout_count;i++)if(element==&layout_nodes[i].element){for(uint32_t j=0;j<hover_count;j++)if(layout_nodes[i].serial==hover_path[j])return 1;break;}return 0;
@@ -323,9 +340,24 @@ const char *html_view_target(int32_t x,int32_t y){int i=pointer_box(x,y);for(uin
     if(boxes[i].id[0])return boxes[i].id;uint32_t parent=boxes[i].parent;i=-1;for(uint32_t j=0;j<box_count;j++)if(boxes[j].serial==parent){i=(int)j;break;}}return "";}
 uint32_t html_view_target_node(int32_t x,int32_t y){int i=pointer_box(x,y);for(uint32_t depth=0;i>=0&&depth<32;depth++){
     if(boxes[i].object)return boxes[i].object;uint32_t parent=boxes[i].parent;i=-1;for(uint32_t j=0;j<box_count;j++)if(boxes[j].serial==parent){i=(int)j;break;}}return 0;}
+static void option_label(int index,char *out,uint32_t capacity);
+static void option_value(int index,char *out,uint32_t capacity){attribute(layout_nodes[index].attributes,layout_nodes[index].attributes+layout_nodes[index].attribute_length,"value",out,capacity);if(!out[0])option_label(index,out,capacity);}
+int html_view_select_event(int32_t x,int32_t y,uint32_t *owner,char *value,uint32_t capacity){
+    int hit=pointer_box(x,y),selected=0;const char *disabled=hit>=0&&boxes[hit].object&&property_lookup?property_lookup(property_context,boxes[hit].object,"disabled"):0;
+    if(hit>=0&&boxes[hit].select_option&&(!disabled||!*disabled)){if(owner)*owner=boxes[hit].object;if(value&&capacity)option_value(boxes[hit].option_node,value,capacity);selected=1;}
+    if(hit>=0&&boxes[hit].select_control){uint32_t object=boxes[hit].object,serial=boxes[hit].serial;
+        if(disabled&&*disabled)return 0;
+        if(select_open_object==object&&select_open_serial==serial)select_open_object=select_open_serial=0;
+        else{select_open_object=object;select_open_serial=serial;}}
+    else if(!selected&&select_open_serial)select_open_object=select_open_serial=0;
+    if(!selected&&(hit<0||(hit>=0&&boxes[hit].select_control)))html_view_repaint();return selected;
+}
+void html_view_select_close(void){if(!select_open_serial)return;select_open_object=select_open_serial=0;html_view_repaint();}
 int html_view_bounds(uint32_t node,const char *id,int32_t *x,int32_t *y,int32_t *w,int32_t *h){
     for(uint32_t i=0;i<box_count;i++)if((node&&boxes[i].object==node)||(id&&*id&&same(boxes[i].id,id))){*x=boxes[i].x;*y=boxes[i].y;*w=boxes[i].w;*h=boxes[i].h;return 1;}return 0;}
 int html_view_geometry(uint32_t node,const char *id,int32_t *x,int32_t *y,int32_t *w,int32_t *h){
+    for(uint32_t i=0;i<view_count;i++)if((node&&views[i].node==node)||(id&&*id&&same(views[i].id,id))){
+        *x=views[i].x;*y=views[i].y;*w=views[i].width;*h=views[i].height;return 1;}
     for(uint32_t i=0;i<layout_count;i++){layout_node *n=&layout_nodes[i];
         if(!((node&&n->object==node)||(id&&*id&&same(n->id,id))))continue;
         for(int j=(int)i;j>=0;j=layout_nodes[j].parent)if(layout_nodes[j].css.hidden)return 0;
@@ -346,8 +378,19 @@ int html_view_pointer(int32_t x,int32_t y,uint8_t buttons){
                 n->css=computed;paint_backgrounds[n->background_slot]=computed;paint_changed=1;if(n->x<dirty_left)dirty_left=n->x;if(n->y<dirty_top)dirty_top=n->y;if(n->x+n->w>dirty_right)dirty_right=n->x+n->w;if(n->y+n->h>dirty_bottom)dirty_bottom=n->y+n->h;
             }
         }
-        if(paint_changed){partial_scene=1;for(uint32_t k=0;k<background_count;k++)if(paint_backgrounds[k].value[CSS_BACKDROP_BLUR])partial_scene=0;
-            if(partial_scene)framebuffer_begin_frame();else framebuffer_begin_scene();paints++;paint_scene();framebuffer_end_frame();partial_scene=0;return 1;}
+        if(paint_changed){partial_scene=1;dirty_count=1;region_left[0]=dirty_left;region_top[0]=dirty_top;region_right[0]=dirty_right;region_bottom[0]=dirty_bottom;
+            /* A blur reads pixels around its whole panel. If the changed area
+               touches that input footprint, repaint the panel too. Repeat to
+               cover blur panels layered over other blur panels. */
+            int expanded;do{expanded=0;for(uint32_t k=0;k<background_count;k++){css_style *bg=&paint_backgrounds[k];if(!bg->value[CSS_BACKDROP_BLUR]&&bg->value[CSS_BACKDROP_BRIGHTNESS]==1000)continue;
+                int32_t bx=background_x[k],by=background_y[k],bw=(int32_t)background_width[k],bh=(int32_t)background_height[k],pad=bg->value[CSS_BACKDROP_BLUR];
+                if(bx-pad<region_right[0]&&bx+bw+pad>region_left[0]&&by-pad<region_bottom[0]&&by+bh+pad>region_top[0]){
+                    int32_t l=bx-pad,t=by-pad,r=bx+bw+pad,b=by+bh+pad;if(l<0)l=0;if(t<0)t=0;if(r>(int32_t)viewport_width)r=(int32_t)viewport_width;if(b>(int32_t)viewport_height)b=(int32_t)viewport_height;
+                    if(l<region_left[0]){region_left[0]=l;expanded=1;}if(t<region_top[0]){region_top[0]=t;expanded=1;}
+                    if(r>region_right[0]){region_right[0]=r;expanded=1;}if(b>region_bottom[0]){region_bottom[0]=b;expanded=1;}
+                }} }while(expanded);
+            framebuffer_damage_region(region_left[0],region_top[0],(uint32_t)(region_right[0]-region_left[0]),(uint32_t)(region_bottom[0]-region_top[0]));
+            framebuffer_begin_frame();paints++;paint_scene();framebuffer_end_frame();partial_scene=0;return 1;}
     }return 0;
 }
 static int32_t max_i(int32_t a,int32_t b){return a>b?a:b;}
@@ -413,13 +456,14 @@ static void parse_fragment(const char *html,int root,uint32_t recursion){
         if(!n->object&&object_lookup)n->object=object_lookup(object_context,begin);
         append_live_style(n->object,n->id,n->inline_css,sizeof(n->inline_css));
         css_compute(&n->element,&layout_nodes[stack[depth]].css,n->inline_css,viewport_width,viewport_height,&n->css);
+        if(same(tag,"option")){char selected[4];attribute(begin,end,"selected",selected,sizeof(selected));n->input_checked=!!selected[0];n->css.hidden=1;}
         char hidden[4];attribute(begin,end,"hidden",hidden,sizeof(hidden));if(hidden[0]){const char *live=n->object&&property_lookup?property_lookup(property_context,n->object,"hidden"):0;if(!live||*live)n->css.hidden=1;}
         if(same(tag,"pre")&&!n->css.value[CSS_WHITE_SPACE])n->css.value[CSS_WHITE_SPACE]=2;
         if(same(tag,"img")){char size_text[32];attribute(begin,end,"src",n->source,sizeof(n->source));
             attribute(begin,end,"width",size_text,sizeof(size_text));n->image_width=image_dimension(size_text);attribute(begin,end,"height",size_text,sizeof(size_text));n->image_height=image_dimension(size_text);}
         if(same(tag,"input")){char value[256];attribute(begin,end,"value",value,sizeof(value));const char *last=value;while(*last)last++;n->text=store_text(value,last);attribute(begin,end,"type",value,sizeof(value));n->input_kind=same(value,"checkbox")?1:same(value,"radio")?2:0;attribute(begin,end,"checked",value,sizeof(value));n->input_checked=!!value[0];if(n->object&&property_lookup){const char *checked=property_lookup(property_context,n->object,"checked");n->input_checked=checked&&*checked;}}
         const char *replacement=n->object&&property_lookup?property_lookup(property_context,n->object,"textContent"):!n->object&&text_lookup&&n->id[0]?text_lookup(text_context,n->id):0;
-        const char *replacement_markup=!n->object&&!replacement&&markup_lookup&&n->id[0]?markup_lookup(markup_context,n->id):0;
+        const char *replacement_markup=!replacement&&markup_lookup&&n->id[0]?markup_lookup(markup_context,n->id):0;
         if(replacement){int text=add_node(index,"#text");if(text>=0){layout_nodes[text].text=replacement;inherit_text(&layout_nodes[text],&n->css);}}
         else if(replacement_markup)parse_fragment(replacement_markup,index,recursion+1);
         if(same(tag,"img")||same(tag,"input")||same(tag,"br")||same(tag,"hr")||(end>begin&&end[-1]=='/'))continue;
@@ -488,13 +532,13 @@ static void measure_layout(int index,int32_t width,int32_t height,int shrink,int
     if(same(n->tag,"#text")){n->w=min_i(max_i(1,width),text_width(n));n->h=text_height(n,width);return;}
     int32_t border=max_i(0,v[CSS_BORDER]);for(int i=0;i<4;i++){n->padding[i]=max_i(0,css_resolve(v[CSS_PADDING_TOP+i],width))+(i==3?max_i(border,v[CSS_BORDER_LEFT]):border);n->margin[i]=v[CSS_MARGIN_TOP+i]==CSS_AUTO?0:css_resolve(v[CSS_MARGIN_TOP+i],width);}
     int32_t extra_w=n->padding[1]+n->padding[3],extra_h=n->padding[0]+n->padding[2];
-    int32_t natural=intrinsic_width(index,width,0),w;
+    int32_t natural=intrinsic_width(index,width,0),w;if(same(n->tag,"select")&&v[CSS_WIDTH]==CSS_AUTO)natural=180;
     if(force_w>=0)w=force_w;else if(v[CSS_WIDTH]!=CSS_AUTO)w=css_resolve(v[CSS_WIDTH],width)+(v[CSS_BOX_SIZING]?0:extra_w);
     else if(shrink||v[CSS_DISPLAY]==CSS_INLINE||v[CSS_DISPLAY]==CSS_INLINE_BLOCK)w=min_i(width,natural);
     else w=width-n->margin[1]-n->margin[3];
     int32_t min_width=css_resolve(v[CSS_MIN_WIDTH],width)+(v[CSS_BOX_SIZING]?0:extra_w),max_width=v[CSS_MAX_WIDTH]==CSS_AUTO?CSS_AUTO:css_resolve(v[CSS_MAX_WIDTH],width)+(v[CSS_BOX_SIZING]?0:extra_w);
     n->w=max_i(extra_w,constrain(w,min_width,max_width,width));
-    int32_t content_w=max_i(0,n->w-extra_w),fixed_h=force_h>=0?force_h:v[CSS_HEIGHT]==CSS_AUTO?-1:css_resolve(v[CSS_HEIGHT],height)+(v[CSS_BOX_SIZING]?0:extra_h);
+    int32_t content_w=max_i(0,n->w-extra_w),fixed_h=force_h>=0?force_h:v[CSS_HEIGHT]==CSS_AUTO?(same(n->tag,"select")?32+extra_h:-1):css_resolve(v[CSS_HEIGHT],height)+(v[CSS_BOX_SIZING]?0:extra_h);
     if(same(n->tag,"img")){image_surface image;int32_t iw=(int32_t)n->image_width,ih=(int32_t)n->image_height;
         if(images_load(n->source,iw>0?(uint32_t)iw:0,ih>0?(uint32_t)ih:0,&image)){
             if(v[CSS_WIDTH]==CSS_AUTO&&force_w<0){iw=iw?iw:ih?((int32_t)image.natural_width*ih/(int32_t)image.natural_height):(int32_t)image.natural_width;n->w=constrain(iw,v[CSS_MIN_WIDTH],v[CSS_MAX_WIDTH],width)+extra_w;content_w=n->w-extra_w;}
@@ -561,6 +605,37 @@ static void draw_layout_text(const layout_node *n,int32_t x,int32_t y,int32_t wi
     for(const char *p=text;*p;){int32_t used;const char *end=text_line(p,font,(uint32_t)size,nowrap?2147483647:max_i(1,width),n->css.value[CSS_WHITE_SPACE]>=2,&used);
         int32_t tx=x;if(n->css.value[CSS_ALIGN]==1)tx+=(width-used)/2;else if(n->css.value[CSS_ALIGN]==2)tx+=width-used;
         while(p<end){uint32_t cp=ttf_utf8(&p);paint_glyph(font,tx,y,cp,(uint32_t)size,(uint32_t)n->css.value[CSS_COLOR]);if(n->css.value[CSS_FONT_WEIGHT]>=600)paint_glyph(font,tx+1,y,cp,(uint32_t)size,(uint32_t)n->css.value[CSS_COLOR]);tx+=font_advance(font,cp,(uint32_t)size);}if(*p=='\n')p++;y+=max_i(1,n->css.value[CSS_LINE_HEIGHT]);}
+}
+static void option_text(int index,char *out,uint32_t capacity,uint32_t *used,uint32_t depth){
+    if(depth>16||*used+1>=capacity)return;layout_node *n=&layout_nodes[index];
+    if(same(n->tag,"#text")&&n->text){for(uint32_t i=0;n->text[i]&&*used+1<capacity;i++)out[(*used)++]=n->text[i];return;}
+    for(int child=n->first;child>=0;child=layout_nodes[child].next)option_text(child,out,capacity,used,depth+1);
+}
+static void option_label(int index,char *out,uint32_t capacity){uint32_t used=0;out[0]=0;option_text(index,out,capacity,&used,0);while(used&&space(out[used-1]))used--;out[used]=0;}
+static int select_is_open(const layout_node *n){return (select_open_object&&select_open_object==n->object)||(select_open_serial&&select_open_serial==n->serial);}
+static void draw_control_text(const char *text,int32_t x,int32_t y,uint32_t size,uint32_t color){
+    int font=font_select("");for(const char *p=text;*p;){uint32_t cp=ttf_utf8(&p);paint_glyph(font,x,y,cp,size,color);x+=font_advance(font,cp,size);}
+}
+static void paint_select(layout_node *n,int32_t x,int32_t y,int32_t z){
+    css_style control=n->css;control.value[CSS_BACKGROUND]=0x202630;control.value[CSS_BACKGROUND_ALPHA]=255;control.value[CSS_BORDER]=1;control.value[CSS_BORDER_COLOR]=0x586477;control.value[CSS_RADIUS]=3;paint_box(&control,x,y,n->w,n->h);
+    char selected[256]="";const char *live=n->object&&property_lookup?property_lookup(property_context,n->object,"value"):0;
+    if(live)for(uint32_t i=0;live[i]&&i+1<sizeof(selected);i++)selected[i]=live[i];
+    int chosen=-1,first=-1;for(int child=n->first;child>=0;child=layout_nodes[child].next)if(same(layout_nodes[child].tag,"option")){
+        if(first<0)first=child;char label[256],value[256];option_label(child,label,sizeof(label));option_value(child,value,sizeof(value));
+        if((selected[0]&&same(value,selected))||(!selected[0]&&layout_nodes[child].input_checked))chosen=child;}
+    if(chosen<0)chosen=first;if(chosen>=0){char label[256];option_label(chosen,label,sizeof(label));draw_control_text(label,x+7,y+max_i(2,(n->h-14)/2),14,(uint32_t)n->css.value[CSS_COLOR]);}
+    draw_control_text("v",x+n->w-16,y+max_i(2,(n->h-14)/2),14,(uint32_t)n->css.value[CSS_COLOR]);
+    if(box_count<2048){uint32_t b=box_count++;boxes[b].x=x;boxes[b].y=y;boxes[b].w=n->w;boxes[b].h=n->h;boxes[b].z=z;boxes[b].serial=n->serial;boxes[b].parent=n->parent>=0?layout_nodes[n->parent].serial:0;boxes[b].object=n->object;boxes[b].scroll=0;boxes[b].select_serial=n->serial;boxes[b].select_control=1;boxes[b].select_option=0;boxes[b].option_node=-1;uint32_t i=0;do{boxes[b].id[i]=n->id[i];}while(n->id[i++]);}
+    if(!select_is_open(n))return;uint32_t count=0;for(int child=n->first;child>=0;child=layout_nodes[child].next)if(same(layout_nodes[child].tag,"option"))count++;
+    if(!count)return;int32_t row=26,total=(int32_t)count*row,top=y+n->h;if(top+total>(int32_t)viewport_height&&y>=total)top=y-total;
+    int32_t old_z=paint_z;paint_z=z+10000;uint32_t shown=0;
+    for(int child=n->first;child>=0&&shown<24;child=layout_nodes[child].next)if(same(layout_nodes[child].tag,"option")){
+        char label[256],value[256];option_label(child,label,sizeof(label));option_value(child,value,sizeof(value));
+        int32_t oy=top+(int32_t)shown*row;css_style row_style=control;row_style.value[CSS_BACKGROUND]=(selected[0]?same(value,selected):child==chosen)?0x443c78:0x262c36;row_style.value[CSS_BORDER]=0;paint_box(&row_style,x,oy,(uint32_t)n->w,(uint32_t)row);
+        draw_control_text(label,x+7,oy+6,14,0xf0f2f6);
+        if(box_count<2048){uint32_t b=box_count++;boxes[b].x=x;boxes[b].y=oy;boxes[b].w=n->w;boxes[b].h=row;boxes[b].z=paint_z;boxes[b].serial=++serial_next;boxes[b].parent=n->serial;boxes[b].object=n->object;boxes[b].scroll=0;boxes[b].select_serial=n->serial;boxes[b].select_control=0;boxes[b].select_option=1;boxes[b].option_node=child;uint32_t i=0;do{boxes[b].id[i]=n->id[i];}while(n->id[i++]);}
+        shown++;}
+    paint_z=old_z;
 }
 static int32_t layout_extent(int index,int axis,uint32_t depth){
     layout_node *n=&layout_nodes[index];int32_t extent=axis?n->h:n->w;if(depth>32)return extent;
@@ -636,7 +711,8 @@ static void place_layout(int index,int32_t parent_x,int32_t parent_y,int contain
         else{uint32_t before=background_count;paint_box(&n->css,x,y,(uint32_t)n->w,(uint32_t)n->h);n->background_slot=background_count>before?(int)before:-1;
             if(n->input_kind){css_style control=n->css;control.value[CSS_BACKGROUND]=0xffffff;control.value[CSS_BACKGROUND_ALPHA]=255;control.value[CSS_BORDER]=1;control.value[CSS_BORDER_COLOR]=0x666666;control.value[CSS_RADIUS]=n->input_kind==2?n->w/2:2;paint_box(&control,x,y,n->w,n->h);if(n->input_checked)paint_rect(x+4,y+4,max_i(0,n->w-8),max_i(0,n->h-8),0x267bdb);}
             if(box_count<2048&&n->w>0&&n->h>0){uint32_t box=box_count++;boxes[box].x=max_i(x,paint_left);boxes[box].y=max_i(y,paint_top);boxes[box].w=min_i(x+n->w,paint_right)-boxes[box].x;boxes[box].h=min_i(y+n->h,paint_bottom)-boxes[box].y;
-                boxes[box].z=z;boxes[box].serial=n->serial;boxes[box].object=n->object;boxes[box].parent=n->parent>=0?layout_nodes[n->parent].serial:0;boxes[box].scroll=scroll;uint32_t i=0;do{boxes[box].id[i]=n->id[i];}while(n->id[i++]);}
+                boxes[box].z=z;boxes[box].serial=n->serial;boxes[box].object=n->object;boxes[box].parent=n->parent>=0?layout_nodes[n->parent].serial:0;boxes[box].scroll=scroll;boxes[box].select_serial=0;boxes[box].select_control=0;boxes[box].select_option=0;boxes[box].option_node=-1;uint32_t i=0;do{boxes[box].id[i]=n->id[i];}while(n->id[i++]);}
+            if(same(n->tag,"select"))paint_select(n,x,y,z);
             if(same(n->tag,"img"))paint_image(n->source,x+n->padding[3],y+n->padding[0],(uint32_t)max_i(0,n->w-n->padding[1]-n->padding[3]),(uint32_t)max_i(0,n->h-n->padding[0]-n->padding[2]));
             if(n->text)draw_layout_text(n,x+n->padding[3],y+n->padding[0],n->w-n->padding[1]-n->padding[3]);
             if(n->handler[0]&&opacity&&hit_count<128){uint32_t h=hit_count++;hits[h].x=max_i(x,paint_left);hits[h].y=max_i(y,paint_top);hits[h].width=min_i(x+n->w,paint_right)-hits[h].x;hits[h].height=min_i(y+n->h,paint_bottom)-hits[h].y;
@@ -664,34 +740,59 @@ static void render_markup(const char *html,const style *parent,const css_element
     cursor_y+=flow_height;
 }
 void html_view_repaint(void) {
-    if(batch_depth){paint_pending=1;return;}paints++;
-    if(!framebuffer_get())return;framebuffer_begin_scene();cursor_y=0;hit_count=0;
+    if(batch_depth){paint_pending=1;if(framebuffer_boot_splash_active())framebuffer_boot_splash_update();return;}paints++;
+    if(!framebuffer_get())return;int moving=move_repaint_pending;move_repaint_pending=0;
+    if(!moving){framebuffer_begin_scene();full_repaints++;}cursor_y=0;hit_count=0;
     box_count=serial_next=0;css_state_lookup(state_matches);
     paint_left=paint_top=0;paint_right=(int32_t)viewport_width;paint_bottom=(int32_t)viewport_height;paint_opacity=255;
-    collecting=1;scene_order_ready=partial_scene=0;command_count=background_count=source_count=0;
+    collecting=1;partial_scene=0;command_count=background_count=source_count=0;
     css_element root={"html","","",0},body={"body","","",&root};style root_style;
     computed(&root_style,0,&root,0);computed(&body_style,&root_style,&body,0);
     page_allow_x=root_style.computed.value[CSS_OVERFLOW_X]!=1&&body_style.computed.value[CSS_OVERFLOW_X]!=1;
     page_allow_y=root_style.computed.value[CSS_OVERFLOW_Y]!=1&&body_style.computed.value[CSS_OVERFLOW_Y]!=1;
     page_max_x=page_max_y=0;
     command_count=background_count=source_count=0;paint_z=(-2147483647-1);
-    paint_rect(0,0,viewport_width,viewport_height,0xffffff);
+    paint_rect(0,0,viewport_width,viewport_height,0x000000);
     paint_box(&root_style.computed,0,0,viewport_width,viewport_height);
     paint_box(&body_style.computed,0,0,viewport_width,viewport_height);
     if(document_html)render_markup(document_html,&body_style,&body);
     for(uint32_t i=0;i<view_count;i++) {
-        const view_node *node=&views[i];css_element element={node->tag,node->id,node->classes,&body};style s;
+        view_node *node=&views[i];css_element element={node->tag,node->id,node->classes,&body};style s;
         if(node->parent_id&&*node->parent_id)continue;
         const char *live=node->node&&property_lookup?property_lookup(property_context,node->node,"__markup"):0;
         if(live){if(*live)render_markup(live,&body_style,&body);continue;}
         char inline_css[1024];uint32_t used=0;if(node->inline_style)while(node->inline_style[used]&&used<1023){inline_css[used]=node->inline_style[used];used++;}inline_css[used]=0;
         append_live_style(node->node,node->id,inline_css,sizeof(inline_css));
-        int32_t saved=cursor_y;computed(&s,&body_style,&element,inline_css);if(s.positioned)cursor_y=s.y;
+        int32_t saved=cursor_y;computed(&s,&body_style,&element,inline_css);
+        node->x=s.x;node->y=s.y+css_resolve(s.translate_y,s.height);node->width=s.width;node->height=s.height;
+        if(s.positioned)cursor_y=s.y;
         if(same(node->tag,"img"))draw_image(node->image_source,node->text,s,node->image_width,node->image_height);
         else if(node->markup)render_markup(node->markup,&s,&element);else if(node->text)draw(node->text,s,same(node->tag,"pre"));
         if(s.positioned)cursor_y=saved;
     }
-    collecting=0;paint_scene();framebuffer_end_frame();
+    collecting=0;
+    if(moving){int move_ok=0;int32_t new_x=0,new_y=0,new_w=0,new_h=0;
+        for(uint32_t i=0;i<view_count;i++)if(views[i].node==move_repaint_node){
+            new_x=views[i].x;new_y=views[i].y;new_w=views[i].width;new_h=views[i].height;move_ok=1;break;}
+        if(!move_ok)for(uint32_t i=0;i<layout_count;i++)if(layout_nodes[i].object==move_repaint_node){
+            new_x=layout_nodes[i].x;new_y=layout_nodes[i].y;new_w=layout_nodes[i].w;new_h=layout_nodes[i].h;move_ok=1;break;}
+        if(move_ok){int32_t l[2]={move_old_x,new_x},t[2]={move_old_y,new_y},r[2]={move_old_x+move_old_w,new_x+new_w},b[2]={move_old_y+move_old_h,new_y+new_h};
+            for(uint32_t i=0;i<2;i++){l[i]-=3;t[i]-=3;r[i]+=3;b[i]+=3;if(l[i]<0)l[i]=0;if(t[i]<0)t[i]=0;
+                if(r[i]>(int32_t)viewport_width)r[i]=(int32_t)viewport_width;if(b[i]>(int32_t)viewport_height)b[i]=(int32_t)viewport_height;}
+            if(l[0]>=r[0]||t[0]>=b[0]||l[1]>=r[1]||t[1]>=b[1])move_ok=0;
+            else {dirty_count=1;region_left[0]=l[0];region_top[0]=t[0];region_right[0]=r[0];region_bottom[0]=b[0];
+                if(l[1]<=r[0]&&r[1]>=l[0]&&t[1]<=b[0]&&b[1]>=t[0]){if(l[1]<region_left[0])region_left[0]=l[1];if(t[1]<region_top[0])region_top[0]=t[1];if(r[1]>region_right[0])region_right[0]=r[1];if(b[1]>region_bottom[0])region_bottom[0]=b[1];}
+                else {dirty_count=2;region_left[1]=l[1];region_top[1]=t[1];region_right[1]=r[1];region_bottom[1]=b[1];}
+                for(uint32_t i=0;i<background_count;i++)if(paint_backgrounds[i].value[CSS_BACKDROP_BLUR]||paint_backgrounds[i].value[CSS_BACKDROP_BRIGHTNESS]!=1000){
+                    int32_t bx=background_x[i],by=background_y[i],br=bx+(int32_t)background_width[i],bb=by+(int32_t)background_height[i];
+                    int32_t blur=paint_backgrounds[i].value[CSS_BACKDROP_BLUR];
+                    for(uint32_t region=0;region<dirty_count;region++)if(bx-blur<region_right[region]&&br+blur>region_left[region]&&by-blur<region_bottom[region]&&bb+blur>region_top[region])move_ok=0;
+                }} }
+        if(move_ok){partial_scene=1;framebuffer_damage_regions(region_left[0],region_top[0],(uint32_t)(region_right[0]-region_left[0]),(uint32_t)(region_bottom[0]-region_top[0]),
+                dirty_count==2?region_left[1]:0,dirty_count==2?region_top[1]:0,dirty_count==2?(uint32_t)(region_right[1]-region_left[1]):0,dirty_count==2?(uint32_t)(region_bottom[1]-region_top[1]):0);framebuffer_begin_frame();}
+        else{framebuffer_begin_scene();full_repaints++;}
+    }
+    paint_scene();framebuffer_end_frame();partial_scene=0;
     int clamped=scroll_position(&page_x,0,page_max_x)|scroll_position(&page_y,0,page_max_y);
     if(clamped)html_view_repaint();
 }

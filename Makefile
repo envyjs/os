@@ -16,7 +16,7 @@ QEMU_DISPLAY ?= sdl
 QEMU_FLAGS ?=
 export NASM CLANG LLD
 
-.PHONY: all kernel run test font-test image-test
+.PHONY: all kernel run test font-test image-test storage-test
 all: kernel
 
 kernel:
@@ -36,3 +36,7 @@ font-test:
 image-test:
 	$(MAKE) -C Kernel/Boot/x86 OUT=../../../Build/Tests/Image IMAGE_TESTS=1 all
 	cmd.exe /c Tools\test-cdfs.bat "$(QEMU)" "Build/Tests/Image/boot.iso"
+
+storage-test:
+	$(MAKE) -C Kernel/Boot/x86 OUT=../../../Build/Tests/Storage STORAGE_TESTS=1 all
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/test-storage.ps1 -Qemu "$(QEMU)"

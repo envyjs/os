@@ -135,13 +135,19 @@ let clipboard = null;
   const customHTML = `
   <div class="spreadsheet-container">
         <div class="ribbon cl">
-            <button onclick="paste()" style="height: 68px; max-width: 60px !important;">Paste</button>
-            <button onclick="cut()" style="width: 56px; height: 30px;">Cut</button>
-            <button onclick="copy()" style="height: 30px; position: absolute; top: 47px; left: 79px;">Copy</button>
-            <button onclick="addRow()" style="height: 30px; width: 101px;">Add Row</button>
-            <button onclick="addColumn()" style="height: 30px; position: absolute; top: 47px; left: 144px;">Add Column</button>
-            <button style="height: 30px"><label for="fileInput">Open</label></button>
-            <button onclick="saveToCSV()" style="height: 30px; width: 57px; position: absolute; top: 47px; left: 256px;">Save</button>
+            <button class="cello-paste" onclick="paste()">Paste</button>
+            <div class="cello-ribbon-group">
+                <button onclick="cut()">Cut</button>
+                <button onclick="copy()">Copy</button>
+            </div>
+            <div class="cello-ribbon-group cello-data-group">
+                <button onclick="addRow()">Add Row</button>
+                <button onclick="addColumn()">Add Column</button>
+            </div>
+            <div class="cello-ribbon-group">
+                <label class="cello-open" for="fileInput">Open</label>
+                <button onclick="saveToCSV()">Save</button>
+            </div>
             <input type="file" id="fileInput" class="fis" onchange="loadCSV(event)" />
         </div>
         <table id="spreadsheet">

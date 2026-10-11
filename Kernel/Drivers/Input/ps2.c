@@ -41,6 +41,7 @@ void input_feed(uint8_t status,uint8_t byte) {
     if(keys[0x2a]||keys[0x36])modifiers|=INPUT_SHIFT;
     if(keys[0x1d]||keys[0x9d])modifiers|=INPUT_CONTROL;
     if(keys[0x38]||keys[0xb8])modifiers|=INPUT_ALT;
+    if(keys[0xdb]||keys[0xdc])modifiers|=INPUT_SUPER;
     static const char normal[128]={
         [2]='1',[3]='2',[4]='3',[5]='4',[6]='5',[7]='6',[8]='7',[9]='8',[10]='9',[11]='0',[12]='-',[13]='=',[14]='\b',[15]='\t',
         [16]='q',[17]='w',[18]='e',[19]='r',[20]='t',[21]='y',[22]='u',[23]='i',[24]='o',[25]='p',[26]='[',[27]=']',[28]='\n',
@@ -53,6 +54,12 @@ void input_feed(uint8_t status,uint8_t byte) {
     push((input_event){.type=INPUT_KEY,.key=(uint16_t)(scan+(is_extended?0x100:0)),.scancode=byte,.character=pressed?character:0,.modifiers=modifiers,.pressed=(uint8_t)pressed,.repeat=(uint8_t)repeat});
 }
 int input_next(input_event *event){if(read_index==write_index)return 0;*event=queue[read_index];read_index=(read_index+1)%64;return 1;}
+void input_submit(const input_event *event){if(event)push(*event);}
+void input_pointer_delta(int32_t dx,int32_t dy,uint8_t next_buttons,int32_t wheel){
+    pointer_x+=dx;pointer_y+=dy;if(pointer_x<0)pointer_x=0;if(pointer_x>max_x)pointer_x=max_x;
+    if(pointer_y<0)pointer_y=0;if(pointer_y>max_y)pointer_y=max_y;buttons=next_buttons;
+    push((input_event){.type=INPUT_POINTER,.buttons=buttons,.modifiers=modifiers,.x=pointer_x,.y=pointer_y,.dx=dx,.dy=dy,.wheel=wheel});
+}
 static int writable(void){for(uint32_t n=0;n<100000;n++)if(!(in8(0x64)&2))return 1;return 0;}
 static int command(uint8_t value){if(!writable())return 0;out8(0x64,value);return 1;}
 static int data(uint8_t value){if(!writable())return 0;out8(0x60,value);return 1;}
